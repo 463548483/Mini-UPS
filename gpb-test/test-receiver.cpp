@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "world_ups.pb.h"
+#include "../protos/world_ups.pb.h"
 #include "../Server/BaseServer.hpp"
 #include "../Utils/utils.hpp"
 
