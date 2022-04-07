@@ -1,0 +1,74 @@
+#ifndef BASESERVER_H
+#define BASESERVER_H
+
+#include "BaseSocket.hpp"
+#include "../DataBase/Database.hpp"
+#include "../protos/world_ups.pb.h"
+#include <pqxx/pqxx>
+#include <exception>
+#include <iostream>
+#include <cstring>
+#include <string>
+#include <vector>
+#include <fstream>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <memory>
+#include <google/protobuf/io/zero_copy_stream_impl.h>
+
+class FormatError : public std::exception {
+public:    
+    virtual const char* what() const noexcept {
+       return "The data received is of wrong format.";
+    }
+};
+
+class FormatErrorLength : public std::exception {
+public:    
+    virtual const char* what() const noexcept {
+       return "The number in the first line does not match the length of the xml received.";
+    }
+};
+
+class BaseServer {
+private:
+    // listening socket, for accepting connection
+    MySocket *sock;
+    // communicating with the world
+    MySocket *worldSock;
+    google::protobuf::io::FileInputStream *worldIn;
+    google::protobuf::io::FileOutputStream *worldOut;
+    // communicating with Amazon
+    MySocket *amazonSock;
+    int backlog;
+    int threadNum;
+    Database db;
+    int64_t worldId;
+public:
+    BaseServer(const char *_hostname, 
+        const char *_port, int _backlog, int _threadNum);
+    ~BaseServer();
+    int64_t getWorldIdFromSim();
+    void sendTestCommand();
+    void displayUResponses(UResponses &resp);
+    void setupServer(const char *_hostname, const char *_port);
+    void simWorldCommunicate();
+    void amazonCommunicate();
+    void launch();
+    void daemonize();
+    
+    // getter 
+    int getBacklog() const;
+    const MySocket *getSocket() const;
+    int64_t getWorldId() const;
+
+    // setter
+    void setBacklog(int);
+    void setSocket(MySocket *);
+    void setWorldId(int64_t);
+};
+
+
+#endif /* BASESERVER_H */
