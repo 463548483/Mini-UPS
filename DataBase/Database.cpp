@@ -95,29 +95,38 @@ void Database::createTables(connection *C) {
     work W(*C);
 
     /* Create SQL statement */
-    string createEnum = "CREATE TYPE order_status AS ENUM ('open', 'executed', 'canceled');";
-    string createAccount = "CREATE TABLE ACCOUNT (\
-    account_id     varchar(40)   NOT NULL,\
-    balance        float         NOT NULL,\
-    CONSTRAINT ACCOUNTID_PK PRIMARY KEY (ACCOUNT_ID)\
-    )";
-    string createOrders = "CREATE TABLE ORDERS (\
-    id            serial        NOT NULL,\
-    order_id      int           NOT NULL,\
-    status        order_status  NOT NULL,\
+    string createEnum = "CREATE TYPE truck_status AS ENUM ('idle', 'travelling', 'arrive warehouse', 'delivering');";
+    string createTruck = "CREATE TABLE TRUCKS (\
+    truckId       int           NOT NULL,\
+    truck_status  status        NOT NULL,\
     symbol        varchar(40)   NOT NULL,\
-    amount        float         NOT NULL,\
-    price         float         NOT NULL,\
-    time          bigint        NOT NULL,\
-    account_id    varchar(40)   NOT NULL,\
-    CONSTRAINT ID_PK PRIMARY KEY (ID),\
-    CONSTRAINT ACCOUNTIDFK FOREIGN KEY (ACCOUNT_ID) REFERENCES ACCOUNT(ACCOUNT_ID) ON DELETE SET NULL ON UPDATE CASCADE\
+    x             int           NOT NULL,\
+    y             int           NOT NULL,\
+    CONSTRAINT TRUCKID_PK PRIMARY KEY (truckId)\
     )";
-    string createPosition = "CREATE TABLE POSITION (\
-    account_id     varchar(40)   NOT NULL,\
-    symbol         varchar(40)   NOT NULL,\
-    amount         float         NOT NULL,\
-    CONSTRAINT ACCOUNTIDSYM_PK PRIMARY KEY (ACCOUNT_ID, SYMBOL)\
+    string createPackage = "CREATE TABLE PACKAGES (\
+    packageId      int         NOT NULL,\
+    truckId        int         NOT NULL,\
+    userId         int                 ,\
+    destX          int         NOT NULL,\
+    destY          int         NOT NULL,\
+    CONSTRAINT PACKAGEID_PK PRIMARY KEY (packageId),\
+    CONSTRAINT PACKAGEIDFK FOREIGN KEY (truckId) REFERENCES TRUCKS(truckId) ON DELETE SET NULL ON UPDATE CASCADE\
+    CONSTRAINT PACKAGEIDFK FOREIGN KEY (truckId) REFERENCES TRUCKS(truckId) ON DELETE SET NULL ON UPDATE CASCADE\
+    )";
+    string createUser = "CREATE TABLE USER (\
+    userId     int   NOT NULL,\
+    password        varchar(40)         NOT NULL,\
+    CONSTRAINT USERID_PK PRIMARY KEY (userId)\
+    )";
+
+    string createItem = "CREATE TABLE ITEMS (\
+    itemId     int   NOT NULL,\
+    description         varchar(2000)   NOT NULL,\
+    amount         int        NOT NULL,\
+    packageid         int        NOT NULL,\
+    CONSTRAINT ITEMID_PK PRIMARY KEY (itemId)\
+    CONSTRAINT ITEMIDFK FOREIGN KEY (packageid) REFERENCES ACCOUNT(ACCOUNT_ID) ON DELETE SET NULL ON UPDATE CASCADE\
     )";
 
     /* Execute SQL query */
