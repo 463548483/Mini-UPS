@@ -5,10 +5,10 @@
 #include <string>
 #include <ctime>
 
-#define HOST "localhost"
+#define HOST "vcm-26069.vm.duke.edu"
 #define DATABASE "postgres"
 #define USER "postgres"
-#define PASSWORD "postgres"
+#define PASSWORD "@zxcvbnm123"
 
 class DatabaseConnectionError : public std::exception
 {

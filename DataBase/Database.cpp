@@ -16,12 +16,11 @@ Database::Database() {
 void Database::setup() {
 	connection *C = connectToDatabase();
 
-    cout << "testing\n";
 	// clean all existing tables or types
-    cleanTables(C);
+    // cleanTables(C);
 
     // create tables
-    createTables(C);
+    // createTables(C);
 
     C->disconnect();
     delete C;

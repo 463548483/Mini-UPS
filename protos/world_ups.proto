@@ -1,8 +1,8 @@
 syntax = "proto2";
 message UInitTruck{
   required int32 id = 1;
-  required int32 x=2;
-  required int32 y=3;
+  required int32 x = 2;
+  required int32 y = 3;
 }
 message UConnect{
   optional int64 worldid = 1;

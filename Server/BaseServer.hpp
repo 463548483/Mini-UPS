@@ -4,6 +4,7 @@
 #include "BaseSocket.hpp"
 #include "../DataBase/Database.hpp"
 #include "../protos/world_ups.pb.h"
+#include "../protos/ups_amazon.pb.h"
 #include <pqxx/pqxx>
 #include <exception>
 #include <iostream>
@@ -16,6 +17,9 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <memory>
+#include <tbb/task.h>
+#include <tbb/task_group.h>
+#include <tbb/task_scheduler_init.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 
 class FormatError : public std::exception {
@@ -42,8 +46,12 @@ private:
     google::protobuf::io::FileOutputStream *worldOut;
     // communicating with Amazon
     MySocket *amazonSock;
+    google::protobuf::io::FileInputStream *amazonIn;
+    google::protobuf::io::FileOutputStream *amazonOut;
     int backlog;
     int threadNum;
+    tbb::task_scheduler_init init;
+	tbb::task_group group;
     Database db;
     int64_t worldId;
 public:
@@ -52,10 +60,27 @@ public:
     ~BaseServer();
     int64_t getWorldIdFromSim();
     void sendTestCommand();
+    std::vector<int64_t> extractSeqNums(UResponses &resp);
     void displayUResponses(UResponses &resp);
+    void processAcks(UResponses &resp);
+    void processCompletions(UResponses &resp);
+    void processDelivered(UResponses &resp);
+    void processTruckStatus(UResponses &resp);
+
+    void requestPickUpToWorld(int truckid, int whid, int64_t seqnum);
+    void requestDeliverToWorld(int truckid, std::vector<int64_t> packageids, 
+        std::vector<int> xs, std::vector<int> ys, int64_t seqnum);
+    void requestQueryToWorld(int truckids, int64_t seqnums);
+    void adjustSimSpeed(unsigned int simspeed);
+    void requestDisconnectToWorld();
+    void addToWaitAcks(int64_t seqnum, UCommands ucom);
+    void ackToWorld(int64_t ack);
+
     void setupServer(const char *_hostname, const char *_port);
+    
     void simWorldCommunicate();
     void amazonCommunicate();
+    void timeoutAndRetransmission();
     void launch();
     void daemonize();
     
