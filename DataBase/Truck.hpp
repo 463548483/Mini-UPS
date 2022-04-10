@@ -15,16 +15,16 @@ class Truck : virtual public SQLObject {
   int y;
 
  public:
-  Truck(int truckid, status_t status, int x, int y) :
-      SQLObject("trucks"), truckId(truckid), status(status), x(x), y(y) {}
+  Truck(status_t status, int x, int y) :
+      SQLObject("TRUCKS"), status(status), x(x), y(y) {}
   int getTruckId() { return truckId; }
   int getX() { return x; }
   int getY() { return y; }
   status_t getStatus() { return status; }
   std::string sql_insert() {
     stringstream ss;
-    ss << "insert into " << tableName << " (truckId,status,x,y) values (" << truckId
-       << ",'" << enum_str[status] << "'," << x << "," << y << ");";
+    ss << "insert into " << tableName << " (status,x,y) values ('" << enum_str[status]
+       << "'," << x << "," << y << ");";
     return ss.str();
   }
   ~Truck() {}

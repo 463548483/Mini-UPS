@@ -12,9 +12,8 @@ class Item : virtual public SQLObject {
   int packageid;
 
  public:
-  Item(int id, const std::string & description, int amount, int packageid = 0) :
+  Item(const std::string & description, int amount, int packageid = 0) :
       SQLObject("items"),
-      itemId(id),
       description(description),
       amount(amount),
       packageid(packageid) {}
@@ -24,8 +23,8 @@ class Item : virtual public SQLObject {
   int getPackageid() { return packageid; }
   std::string sql_insert() {
     stringstream ss;
-    ss << "insert into " << tableName << " (itemId,description,amount,packageid) values ("
-       << itemId << ",'" << description << "'," << amount << "," ;
+    ss << "insert into " << tableName << " (description,amount,packageid) values ('"
+      << description << "'," << amount << "," ;
     if (packageid==0){
       ss<<"NULL"<<");";
     }

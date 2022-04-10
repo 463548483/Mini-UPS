@@ -11,7 +11,7 @@ class Account : virtual public SQLObject {
 
  public:
   Account(unsigned long accountId, const std::string & password) :
-      SQLObject("account"), accountId(accountId), password(password) {}
+      SQLObject("ACCOUNT"), accountId(accountId), password(password) {}
   const unsigned long getAccountId() const { return accountId; }
   const std::string & getPassword() const { return password; }
   std::string sql_insert() {

@@ -13,9 +13,8 @@ class Package : virtual public SQLObject {
   int accountId;
 
  public:
-  Package(int id, int destX, int destY, int truckid = 0, int accountid = 0) :
-      SQLObject("packages"),
-      packageId(id),
+  Package(int destX, int destY, int truckid = 0, int accountid = 0) :
+      SQLObject("PACKAGES"),
       destX(destX),
       destY(destY),
       truckId(truckid),
@@ -26,7 +25,7 @@ class Package : virtual public SQLObject {
   std::string sql_insert() {
     stringstream ss;
     ss << "insert into " << tableName
-       << " (packageId,destX,destY,truckId,accountId) values (" << packageId << ","
+       << " (destX,destY,truckId,accountId) values ("
        << destX << "," << destY << ",";
     if (truckId==0){
       ss<<"NULL"<<",";
