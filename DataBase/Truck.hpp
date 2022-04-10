@@ -1,19 +1,32 @@
+#ifndef TRUCK_H
+#define TRUCK_H
 #include <string>
 
-class Truck {
+#include "SQLObject.hpp"
+using namespace std;
+static const char * enum_str[] = {"idle", "travelling", "arrive warehouse", "delivering"};
+enum status_t { idle, travelling, arrive_warehouse, delivering };
+
+class Truck : virtual public SQLObject {
  private:
-  Truck() {}
   int truckId;
+  status_t status;
   int x;
   int y;
-  enum status_t { idle, travelling, arrive_warehouse, delivering };
-  status_t status;
 
  public:
-  Truck(int truckid, int x, int y, status_t status) :
-      truckId(truckid), x(x), y(y), status(status) {}
-  int truckId() { return truckId; }
-  int x() { return x; }
-  int y() { return y; }
-  status_t status() { return status; }
+  Truck(int truckid, status_t status, int x, int y) :
+      SQLObject("trucks"), truckId(truckid), status(status), x(x), y(y) {}
+  int getTruckId() { return truckId; }
+  int getX() { return x; }
+  int getY() { return y; }
+  status_t getStatus() { return status; }
+  std::string sql_insert() {
+    stringstream ss;
+    ss << "insert into " << tableName << " (truckId,status,x,y) values (" << truckId
+       << ",'" << enum_str[status] << "'," << x << "," << y << ");";
+    return ss.str();
+  }
+  ~Truck() {}
 };
+#endif
