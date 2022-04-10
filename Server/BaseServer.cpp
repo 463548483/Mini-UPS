@@ -3,6 +3,9 @@
 #include "../Utils/utils.hpp"
 #include <string>
 #include <vector>
+#include <unordered_map>
+#include <unordered_set>
+#include <queue>
 #include <iomanip>
 #include <sys/time.h>
 #include <sstream>
@@ -10,12 +13,10 @@
 #include <cmath>
 #include <mutex>
 #include <thread>
-#include <tbb/task.h>
-#include <tbb/task_group.h>
-#include <tbb/task_scheduler_init.h>
 #include <boost/thread.hpp>
 #include <fcntl.h>
 #include <chrono>
+#include <atomic>
 
 using namespace std;
 using namespace pqxx;
@@ -24,12 +25,32 @@ using namespace std::chrono;
 using namespace google::protobuf::io;
 
 #define MAX_LIMIT 65536
+#define TIME_OUT_LIMIT 1
 #define SIMWORLD_UPS_HOST "vcm-25032.vm.duke.edu"
 #define SIMWORLD_UPS_PORT "12345"
 
+struct requestInfo {
+    int64_t seqnum;
+    UCommands ucom;
+    time_t recvTime;
+};
+
+class MyCmp {
+public:
+    bool operator()(const requestInfo &r1, const requestInfo &r2) const {
+        return r1.recvTime > r2.recvTime;
+    }
+};
+
+std::atomic<int> seqnum(0);
+priority_queue<requestInfo, vector<requestInfo>, MyCmp> waitAcks;
+unordered_set<int> unackeds; 
+mutex waitAckMutex;
+
 BaseServer::BaseServer(const char *_hostname, 
     const char *_port, int _backlog, int _threadNum) 
-    : sock(nullptr), worldSock(nullptr), worldIn(nullptr), worldOut(nullptr), amazonSock(nullptr), backlog(_backlog), threadNum(_threadNum) {	
+    : sock(nullptr), worldSock(nullptr), worldIn(nullptr), worldOut(nullptr), 
+    amazonSock(nullptr), backlog(_backlog), threadNum(_threadNum), init(threadNum) {	
 	// create, bind, and listen to a socket
 	setupServer(_hostname, _port);
 }
@@ -61,6 +82,9 @@ void BaseServer::setupServer(const char *hostname, const char *port) {
     worldIn = new FileInputStream(worldSock->getSocketFd());
 	// get world id
     setWorldId(getWorldIdFromSim());
+
+    // connect to amazon
+
 }
 
 int64_t BaseServer::getWorldIdFromSim() {
@@ -85,7 +109,7 @@ int64_t BaseServer::getWorldIdFromSim() {
     recvMesgFrom<UConnected>(resp, worldIn);
 
     if (resp.result() == "connected!") {
-        cout << "Connected to world: " << resp.worldid();
+        cout << "Connected to world: " << resp.worldid() << endl;
     } else {
         cout << "Something went wrong with receiving world id from sim world: " << resp.worldid();
     }
@@ -104,63 +128,45 @@ BaseServer::~BaseServer() {
 
 void BaseServer::launch() {
 	// daemonize();
-	// initialize thread pool
-	tbb::task_scheduler_init init(threadNum);
-	task_group group;
 
-    // one thread for communicating with sim world
+    // one thread for receiving responses from sim world
     group.run([=]{simWorldCommunicate();});
     // one thread for communicating with amazon
     group.run([=]{amazonCommunicate();});
+    // one thread for implementing timeout and retransmission mechanism
+    group.run([=]{timeoutAndRetransmission();});
 
 	group.wait();
 }
 
-// logic of communication with sim world
-void BaseServer::simWorldCommunicate() {
-	// std::cout << boost::this_thread::get_id() << endl;
-	// connect to database, need a new connection for each thread
-	connection *C = db.connectToDatabase();
-
+void BaseServer::timeoutAndRetransmission() {
     while (1) {
-        cout << "Sending test command\n";
-        sendTestCommand();
+        // wait for several seconds
+        sleep(1);
 
-        cout << "Waiting for responses\n";
-        UResponses resp;
-        bool status = recvMesgFrom<UResponses>(resp, worldIn);
+        // check if there're requests timeout
+        waitAckMutex.lock();
+        while (!waitAcks.empty() &&
+            time(nullptr) - waitAcks.top().recvTime > TIME_OUT_LIMIT) {
+            // if this request has already been acked, just remove it
+            if (unackeds.find(waitAcks.top().seqnum) == unackeds.end()) {
+                waitAcks.pop();
+                continue;
+            }
+            
+            requestInfo req = waitAcks.top();
+            waitAcks.pop();
 
-        if (status) {
-            // processing
-            displayUResponses(resp);
-        } else {
-            exitWithError("Failed to receive the google protocol buffer message\n");
+            // retransmit the request
+            cout << "Request with sequence #: " << req.seqnum << " timed out. Retransmitting...\n";
+            sendMesgTo<UCommands>(req.ucom, worldOut);
+
+            // put the request back with new timestamp
+            req.recvTime = time(nullptr);
+            waitAcks.push(req);
         }
-        break;
+        waitAckMutex.unlock();
     }
-	// UCommands cmd;
-    // !!!!!!!!!!! change to worldIn
-    // FileInputStream *in = new FileInputStream(client_sock->getSocketFd());
-    // bool status = recvMesgFrom<UCommands>(cmd, in);
-    // delete in;
-
-    // // display message
-    // if (status) {
-    //     cout << "disconnect set or not: " << cmd.has_disconnect() << endl;
-    //     cout << "ACKs: ";
-    //     for (int i = 0; i < cmd.acks_size(); ++i) {
-    //         cout << cmd.acks(i) << ' ';
-    //     }
-    //     cout << endl;
-    //     cout << "Deliveries: truck id: " << cmd.deliveries(0).truckid() << 
-    //     " , packages: x = " << cmd.deliveries(0).packages(0).x() << 
-    //     " y = " << cmd.deliveries(0).packages(0).y() << endl;
-    // } else {
-    //     exitWithError("Failed to receive the google protocol buffer message\n");
-    // }
-
-	C->disconnect();
-	delete C;
 }
 
 // logic of communication with sim world
@@ -174,17 +180,131 @@ void BaseServer::amazonCommunicate() {
     // }
 }
 
-void BaseServer::sendTestCommand() {
-    UCommands ucom;
-    
-    UGoPickup *pick = ucom.add_pickups();
-    pick->set_truckid(0);
-    pick->set_whid(0);
-    pick->set_seqnum(12);
+// logic of communication with sim world
+void BaseServer::simWorldCommunicate() {
+	// std::cout << boost::this_thread::get_id() << endl;
+	// connect to database, need a new connection for each thread
+	connection *C = db.connectToDatabase();
 
-    sendMesgTo<UCommands>(ucom, worldOut);
+    cout << "Sending test command\n";
+    sendTestCommand();
 
+    while (1) {
+        cout << "Waiting for responses\n";
+        UResponses resp;
+        bool status = recvMesgFrom<UResponses>(resp, worldIn);
+
+        if (status) {
+            // get all sequence numbers
+            vector<int64_t> seqnums = extractSeqNums(resp);
+            // send back acks
+            for (int64_t seqnum : seqnums) {
+                ackToWorld(seqnum);
+            }
+
+            // displaying responses
+            displayUResponses(resp);
+
+            // upon receiving different responses, update the database, and do other related stuff
+            // do stuff related to acks
+            processAcks(resp);
+            // do stuff related to completions
+            processCompletions(resp);
+            // do stuff related to delivered
+            processDelivered(resp);
+            // do stuff related to truckstatus
+            processTruckStatus(resp);
+            // do stuff related to error
+            
+            // If the world set finished, then we would not receive responses from the world again, just exit the while loop
+            if (resp.finished()) {
+                break;
+            }
+        } else {
+            cerr << "The message received is of wrong format. Can't parse it. So this would be skipped.\n";
+        }
+
+        google::protobuf::ShutdownProtobufLibrary();
+    }
+
+	C->disconnect();
+	delete C;
+}
+
+void BaseServer::processAcks(UResponses &resp) {
+    waitAckMutex.lock();
+    // remove the corresponding sequence number in unackeds
+    for (int i = 0; i < resp.acks_size(); ++i) {
+        if (unackeds.find(resp.acks(i)) != unackeds.end())
+            unackeds.erase(resp.acks(i));
+    }
+    waitAckMutex.unlock();
+}
+
+void BaseServer::processTruckStatus(UResponses &resp) {
+    // update the truckStatus
+    for (int i = 0; i < resp.delivered_size(); ++i) {
+
+    }
+
+    // update the truck table in database
+}
+
+void BaseServer::processDelivered(UResponses &resp) {
+    for (int i = 0; i < resp.delivered_size(); ++i) {
+        const UDeliveryMade &delivered = resp.delivered(i);
+        
+        // notify amazon the package has been delivered
+        UACommand uacom;
+        UADeliverOver *over = uacom.add_deliverover();
+        over->set_packageid(delivered.packageid());
+        over->set_seqnum(seqnum.fetch_add(1));
+
+        sendMesgTo<UACommand>(uacom, amazonOut);
+    }
     google::protobuf::ShutdownProtobufLibrary();
+}
+
+void BaseServer::processCompletions(UResponses &resp) {
+    for (int i = 0; i < resp.completions_size(); ++i) {
+        const UFinished &finished = resp.completions(i);
+        string status = finished.status();
+
+        // completion for pickup
+        if (status == "ARRIVE WAREHOUSE") {
+            // notify amazon the truck has arrived
+            UACommand uacom;
+            UAArrived *arrived = uacom.add_arrived();
+            arrived->set_truckid(finished.truckid());
+            // arrived->set_packageid()
+            arrived->set_seqnum(seqnum.fetch_add(1));
+
+            sendMesgTo<UACommand>(uacom, amazonOut);
+        }
+        // update truck table in database
+    }
+    google::protobuf::ShutdownProtobufLibrary();
+}
+
+vector<int64_t> BaseServer::extractSeqNums(UResponses &resp) {
+    vector<int64_t> seqnums;
+    for (int i = 0; i < resp.completions_size(); ++i) {
+        seqnums.push_back(resp.completions(i).seqnum());
+    }
+    for (int i = 0; i < resp.delivered_size(); ++i) {
+        seqnums.push_back(resp.delivered(i).seqnum());
+    }
+    for (int i = 0; i < resp.truckstatus_size(); ++i) {
+        seqnums.push_back(resp.truckstatus(i).seqnum());
+    }
+    return seqnums;
+}
+
+void BaseServer::sendTestCommand() {
+    // requestQueryToWorld({0,1,2}, {0,1,2});
+    requestQueryToWorld(0, 0);
+    requestQueryToWorld(1, 1);
+    requestQueryToWorld(2, 2);
 }
 
 void BaseServer::displayUResponses(UResponses &resp) {
@@ -199,11 +319,33 @@ void BaseServer::displayUResponses(UResponses &resp) {
     }
 
     if (resp.delivered_size() != 0) {
+        cout << resp.delivered_size() << " deliveries done:\n";
+        for (int i = 0; i < resp.delivered_size(); ++i) {
+            const UDeliveryMade &made = resp.delivered(i);
+            cout << "Truck ID: " << made.truckid() << ' ' <<
+            "Package ID: " << made.packageid() << ' ' << endl;
+        }
+    }
 
+    if (resp.acks_size() != 0) {
+        cout << resp.acks_size() << " acks received:\n";
+        for (int i = 0; i < resp.acks_size(); ++i) {
+            cout << "ACK: " << resp.acks(i) << endl;
+        }
     }
 
     if (resp.has_finished()) {
-        
+        cout << "World closed connection\n";
+    }
+
+    if (resp.truckstatus_size() != 0) {
+        cout << resp.truckstatus_size() << " truck status received:\n";
+        for (int i = 0; i < resp.truckstatus_size(); ++i) {
+            const UTruck &truck = resp.truckstatus(i);
+            cout << "Truck ID: " << truck.truckid() << ' ' <<
+            "Truck status: " << truck.status() << ' ' <<
+            "Truck location: (" << truck.x() << ", " << truck.y() << ")" << endl;
+        }
     }
 
     if (resp.error_size() != 0) {
@@ -251,6 +393,101 @@ void BaseServer::daemonize(){
         cerr << "During daemonize: Second Fork failure\n";
         exit(EXIT_FAILURE);
     }
+}
+
+void BaseServer::addToWaitAcks(int64_t seqnum, UCommands ucom) {
+    waitAckMutex.lock();
+    requestInfo req;
+    req.seqnum = seqnum;
+    req.ucom = ucom;
+    req.recvTime = time(nullptr);
+    waitAcks.push(req);
+    unackeds.insert(seqnum);
+    waitAckMutex.unlock();
+}
+
+void BaseServer::requestPickUpToWorld(int truckid, int whid, int64_t seqnum) {
+    UCommands ucom;
+    UGoPickup *pickup = ucom.add_pickups();
+    pickup->set_truckid(truckid);
+    pickup->set_whid(whid);
+    pickup->set_seqnum(seqnum);
+
+    int status = sendMesgTo<UCommands>(ucom, worldOut);
+    if (!status) {
+        cerr << "Can't send pickup message to the world\n";
+    } else {
+        addToWaitAcks(seqnum, ucom);
+    }
+}
+
+void BaseServer::requestDeliverToWorld(int truckid, std::vector<int64_t> packageids, 
+    std::vector<int> xs, std::vector<int> ys, int64_t seqnum) {
+    UCommands ucom;
+    UGoDeliver *deliver = ucom.add_deliveries();
+    deliver->set_truckid(truckid);
+
+    for (size_t i = 0; i < packageids.size(); ++i) {
+        UDeliveryLocation *loc = deliver->add_packages();
+        loc->set_packageid(packageids[i]);
+        loc->set_x(xs[i]);
+        loc->set_y(ys[i]);
+    }
+
+    deliver->set_seqnum(seqnum);
+
+    int status = sendMesgTo<UCommands>(ucom, worldOut);
+    if (!status) {
+        cerr << "Can't send deliver message to the world\n";
+    } else {
+        addToWaitAcks(seqnum, ucom);
+    }
+}
+
+void BaseServer::requestQueryToWorld(int truckid, int64_t seqnum) {
+    UCommands ucom;
+    UQuery *query = ucom.add_queries();
+    query->set_truckid(truckid);
+    query->set_seqnum(seqnum);
+    
+    int status = sendMesgTo<UCommands>(ucom, worldOut);
+    if (!status) {
+        cerr << "Can't send query message to the world\n";
+    } else {
+        addToWaitAcks(seqnum, ucom);
+    }
+}
+
+void BaseServer::adjustSimSpeed(unsigned int simspeed) {
+    UCommands ucom;
+    ucom.set_simspeed(simspeed);
+    int status = sendMesgTo<UCommands>(ucom, worldOut);
+    if (!status) {
+        cerr << "Can't send sim speed to the world\n";
+    } else {
+        addToWaitAcks(seqnum, ucom);
+    }
+}
+
+void BaseServer::requestDisconnectToWorld() {
+    UCommands ucom;
+    ucom.set_disconnect(true);
+    int status = sendMesgTo<UCommands>(ucom, worldOut);
+    if (!status) {
+        cerr << "Can't send disconnect message to the world\n";
+    } else {
+        addToWaitAcks(seqnum, ucom);
+    }
+}
+
+// note that ACK doesn't need sequence number
+void BaseServer::ackToWorld(int64_t ack) {
+    UCommands ucom;
+    ucom.add_acks(ack);
+    int status = sendMesgTo<UCommands>(ucom, worldOut);
+    if (!status) {
+        cerr << "Can't send ack to the world\n";
+    } 
 }
 
 // getter functions

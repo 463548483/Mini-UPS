@@ -4,8 +4,8 @@ TARGETS = test-receiver test-sender
 
 all: $(TARGETS)
 
-test-receiver: test-receiver.o ../Server/BaseServer.o ../Server/BaseSocket.o ../Utils/utils.o ../DataBase/Database.o  ../protos/world_ups.pb.cc
-	g++ $(CPPFLAGS) -o test-receiver test-receiver.o ../DataBase/Database.o ../Server/BaseSocket.o ../Server/BaseServer.o ../Utils/utils.o ../protos/world_ups.pb.cc $(EXTRAFLAGS)
+test-receiver: test-receiver.o ../Server/BaseServer.o ../Server/BaseSocket.o ../Utils/utils.o ../DataBase/Database.o  ../protos/world_ups.pb.cc ../protos/world_amazon.pb.cc ../protos/ups_amazon.pb.cc
+	g++ $(CPPFLAGS) -o test-receiver test-receiver.o ../DataBase/Database.o ../Server/BaseSocket.o ../Server/BaseServer.o ../Utils/utils.o ../protos/world_ups.pb.cc ../protos/world_amazon.pb.cc ../protos/ups_amazon.pb.cc $(EXTRAFLAGS)
 
 test-sender: test-sender.o ../Server/BaseSocket.o ../Utils/utils.o ../protos/world_ups.pb.cc
 	g++ $(CPPFLAGS) -o test-sender test-sender.o ../Server/BaseSocket.o ../Utils/utils.o ../protos/world_ups.pb.cc $(EXTRAFLAGS)

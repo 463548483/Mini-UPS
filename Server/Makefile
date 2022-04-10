@@ -7,7 +7,7 @@ all: $(TARGETS)
 BaseSocket.o: BaseSocket.cpp BaseSocket.hpp
 	g++ $(CPPFLAGS) -c BaseSocket.cpp $(EXTRAFLAGS)
 
-BaseServer.o: BaseServer.cpp BaseServer.hpp BaseSocket.hpp ../DataBase/Database.hpp ../protos/world_ups.pb.h
+BaseServer.o: BaseServer.cpp BaseServer.hpp BaseSocket.hpp ../DataBase/Database.hpp ../protos/world_ups.pb.h ../protos/ups_amazon.pb.h
 	g++ $(CPPFLAGS) -c BaseServer.cpp $(EXTRAFLAGS)
 
 .PHONY clean:
