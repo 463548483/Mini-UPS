@@ -13,7 +13,7 @@ class Item : virtual public SQLObject {
 
  public:
   Item(const std::string & description, int amount, int packageid = 0) :
-      SQLObject("items"),
+      SQLObject("ITEMS"),
       description(description),
       amount(amount),
       packageid(packageid) {}

@@ -67,6 +67,7 @@ public:
     void processDelivered(UResponses &resp);
     void processTruckStatus(UResponses &resp);
 
+    //interface for sending world request
     void requestPickUpToWorld(int truckid, int whid, int64_t seqnum);
     void requestDeliverToWorld(int truckid, std::vector<int64_t> packageids, 
         std::vector<int> xs, std::vector<int> ys, int64_t seqnum);
@@ -75,6 +76,11 @@ public:
     void requestDisconnectToWorld();
     void addToWaitAcks(int64_t seqnum, UCommands ucom);
     void ackToWorld(int64_t ack);
+
+    //interface for process amazon request
+    void processAmazonPickup(AUCommand &aResq);
+    void processAmazonLoaded(AUCommand &aResq);
+    void processAmazonChangeAdd(AUCommand &aResq);
 
     void setupServer(const char *_hostname, const char *_port);
     

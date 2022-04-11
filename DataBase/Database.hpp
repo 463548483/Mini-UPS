@@ -10,10 +10,10 @@
 #include "Item.hpp"
 #include "Package.hpp"
 
-#define HOST "vcm-26069.vm.duke.edu"
+#define HOST "localhost"
 #define DATABASE "postgres"
 #define USER "postgres"
-#define PASSWORD "@zxcvbnm123"
+#define PASSWORD "postgres"
 
 class SQLObject;
 class Truck;

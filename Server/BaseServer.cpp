@@ -186,6 +186,9 @@ void BaseServer::simWorldCommunicate() {
 	// connect to database, need a new connection for each thread
 	connection *C = db.connectToDatabase();
 
+    // set sim world speed, default is 100
+    adjustSimSpeed(100);
+
     cout << "Sending test command\n";
     sendTestCommand();
 
@@ -301,10 +304,9 @@ vector<int64_t> BaseServer::extractSeqNums(UResponses &resp) {
 }
 
 void BaseServer::sendTestCommand() {
-    // requestQueryToWorld({0,1,2}, {0,1,2});
-    requestQueryToWorld(0, 0);
-    requestQueryToWorld(1, 1);
-    requestQueryToWorld(2, 2);
+    requestQueryToWorld(0, seqnum.fetch_add(1));
+    requestQueryToWorld(1, seqnum.fetch_add(1));
+    requestQueryToWorld(2, seqnum.fetch_add(1));
 }
 
 void BaseServer::displayUResponses(UResponses &resp) {
@@ -458,25 +460,23 @@ void BaseServer::requestQueryToWorld(int truckid, int64_t seqnum) {
     }
 }
 
+// note that adjust speed doesn't need sequence number
 void BaseServer::adjustSimSpeed(unsigned int simspeed) {
     UCommands ucom;
     ucom.set_simspeed(simspeed);
     int status = sendMesgTo<UCommands>(ucom, worldOut);
     if (!status) {
         cerr << "Can't send sim speed to the world\n";
-    } else {
-        addToWaitAcks(seqnum, ucom);
     }
 }
 
+// note that disconnect doesn't need sequence number
 void BaseServer::requestDisconnectToWorld() {
     UCommands ucom;
     ucom.set_disconnect(true);
     int status = sendMesgTo<UCommands>(ucom, worldOut);
     if (!status) {
         cerr << "Can't send disconnect message to the world\n";
-    } else {
-        addToWaitAcks(seqnum, ucom);
     }
 }
 
@@ -489,6 +489,28 @@ void BaseServer::ackToWorld(int64_t ack) {
         cerr << "Can't send ack to the world\n";
     } 
 }
+
+// process request from Amazon
+void BaseServer::processAmazonPickup(AUCommand &aResq){
+    for (int i=0;i<aResq.pickup_size();i++){
+        //search db to find availabel truck
+        //requestPickUpToWorld();
+    }
+}
+void BaseServer::processAmazonLoaded(AUCommand &aResq){
+    for (int i=0;i<aResq.packloaded_size();i++){
+        //update db for truck status
+        //requestDeliverToWorld();
+    }
+}
+void BaseServer::processAmazonChangeAdd(AUCommand &aResq){
+    for (int i=0;i<aResq.changeaddr_size();i++){
+        //query item status
+        //if delivering, send err
+        //if loading, send ack
+    }
+}
+
 
 // getter functions
 int BaseServer::getBacklog() const {
