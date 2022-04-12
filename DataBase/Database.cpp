@@ -30,14 +30,14 @@ void Database::setup() {
   createTables(C);
   
   // test insert
-  SQLObject * truck1=new Truck(idle,0,0);
-  insertTables(C,truck1);
-  SQLObject * account1=new Account(123,"eaeeer");
-  insertTables(C,account1);
-  SQLObject * pkg1=new Package(-1,-1);
-  insertTables(C,pkg1);
-  SQLObject * item1=new Item("cloth",3);
-  insertTables(C,item1);
+  // SQLObject * truck1=new Truck(idle,0,0);
+  // insertTables(C,truck1);
+  // SQLObject * account1=new Account(123,"eaeeer");
+  // insertTables(C,account1);
+  // SQLObject * pkg1=new Package(-1,-1);
+  // insertTables(C,pkg1);
+  // SQLObject * item1=new Item("cloth",3);
+  // insertTables(C,item1);
 
 
   C->disconnect();
@@ -97,11 +97,13 @@ void Database::cleanTables(connection * C) {
   /* Create a transactional object. */
   work W(*C);
 
-  string sql = "DROP TYPE truck_status;";
+  string sql1 = "DROP TYPE truck_status;";
+  string sql2 = "DROP TYPE package_status;";
 
   /* Execute SQL query */
   try {
-    W.exec(sql);
+    W.exec(sql1);
+    W.exec(sql2);
     W.commit();
     cout << "Enum type truck_status dropped successfully" << endl;
   }
@@ -115,41 +117,46 @@ void Database::createTables(connection * C) {
   work W(*C);
 
   /* Create SQL statement */
-  string createEnum = "CREATE TYPE truck_status AS ENUM ('idle', 'travelling', 'arrive warehouse', 'delivering');";
+  string createEnumTruck = "CREATE TYPE truck_status AS ENUM ('idle', 'traveling', 'arrive warehouse', 'loading', 'delivering');";
+  string createEnumPackage = "CREATE TYPE package_status AS ENUM ('delivered', 'delivering', 'wait for loading', 'wait for pickup');";
   string createTruck = "CREATE TABLE TRUCKS (\
-    truckId       SERIAL PRIMARY KEY,\
+    truckId       SERIAL        PRIMARY KEY,\
     status        truck_status  NOT NULL,\
     x             int           NOT NULL,\
     y             int           NOT NULL\
     );";
 
   string createAccount = "CREATE TABLE ACCOUNT (\
-    accountId     int   NOT NULL,\
+    accountId     SERIAL              NOT NULL,\
+    username      varchar(40)         NOT NULL,\
     password      varchar(40)         NOT NULL,\
     CONSTRAINT ACCOUNTID_PK PRIMARY KEY (accountId)\
     );";
 
   string createPackage = "CREATE TABLE PACKAGES (\
-    packageId      SERIAL PRIMARY KEY,\
-    destX          int         NOT NULL,\
-    destY          int         NOT NULL,\
-    truckId        int                 ,\
-    accountId      int                 ,\
+    packageId      SERIAL          PRIMARY KEY,\
+    destX          int             ,\
+    destY          int             ,\
+    truckId        int             ,\
+    accountId      int             ,\
+    warehouseId    int             NOT NULL,\
+    status         package_status  NOT NULL,\
     CONSTRAINT PACKAGE_TRUCKFK FOREIGN KEY (truckId) REFERENCES TRUCKS(truckId) ON DELETE SET NULL ON UPDATE CASCADE,\
     CONSTRAINT PACKAGE_ACCOUNTFK FOREIGN KEY (accountId) REFERENCES ACCOUNT(accountId) ON DELETE SET NULL ON UPDATE CASCADE\
     );";
 
   string createItem = "CREATE TABLE ITEMS (\
-    itemId     SERIAL PRIMARY KEY,\
-    description varchar(2000)   NOT NULL,\
-    amount         int        NOT NULL,\
-    packageid         int        ,\
-    CONSTRAINT ITEM_PACKAGEFK FOREIGN KEY (packageid) REFERENCES PACKAGES(packageId) ON DELETE SET NULL ON UPDATE CASCADE\
+    itemId         SERIAL          PRIMARY KEY,\
+    description    varchar(2000)   NOT NULL,\
+    amount         int             NOT NULL,\
+    packageId      int             NOT NULL,\
+    CONSTRAINT ITEM_PACKAGEFK FOREIGN KEY (packageId) REFERENCES PACKAGES(packageId) ON DELETE SET NULL ON UPDATE CASCADE\
     );";
 
   /* Execute SQL query */
-  try{
-    W.exec(createEnum);
+  try {
+    W.exec(createEnumTruck);
+    W.exec(createEnumPackage);
     W.exec(createTruck);
     W.exec(createAccount);
     W.exec(createPackage);
@@ -157,7 +164,7 @@ void Database::createTables(connection * C) {
     //W.exec(createSearchHisotry);
     W.commit();
     cout << "All tables created successfully" << endl;
-  }catch (const exception & e) {
+  } catch (const exception & e) {
     cout << e.what()<<endl;
   }
   
@@ -169,7 +176,7 @@ void Database::insertTables(connection * C, SQLObject * object){
     W.exec(object->sql_insert());
     W.commit();
     cout << "One row inserted successfully" << endl;
-  }catch (const exception & e) {
+  } catch (const exception & e) {
     cout << e.what()<<endl;
   }
   

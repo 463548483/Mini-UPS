@@ -7,10 +7,5 @@ all: $(TARGETS)
 Database.o: Database.cpp Database.hpp
 	g++ $(CPPFLAGS) -c Database.cpp $(EXTRAFLAGS)
 
-
-
-
-
-
 clean:
 	rm -f *~ *.o

@@ -18,23 +18,23 @@
 class SQLObject;
 class Truck;
 class DatabaseConnectionError : public std::exception {
- public:
-  virtual const char * what() const noexcept { return "Cannot connect to the database."; }
+public:
+    virtual const char * what() const noexcept { return "Cannot connect to the database."; }
 };
 
 class Database {
- public:
-  Database();
-  ~Database();
+public:
+    Database();
+    ~Database();
 
-  pqxx::connection * connectToDatabase();
-  void setup();
-  void dropATable(pqxx::connection *, std::string tableName);
-  void cleanTables(pqxx::connection *);
-  void createTables(pqxx::connection *);
-  void insertTables(pqxx::connection * C, SQLObject * object);
+    pqxx::connection * connectToDatabase();
+    void setup();
+    void dropATable(pqxx::connection *, std::string tableName);
+    void cleanTables(pqxx::connection *);
+    void createTables(pqxx::connection *);
+    void insertTables(pqxx::connection * C, SQLObject * object);
 
-  // pqxx::connection *getConnection();
+    // pqxx::connection *getConnection();
 };
 
 #endif
