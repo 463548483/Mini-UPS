@@ -53,6 +53,8 @@ BaseServer::BaseServer(const char *_hostname,
     amazonSock(nullptr), backlog(_backlog), threadNum(_threadNum), init(threadNum) {	
 	// create, bind, and listen to a socket
 	setupServer(_hostname, _port);
+    db=new Database();
+    db.setup();
 }
 
 void BaseServer::setupServer(const char *hostname, const char *port) {
@@ -490,24 +492,51 @@ void BaseServer::ackToWorld(int64_t ack) {
     } 
 }
 
+int findTruck(int x,int y){
+    //need update truck first?
+    //query db to find closest available truck?
+    return 0;
+}
+
 // process request from Amazon
 void BaseServer::processAmazonPickup(AUCommand &aResq){
     for (int i=0;i<aResq.pickup_size();i++){
-        //search db to find availabel truck
-        //requestPickUpToWorld();
+        AURequestPickup * pickup=aResq.pickup(i);
+        //if (pickup->has_upsid());
+        int truckId=findTruck(pickup->wareinfo().x,pickup->wareinfo().y);
+        Package * newPackage=new Package(,truckId,pickup->upsid());//need status, what if not have?
+        db.sql_insert(newPackage);
+        for (int j=0;j<pickup->things_size;j++){
+            AProduct * newProduct=pickup->things(j);
+            Item * newItem=new Item(newProduct->id,newProduct->description(),newProduct->count,newPackage->getPackageId());
+            db.sql_insert(newItem);
+        }
+        //sendPickupResponse
+        requestPickUpToWorld(truckid, pickup->wareinfo().id, seqnum);//what if this truck not available
     }
 }
 void BaseServer::processAmazonLoaded(AUCommand &aResq){
     for (int i=0;i<aResq.packloaded_size();i++){
-        //update db for truck status
-        //requestDeliverToWorld();
+        AULoadOver * loadOver=aResq.packloaded(i);
+        //update status per packageid 
+        //update X, Y per packageid 
+        //update status per truckid
+
+        //sendLoadedResponse
+        
     }
+    requestDeliverToWorld(truckid, <>packageid, seqnum);//when to do that, all the package loaded?
 }
 void BaseServer::processAmazonChangeAdd(AUCommand &aResq){
     for (int i=0;i<aResq.changeaddr_size();i++){
-        //query item status
-        //if delivering, send err
-        //if loading, send ack
+        AUChangeAddress * changeAddress=aResq.changeaddr(i);
+        int destX=changeAddress->loc().x;
+        int destY=changeAddress->loc().y;
+        //query status per packageid
+        //if not available, send error
+        
+        //else update X, Y per packageid         
+        //ackToAmazon();
     }
 }
 

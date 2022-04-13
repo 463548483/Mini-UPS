@@ -175,4 +175,12 @@ void Database::insertTables(connection * C, SQLObject * object){
   
 }
 
+status_t Database::queryPackageStatus(int packageId){
+  work W(*C);
+  stringstream ss;
+  ss<<"select status from packages where packageId='"<<packageId<<"';";
+  result r=W.exec(ss.str());
+  return r[0][0];
+}
+
 #endif
