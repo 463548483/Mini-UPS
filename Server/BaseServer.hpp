@@ -62,12 +62,13 @@ public:
     void sendTestCommand();
     std::vector<int64_t> extractSeqNums(UResponses &resp);
     void displayUResponses(UResponses &resp);
+    void processErrors(UResponses &resp);
     void processAcks(UResponses &resp);
     void processCompletions(UResponses &resp);
     void processDelivered(UResponses &resp);
     void processTruckStatus(UResponses &resp);
 
-    //interface for sending world request
+    // interfaces of request to world
     void requestPickUpToWorld(int truckid, int whid, int64_t seqnum);
     void requestDeliverToWorld(int truckid, std::vector<int64_t> packageids, 
         std::vector<int> xs, std::vector<int> ys, int64_t seqnum);
@@ -76,6 +77,14 @@ public:
     void requestDisconnectToWorld();
     void addToWaitAcks(int64_t seqnum, UCommands ucom);
     void ackToWorld(int64_t ack);
+
+    // interfaces to amazon
+    void sendWorldIdToAmazon(int64_t worldid, int64_t seqnum);
+    void notifyArrivalToAmazon(int truckid, int64_t packageid, int64_t seqnum);
+    void notifyDeliveredToAmazon(int64_t packageid, int64_t seqnum);
+    void sendErrToAmazon(std::string err, int64_t originseqnum, int64_t seqnum);
+    void sendPickUpResponseToAmazon(int64_t packageid, int64_t seqnum);
+    void ackToAmazon(int64_t ack);
 
     //interface for process amazon request
     void processAmazonPickup(AUCommand &aResq);

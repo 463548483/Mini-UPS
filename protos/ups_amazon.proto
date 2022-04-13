@@ -1,47 +1,39 @@
 syntax = "proto2";
-
-// import AProduct, UDeliveryLocation
 import "world_amazon.proto";
 import "world_ups.proto";
 
-message Warehouse{
-    required int32 id = 1;
-    required int32 x = 2;
-    required int32 y = 3;
-}
-
 message UASendWorldId {
-    required int64 worldid = 1;
-    required int64 seqnum = 255;
+   required int64 worldid = 1;
+   required int64 seqnum = 255;
 }
 
 // A->U: prepare truck
 message AURequestPickup {
-    repeated AProduct things = 1;
-    required Warehouse wareinfo = 2;
-    optional int64 upsid = 3;
-    required int64 seqnum = 255;
+  repeated AProduct things = 1;
+  required AInitWarehouse wareinfo = 2;
+  optional int64 upsid = 3;
+  required int64 seqnum = 255;
 }
-
+// U->A pickup
 message UAPickupResponse{
-    required int64 packageid = 1;
-    required int64 seqnum = 255;
+   required int64 packageid = 1;
+   required int64 seqnum = 255;
 }
 
 // U -> A: car arrive
 message UAArrived{
-    required int64 truckid = 1;
-    required int64 packageid = 2;
-    required int64 seqnum = 255;
+   required int32 truckid = 1;
+   required int64 packageid = 2;
+   required int64 seqnum = 255;
 }
 
 
-// loaded
+// A->U: load over
 message AULoadOver {
-    required int64 packageid = 1;
-    required int32 truckid = 2;
-    required UDeliveryLocation loc = 3;
-    required int64 seqnum = 255;
+  required int64 packageid = 1;
+  required int32 truckid = 2;
+  required UDeliveryLocation loc = 3;
+  required int64 seqnum = 255;
 }
 
 // A->U: change address
@@ -52,21 +44,21 @@ message AUChangeAddress{
 }
 
 // U->A: deliver over
-    message UADeliverOver {
-    required int64 packageid = 1;
-    required int64 seqnum = 255;
+message UADeliverOver {
+  required int64 packageid = 1;
+  required int64 seqnum = 255;
 }
 
 message AUCommand{
-    repeated AURequestPickup pickup= 1;
-    repeated AULoadOver packloaded= 2;
-    repeated AUChangeAddress changeaddr= 3;
+   repeated AURequestPickup pickup= 1;
+   repeated AULoadOver packloaded= 2;
+   repeated AUChangeAddress changeaddr= 3;
 }
 
 message UACommand{
-    optional UASendWorldId sendid = 1;
-    repeated UAArrived arrived = 2;
-    repeated UADeliverOver deliverover = 3;
+    optional UASendWorldId sendid= 1;
+    repeated UAArrived arrived= 2;
+    repeated UADeliverOver deliverover= 3;
 }
 
 message UAResponses{
@@ -77,14 +69,14 @@ message UAResponses{
 }
 
 message AUResponses{
-    // base
-    repeated Err errors = 1;
-    repeated int64 acks = 2;
+   optional int64 seqnum = 1; // new add 
+   // base
+   repeated Err errors = 2;
+   repeated int64 acks = 3;
 }
-
 // same as brian's version
 message Err{
-    required string err = 1;
-    required int64 originseqnum = 2;
-    required int64 seqnum = 3;
+  required string err = 1;
+  required int64 originseqnum = 2;
+  required int64 seqnum = 3;
 }
