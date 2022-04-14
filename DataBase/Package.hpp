@@ -4,12 +4,15 @@
 
 #include "SQLObject.hpp"
 
-static const char * package_enum_str[] = {"delivered", "delivering", "wait for loading", "wait for pickup"};
+static const char * package_enum_str[] = {"delivered",
+                                          "delivering",
+                                          "wait for loading",
+                                          "wait for pickup"};
 enum package_status_t { delivered, out_for_deliver, wait_for_loading, wait_for_pickup };
 
 class Package : virtual public SQLObject {
  private:
-  int packageId;
+  int trackingNum;
   int warehouseId;
   package_status_t status;
   int destX;
@@ -18,8 +21,15 @@ class Package : virtual public SQLObject {
   int accountId;
 
  public:
-  Package(int warehouseId, package_status_t status, int destX = INT32_MAX, int destY = INT32_MAX, int truckId = -1, int accountId = -1) :
+  Package(int trackingNum,
+          int warehouseId,
+          package_status_t status,
+          int accountId = -1,
+          int destX = INT32_MAX,
+          int destY = INT32_MAX,
+          int truckId = -1) :
       SQLObject("PACKAGES"),
+      trackingNum(trackingNum),
       warehouseId(warehouseId),
       status(status),
       destX(destX),
@@ -27,29 +37,33 @@ class Package : virtual public SQLObject {
       truckId(truckId),
       accountId(accountId) {}
 
-  int getPackageId() { return packageId; }
+  int getTrakingNum() { return trackingNum; }
   int getDestX() { return destX; }
   int getDestY() { return destY; }
   std::string sql_insert() {
     stringstream ss;
     ss << "insert into " << tableName
-       << " (destX,destY,truckId,accountId,warehouseId,status) values (";
+       << " (destX,destY,truckId,accountId,warehouseId,status,trackingNum) values (";
     if (destX == INT32_MAX && destY == INT32_MAX) {
       ss << "NULL,NULL,";
-    } else {
+    }
+    else {
       ss << destX << "," << destY << ",";
     }
     if (truckId == -1) {
       ss << "NULL,";
-    } else {
+    }
+    else {
       ss << truckId << ",";
     }
     if (accountId == -1) {
       ss << "NULL,";
-    } else {
+    }
+    else {
       ss << accountId << ",";
     }
-    ss << "'" << package_enum_str[status] << "');";
+    ss << warehouseId << ","
+       << "'" << package_enum_str[status] << "'," << trackingNum << ");";
     return ss.str();
   }
 };

@@ -11,14 +11,14 @@ class Account : virtual public SQLObject {
   std::string password;
 
  public:
-  Account(unsigned long accountId, const std::string &username, const std::string &password) :
-      SQLObject("ACCOUNT"), accountId(accountId), username(username), password(password) {}
+  Account(const std::string &username, const std::string &password) :
+      SQLObject("ACCOUNT"), username(username), password(password) {}
   const unsigned long getAccountId() const { return accountId; }
   const std::string & getPassword() const { return password; }
   const std::string & getUsername() const { return username; }
   std::string sql_insert() {
     stringstream ss;
-    ss << "insert into " << tableName << " (accountId,username,password) values (" << accountId << ",'"
+    ss << "insert into " << tableName << " (username,password) values ('"
        << username << "','" << password << "');";
     return ss.str();
   }

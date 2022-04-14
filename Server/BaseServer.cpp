@@ -58,7 +58,7 @@ BaseServer::BaseServer(const char *_hostname,
     amazonSock(nullptr), backlog(_backlog), threadNum(_threadNum), init(threadNum) {	
 	// create, bind, and listen to a socket
 	setupServer(_hostname, _port);
-    db=new Database();
+    // &db=new Database();
     db.setup();
 }
 
@@ -622,47 +622,47 @@ int findTruck(int x,int y){
     return 0;
 }
 
-// process request from Amazon
-void BaseServer::processAmazonPickup(AUCommand &aResq){
-    for (int i=0;i<aResq.pickup_size();i++){
-        AURequestPickup * pickup=aResq.pickup(i);
-        //if (pickup->has_upsid());
-        int truckId=findTruck(pickup->wareinfo().x,pickup->wareinfo().y);
-        Package * newPackage=new Package(,truckId,pickup->upsid());//need status, what if not have?
-        db.sql_insert(newPackage);
-        for (int j=0;j<pickup->things_size;j++){
-            AProduct * newProduct=pickup->things(j);
-            Item * newItem=new Item(newProduct->id,newProduct->description(),newProduct->count,newPackage->getPackageId());
-            db.sql_insert(newItem);
-        }
-        //sendPickupResponse
-        requestPickUpToWorld(truckid, pickup->wareinfo().id, seqnum);//what if this truck not available
-    }
-}
-void BaseServer::processAmazonLoaded(AUCommand &aResq){
-    for (int i=0;i<aResq.packloaded_size();i++){
-        AULoadOver * loadOver=aResq.packloaded(i);
-        //update status per packageid 
-        //update X, Y per packageid 
-        //update status per truckid
+// // process request from Amazon
+// void BaseServer::processAmazonPickup(AUCommand &aResq){
+//     for (int i=0;i<aResq.pickup_size();i++){
+//         AURequestPickup * pickup=aResq.pickup(i);
+//         //if (pickup->has_upsid());
+//         int truckId=findTruck(pickup->wareinfo().x,pickup->wareinfo().y);
+//         Package * newPackage=new Package(,truckId,pickup->upsid());//need status, what if not have?
+//         db.sql_insert(newPackage);
+//         for (int j=0;j<pickup->things_size;j++){
+//             AProduct * newProduct=pickup->things(j);
+//             Item * newItem=new Item(newProduct->id,newProduct->description(),newProduct->count,newPackage->getPackageId());
+//             db.sql_insert(newItem);
+//         }
+//         //sendPickupResponse
+//         requestPickUpToWorld(truckid, pickup->wareinfo().id, seqnum);//what if this truck not available
+//     }
+// }
+// void BaseServer::processAmazonLoaded(AUCommand &aResq){
+//     for (int i=0;i<aResq.packloaded_size();i++){
+//         AULoadOver * loadOver=aResq.packloaded(i);
+//         //update status per packageid 
+//         //update X, Y per packageid 
+//         //update status per truckid
 
-        //sendLoadedResponse
+//         //sendLoadedResponse
         
-    }
-    requestDeliverToWorld(truckid, <>packageid, seqnum);//when to do that, all the package loaded?
-}
-void BaseServer::processAmazonChangeAdd(AUCommand &aResq){
-    for (int i=0;i<aResq.changeaddr_size();i++){
-        AUChangeAddress * changeAddress=aResq.changeaddr(i);
-        int destX=changeAddress->loc().x;
-        int destY=changeAddress->loc().y;
-        //query status per packageid
-        //if not available, send error
+//     }
+//     requestDeliverToWorld(truckid, <>packageid, seqnum);//when to do that, all the package loaded?
+// }
+// void BaseServer::processAmazonChangeAdd(AUCommand &aResq){
+//     for (int i=0;i<aResq.changeaddr_size();i++){
+//         AUChangeAddress * changeAddress=aResq.changeaddr(i);
+//         int destX=changeAddress->loc().x;
+//         int destY=changeAddress->loc().y;
+//         //query status per packageid
+//         //if not available, send error
         
-        //else update X, Y per packageid         
-        //ackToAmazon();
-    }
-}
+//         //else update X, Y per packageid         
+//         //ackToAmazon();
+//     }
+// }
 
 
 // getter functions

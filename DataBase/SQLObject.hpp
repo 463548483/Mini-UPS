@@ -10,6 +10,7 @@ class SQLObject {
 
  public:
   SQLObject(const char * tableName):tableName(tableName){}
+  string getTableName(){ return tableName;}
   virtual string sql_insert()=0;
   virtual ~SQLObject(){}
 };
