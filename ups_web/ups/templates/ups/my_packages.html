@@ -1,0 +1,48 @@
+{% extends 'ups/base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+
+<h1>My Packages</h1>
+
+<table id="customers">
+<tr>
+    <th>Tracking Number</th>
+    <th>Package Status</th>
+    <th>Source Warehouse</th>
+    <th>Delivered by</th>
+    <th>Destination Address</th>
+    <th>Package Detail</th>
+    <th>Change Address</th>
+</tr>
+{% for package in packages %}
+<tr>
+    <td>{{package.packageid}}</td>
+    <td>{{package.status}}</td>
+    <td>#{{package.warehouseid}}</td>
+    <td>Truck {{package.truckid.truckid}}</td>
+    <td>({{package.destx}}, {{package.desty}})</td>
+    <td><a href="{{package.packageid}}/detail/">Detail</a></td>
+    <td>
+        {% if package.status != 'delivering' and package.status != 'delivered' %}
+        <a href="{{package.packageid}}/change_address/">Change</a>
+        {% else %}
+        Unavailable
+        {% endif %}
+    </td>
+</tr>
+{% endfor %}
+</table>
+
+
+{% else %}
+
+<p>Already have an account? Login <a href="/login">here</a></p>
+<p>Don't have an account? Register <a href="/register">here</a></p>
+
+{% endif %}
+
+{% endblock %}

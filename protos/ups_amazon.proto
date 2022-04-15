@@ -27,7 +27,6 @@ message UAArrived{
    required int64 seqnum = 255;
 }
 
-
 // A->U: load over
 message AULoadOver {
   required int64 packageid = 1;

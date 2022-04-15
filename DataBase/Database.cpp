@@ -129,7 +129,6 @@ void Database::createTables(connection * C) {
   string createAccount = "CREATE TABLE ACCOUNT (\
     accountId     SERIAL              NOT NULL,\
     username      varchar(40)         NOT NULL,\
-    password      varchar(40)         NOT NULL,\
     CONSTRAINT ACCOUNTID_PK PRIMARY KEY (accountId)\
     );";
 
