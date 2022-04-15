@@ -86,6 +86,11 @@ public:
     void sendPickUpResponseToAmazon(int64_t packageid, int64_t seqnum);
     void ackToAmazon(int64_t ack);
 
+    //interface for process amazon request
+    void processAmazonPickup(AUCommand &aResq);
+    void processAmazonLoaded(AUCommand &aResq);
+    void processAmazonChangeAdd(AUCommand &aResq);
+
     void setupServer(const char *_hostname, const char *_port);
     
     void simWorldCommunicate();

@@ -7,7 +7,6 @@
 #include <mutex>
 #include <sstream>
 
-
 #define TRANS(name) #name
 
 using namespace std;
@@ -28,17 +27,26 @@ void Database::setup() {
 
   // create tables
   createTables(C);
-  
+
   // test insert
   // SQLObject * truck1=new Truck(idle,0,0);
   // insertTables(C,truck1);
-  // SQLObject * account1=new Account(123,"eaeeer");
+  // SQLObject * account1=new Account("a","eaeeer");
   // insertTables(C,account1);
-  // SQLObject * pkg1=new Package(-1,-1);
+
+  // SQLObject * warehouse1=new Warehouse(1,3,3);
+  // insertTables(C,warehouse1);
+  // SQLObject * pkg1=new Package(1231,1,delivered);
   // insertTables(C,pkg1);
-  // SQLObject * item1=new Item("cloth",3);
+  // SQLObject * item1=new Item("cloth",3,1231);
   // insertTables(C,item1);
 
+  // updateTruck(C,delivering,9,9,1);
+  // updatePackage(C,out_for_deliver,10,10,1231);
+  // updatePackage(C,out_for_deliver,1,1231);
+  // updatePackage(C,wait_for_loading,1,1231);
+  // string st=queryPackageStatus(C,1231);
+  // cout<<st<<" status for pkg"<<endl;
 
   C->disconnect();
   delete C;
@@ -89,6 +97,7 @@ void Database::dropATable(connection * C, string tableName) {
 void Database::cleanTables(connection * C) {
   dropATable(C, "ITEMS");
   dropATable(C, "PACKAGES");
+  dropATable(C, "WAREHOUSES");
   dropATable(C, "ACCOUNT");
   dropATable(C, "TRUCKS");
   //dropATable(C, "account");
@@ -97,8 +106,8 @@ void Database::cleanTables(connection * C) {
   /* Create a transactional object. */
   work W(*C);
 
-  string sql1 = "DROP TYPE truck_status;";
-  string sql2 = "DROP TYPE package_status;";
+  string sql1 = "DROP TYPE if exists truck_status;";
+  string sql2 = "DROP TYPE if exists package_status;";
 
   /* Execute SQL query */
   try {
@@ -108,7 +117,7 @@ void Database::cleanTables(connection * C) {
     cout << "Enum type truck_status dropped successfully" << endl;
   }
   catch (const exception & e) {
-    cout << "Enum type truck_status doesn't exist. Ignoring the drop.\n";
+    //cout << "Enum type truck_status doesn't exist. Ignoring the drop.\n";
   }
 }
 
@@ -117,8 +126,10 @@ void Database::createTables(connection * C) {
   work W(*C);
 
   /* Create SQL statement */
-  string createEnumTruck = "CREATE TYPE truck_status AS ENUM ('idle', 'traveling', 'arrive warehouse', 'loading', 'delivering');";
-  string createEnumPackage = "CREATE TYPE package_status AS ENUM ('delivered', 'delivering', 'wait for loading', 'wait for pickup');";
+  string createEnumTruck = "CREATE TYPE truck_status AS ENUM ('idle', 'traveling', "
+                           "'arrive warehouse', 'loading', 'delivering');";
+  string createEnumPackage = "CREATE TYPE package_status AS ENUM ('delivered', "
+                             "'delivering', 'wait for loading', 'wait for pickup');";
   string createTruck = "CREATE TABLE TRUCKS (\
     truckId       SERIAL        PRIMARY KEY,\
     status        truck_status  NOT NULL,\
@@ -132,8 +143,15 @@ void Database::createTables(connection * C) {
     CONSTRAINT ACCOUNTID_PK PRIMARY KEY (accountId)\
     );";
 
+  string createWarehouse = "CREATE TABLE WAREHOUSES (\
+    warehouseId     int         NOT NULL,\
+    x               int         NOT NULL,\
+    y               int         NOT NULL,\
+    CONSTRAINT WAREHOUSEID_PK PRIMARY KEY (warehouseId)\
+    );";
+
   string createPackage = "CREATE TABLE PACKAGES (\
-    packageId      SERIAL          PRIMARY KEY,\
+    trackingNum    int             PRIMARY KEY,\
     destX          int             ,\
     destY          int             ,\
     truckId        int             ,\
@@ -141,6 +159,7 @@ void Database::createTables(connection * C) {
     warehouseId    int             NOT NULL,\
     status         package_status  NOT NULL,\
     CONSTRAINT PACKAGE_TRUCKFK FOREIGN KEY (truckId) REFERENCES TRUCKS(truckId) ON DELETE SET NULL ON UPDATE CASCADE,\
+    CONSTRAINT PACKAGE_WAREHOUSEFK FOREIGN KEY (warehouseId) REFERENCES WAREHOUSES(warehouseId) ON DELETE SET NULL ON UPDATE CASCADE,\
     CONSTRAINT PACKAGE_ACCOUNTFK FOREIGN KEY (accountId) REFERENCES ACCOUNT(accountId) ON DELETE SET NULL ON UPDATE CASCADE\
     );";
 
@@ -148,8 +167,8 @@ void Database::createTables(connection * C) {
     itemId         SERIAL          PRIMARY KEY,\
     description    varchar(2000)   NOT NULL,\
     amount         int             NOT NULL,\
-    packageId      int             NOT NULL,\
-    CONSTRAINT ITEM_PACKAGEFK FOREIGN KEY (packageId) REFERENCES PACKAGES(packageId) ON DELETE SET NULL ON UPDATE CASCADE\
+    trackingNum    int             NOT NULL,\
+    CONSTRAINT ITEM_PACKAGEFK FOREIGN KEY (trackingNum) REFERENCES PACKAGES(trackingNum) ON DELETE SET NULL ON UPDATE CASCADE\
     );";
 
   /* Execute SQL query */
@@ -158,27 +177,108 @@ void Database::createTables(connection * C) {
     W.exec(createEnumPackage);
     W.exec(createTruck);
     W.exec(createAccount);
+    W.exec(createWarehouse);
     W.exec(createPackage);
     W.exec(createItem);
+
     //W.exec(createSearchHisotry);
     W.commit();
     cout << "All tables created successfully" << endl;
-  } catch (const exception & e) {
-    cout << e.what()<<endl;
   }
-  
+  catch (const exception & e) {
+    cout << e.what() << endl;
+  }
 }
 
-void Database::insertTables(connection * C, SQLObject * object){
-  try{
-    work W(*C);
-    W.exec(object->sql_insert());
-    W.commit();
-    cout << "One row inserted successfully" << endl;
-  } catch (const exception & e) {
-    cout << e.what()<<endl;
+void Database::insertTables(connection * C, SQLObject * object) {
+  transaction<serializable, read_write> T(*C);
+  while (true) {
+    try {
+      T.exec(object->sql_insert());
+      T.commit();
+      cout << object->getTableName()<<" one row inserted successfully" << endl;
+      break;
+    }
+    catch (const pqxx::serialization_failure & e) {
+      cout << e.what() << endl;
+    }
   }
-  
+}
+
+void Database::updateTruck(connection * C,truck_status_t status,int x,int y, int truckId ) {
+  transaction<serializable, read_write> T(*C);
+  while (true) {
+    try {
+      stringstream ss;
+      ss<<"update trucks set status='"<<truck_enum_str[status]<<"', x="<<x<<", y="<<y<<" where truckid="<<truckId<<";";
+      T.exec(ss.str());
+      T.commit();
+      cout << "trucks one row update successfully" << endl;
+      break;
+    }
+    catch (const pqxx::serialization_failure & e) {
+      cout << e.what() << endl;
+    }
+  }
+}
+
+void Database::updatePackage(connection * C,package_status_t status,int destX,int destY, int trackingNum ) {
+  transaction<serializable, read_write> T(*C);
+  while (true) {
+    try {
+      stringstream ss;
+      ss<<"update packages set status='"<<package_enum_str[status]<<"', destX="<<destX<<", destY="<<destY<<" where trackingNum="<<trackingNum<<";";
+      T.exec(ss.str());
+      T.commit();
+      cout << "packages one row update successfully" << endl;
+      break;
+    }
+    catch (const pqxx::serialization_failure & e) {
+      cout << e.what() << endl;
+    }
+  }
+}
+
+void Database::updatePackage(connection * C,package_status_t status,int truckid, int trackingNum ) {
+  transaction<serializable, read_write> T(*C);
+  while (true) {
+    try {
+      stringstream ss;
+      ss<<"update packages set status='"<<package_enum_str[status]<<"', truckid="<<truckid<<" where trackingNum="<<trackingNum<<";";
+      T.exec(ss.str());
+      T.commit();
+      cout << "packages one row update successfully" << endl;
+      break;
+    }
+    catch (const pqxx::serialization_failure & e) {
+      cout << e.what() << endl;
+    }
+  }
+}
+
+void Database::updatePackage(connection * C,package_status_t status, int trackingNum ) {
+  transaction<serializable, read_write> T(*C);
+  while (true) {
+    try {
+      stringstream ss;
+      ss<<"update packages set status='"<<package_enum_str[status]<<"' where trackingNum="<<trackingNum<<";";
+      T.exec(ss.str());
+      T.commit();
+      cout << "packages one row update successfully" << endl;
+      break;
+    }
+    catch (const pqxx::serialization_failure & e) {
+      cout << e.what() << endl;
+    }
+  }
+}
+
+string Database::queryPackageStatus(connection * C, int trackingNum) {
+  work W(*C);
+  stringstream ss;
+  ss << "select status from packages where trackingNum='" << trackingNum << "';";
+  result r = W.exec(ss.str());
+  return r.begin()[0].as<string>();
 }
 
 #endif
