@@ -4,6 +4,7 @@
 #include <ctime>
 #include <pqxx/pqxx>
 #include <string>
+#include <vector>
 
 #include "Account.hpp"
 #include "Item.hpp"
@@ -11,10 +12,11 @@
 #include "Truck.hpp"
 #include "Warehouse.hpp"
 
-#define HOST "localhost"
+// #define HOST "localhost"
+#define HOST "vcm-26069.vm.duke.edu"
 #define DATABASE "postgres"
 #define USER "postgres"
-#define PASSWORD "postgres"
+#define PASSWORD "@zxcvbnm123"
 
 class DatabaseConnectionError : public std::exception {
  public:
@@ -47,8 +49,9 @@ class Database {
                      int truckid,
                      int trackingNum);
   void updatePackage(pqxx::connection * C, package_status_t status, int trackingNum);
-  string queryPackageStatus(pqxx::connection * C, int packageId);
-  // pqxx::connection *getConnection();
+  std::string queryPackageStatus(pqxx::connection * C, int packageId);
+  std::vector<int64_t> queryTrackingNumToPickUp(pqxx::connection * C, int truckid, int warehouseid);
+  int queryWarehouseId(pqxx::connection * C, int x, int y);
 };
 
 #endif

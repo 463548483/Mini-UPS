@@ -22,19 +22,13 @@
 #include <tbb/task_scheduler_init.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 
-class FormatError : public std::exception {
+class ConnectToAmazonFailure : public std::exception {
 public:    
     virtual const char* what() const noexcept {
-       return "The data received is of wrong format.";
+       return "After sending world id to amazon, didn't receive correct response.";
     }
 };
 
-class FormatErrorLength : public std::exception {
-public:    
-    virtual const char* what() const noexcept {
-       return "The number in the first line does not match the length of the xml received.";
-    }
-};
 
 class BaseServer {
 private:
@@ -58,15 +52,20 @@ public:
     BaseServer(const char *_hostname, 
         const char *_port, int _backlog, int _threadNum);
     ~BaseServer();
+    void connectToSimWorld();
+    void connectToAmazon();
+    void receiveUConnected();
     int64_t getWorldIdFromSim();
     void sendTestCommand();
+    void getTestResponse(UResponses &resp);
     std::vector<int64_t> extractSeqNums(UResponses &resp);
     void displayUResponses(UResponses &resp);
     void processErrors(UResponses &resp);
     void processAcks(UResponses &resp);
-    void processCompletions(UResponses &resp);
-    void processDelivered(UResponses &resp);
-    void processTruckStatus(UResponses &resp);
+    void processCompletions(pqxx::connection *C, UResponses &resp);
+    void processDelivered(pqxx::connection *C, UResponses &resp);
+    void processTruckStatus(pqxx::connection *C, UResponses &resp);
+    bool getCorrespondTruckStatus(const std::string &status, truck_status_t &newStatus);
 
     // interfaces of request to world
     void requestPickUpToWorld(int truckid, int whid, int64_t seqnum);
@@ -76,14 +75,14 @@ public:
     void adjustSimSpeed(unsigned int simspeed);
     void requestDisconnectToWorld();
     void addToWaitAcks(int64_t seqnum, UCommands ucom);
-    void ackToWorld(int64_t ack);
+    void ackToWorld(std::vector<int64_t> acks);
+    bool checkIfAlreadyProcessed(int64_t seq);
 
     // interfaces to amazon
     void sendWorldIdToAmazon(int64_t worldid, int64_t seqnum);
-    void notifyArrivalToAmazon(int truckid, int64_t packageid, int64_t seqnum);
-    void notifyDeliveredToAmazon(int64_t packageid, int64_t seqnum);
+    void notifyArrivalToAmazon(int truckid, int64_t trackingnum, int64_t seqnum);
+    void notifyDeliveredToAmazon(int64_t trackingnum, int64_t seqnum);
     void sendErrToAmazon(std::string err, int64_t originseqnum, int64_t seqnum);
-    void sendPickUpResponseToAmazon(int64_t packageid, int64_t seqnum);
     void ackToAmazon(int64_t ack);
 
     //interface for process amazon request

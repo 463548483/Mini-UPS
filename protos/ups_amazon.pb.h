@@ -56,6 +56,9 @@ extern AUCommandDefaultTypeInternal _AUCommand_default_instance_;
 class AULoadOver;
 class AULoadOverDefaultTypeInternal;
 extern AULoadOverDefaultTypeInternal _AULoadOver_default_instance_;
+class AUQueryUpsid;
+class AUQueryUpsidDefaultTypeInternal;
+extern AUQueryUpsidDefaultTypeInternal _AUQueryUpsid_default_instance_;
 class AURequestPickup;
 class AURequestPickupDefaultTypeInternal;
 extern AURequestPickupDefaultTypeInternal _AURequestPickup_default_instance_;
@@ -74,9 +77,6 @@ extern UACommandDefaultTypeInternal _UACommand_default_instance_;
 class UADeliverOver;
 class UADeliverOverDefaultTypeInternal;
 extern UADeliverOverDefaultTypeInternal _UADeliverOver_default_instance_;
-class UAPickupResponse;
-class UAPickupResponseDefaultTypeInternal;
-extern UAPickupResponseDefaultTypeInternal _UAPickupResponse_default_instance_;
 class UAResponses;
 class UAResponsesDefaultTypeInternal;
 extern UAResponsesDefaultTypeInternal _UAResponses_default_instance_;
@@ -88,13 +88,13 @@ namespace protobuf {
 template<> ::AUChangeAddress* Arena::CreateMaybeMessage<::AUChangeAddress>(Arena*);
 template<> ::AUCommand* Arena::CreateMaybeMessage<::AUCommand>(Arena*);
 template<> ::AULoadOver* Arena::CreateMaybeMessage<::AULoadOver>(Arena*);
+template<> ::AUQueryUpsid* Arena::CreateMaybeMessage<::AUQueryUpsid>(Arena*);
 template<> ::AURequestPickup* Arena::CreateMaybeMessage<::AURequestPickup>(Arena*);
 template<> ::AUResponses* Arena::CreateMaybeMessage<::AUResponses>(Arena*);
 template<> ::Err* Arena::CreateMaybeMessage<::Err>(Arena*);
 template<> ::UAArrived* Arena::CreateMaybeMessage<::UAArrived>(Arena*);
 template<> ::UACommand* Arena::CreateMaybeMessage<::UACommand>(Arena*);
 template<> ::UADeliverOver* Arena::CreateMaybeMessage<::UADeliverOver>(Arena*);
-template<> ::UAPickupResponse* Arena::CreateMaybeMessage<::UAPickupResponse>(Arena*);
 template<> ::UAResponses* Arena::CreateMaybeMessage<::UAResponses>(Arena*);
 template<> ::UASendWorldId* Arena::CreateMaybeMessage<::UASendWorldId>(Arena*);
 }  // namespace protobuf
@@ -229,6 +229,133 @@ class UASendWorldId : public ::google::protobuf::Message /* @@protoc_insertion_p
 };
 // -------------------------------------------------------------------
 
+class AUQueryUpsid : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:AUQueryUpsid) */ {
+ public:
+  AUQueryUpsid();
+  virtual ~AUQueryUpsid();
+
+  AUQueryUpsid(const AUQueryUpsid& from);
+
+  inline AUQueryUpsid& operator=(const AUQueryUpsid& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  AUQueryUpsid(AUQueryUpsid&& from) noexcept
+    : AUQueryUpsid() {
+    *this = ::std::move(from);
+  }
+
+  inline AUQueryUpsid& operator=(AUQueryUpsid&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _internal_metadata_.unknown_fields();
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return _internal_metadata_.mutable_unknown_fields();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const AUQueryUpsid& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const AUQueryUpsid* internal_default_instance() {
+    return reinterpret_cast<const AUQueryUpsid*>(
+               &_AUQueryUpsid_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    1;
+
+  void Swap(AUQueryUpsid* other);
+  friend void swap(AUQueryUpsid& a, AUQueryUpsid& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline AUQueryUpsid* New() const final {
+    return CreateMaybeMessage<AUQueryUpsid>(NULL);
+  }
+
+  AUQueryUpsid* New(::google::protobuf::Arena* arena) const final {
+    return CreateMaybeMessage<AUQueryUpsid>(arena);
+  }
+  void CopyFrom(const ::google::protobuf::Message& from) final;
+  void MergeFrom(const ::google::protobuf::Message& from) final;
+  void CopyFrom(const AUQueryUpsid& from);
+  void MergeFrom(const AUQueryUpsid& from);
+  void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) final;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const final;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(AUQueryUpsid* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required int64 upsid = 1;
+  bool has_upsid() const;
+  void clear_upsid();
+  static const int kUpsidFieldNumber = 1;
+  ::google::protobuf::int64 upsid() const;
+  void set_upsid(::google::protobuf::int64 value);
+
+  // required int64 seqnum = 255;
+  bool has_seqnum() const;
+  void clear_seqnum();
+  static const int kSeqnumFieldNumber = 255;
+  ::google::protobuf::int64 seqnum() const;
+  void set_seqnum(::google::protobuf::int64 value);
+
+  // @@protoc_insertion_point(class_scope:AUQueryUpsid)
+ private:
+  void set_has_upsid();
+  void clear_has_upsid();
+  void set_has_seqnum();
+  void clear_has_seqnum();
+
+  // helper for ByteSizeLong()
+  size_t RequiredFieldsByteSizeFallback() const;
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::HasBits<1> _has_bits_;
+  mutable ::google::protobuf::internal::CachedSize _cached_size_;
+  ::google::protobuf::int64 upsid_;
+  ::google::protobuf::int64 seqnum_;
+  friend struct ::protobuf_ups_5famazon_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
 class AURequestPickup : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:AURequestPickup) */ {
  public:
   AURequestPickup();
@@ -271,7 +398,7 @@ class AURequestPickup : public ::google::protobuf::Message /* @@protoc_insertion
                &_AURequestPickup_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    1;
+    2;
 
   void Swap(AURequestPickup* other);
   friend void swap(AURequestPickup& a, AURequestPickup& b) {
@@ -347,10 +474,17 @@ class AURequestPickup : public ::google::protobuf::Message /* @@protoc_insertion
   ::AInitWarehouse* mutable_wareinfo();
   void set_allocated_wareinfo(::AInitWarehouse* wareinfo);
 
-  // optional int64 upsid = 3;
+  // required int64 trackingnum = 3;
+  bool has_trackingnum() const;
+  void clear_trackingnum();
+  static const int kTrackingnumFieldNumber = 3;
+  ::google::protobuf::int64 trackingnum() const;
+  void set_trackingnum(::google::protobuf::int64 value);
+
+  // optional int64 upsid = 4;
   bool has_upsid() const;
   void clear_upsid();
-  static const int kUpsidFieldNumber = 3;
+  static const int kUpsidFieldNumber = 4;
   ::google::protobuf::int64 upsid() const;
   void set_upsid(::google::protobuf::int64 value);
 
@@ -365,6 +499,8 @@ class AURequestPickup : public ::google::protobuf::Message /* @@protoc_insertion
  private:
   void set_has_wareinfo();
   void clear_has_wareinfo();
+  void set_has_trackingnum();
+  void clear_has_trackingnum();
   void set_has_upsid();
   void clear_has_upsid();
   void set_has_seqnum();
@@ -378,134 +514,8 @@ class AURequestPickup : public ::google::protobuf::Message /* @@protoc_insertion
   mutable ::google::protobuf::internal::CachedSize _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::AProduct > things_;
   ::AInitWarehouse* wareinfo_;
+  ::google::protobuf::int64 trackingnum_;
   ::google::protobuf::int64 upsid_;
-  ::google::protobuf::int64 seqnum_;
-  friend struct ::protobuf_ups_5famazon_2eproto::TableStruct;
-};
-// -------------------------------------------------------------------
-
-class UAPickupResponse : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:UAPickupResponse) */ {
- public:
-  UAPickupResponse();
-  virtual ~UAPickupResponse();
-
-  UAPickupResponse(const UAPickupResponse& from);
-
-  inline UAPickupResponse& operator=(const UAPickupResponse& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  #if LANG_CXX11
-  UAPickupResponse(UAPickupResponse&& from) noexcept
-    : UAPickupResponse() {
-    *this = ::std::move(from);
-  }
-
-  inline UAPickupResponse& operator=(UAPickupResponse&& from) noexcept {
-    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
-      if (this != &from) InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-  #endif
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields();
-  }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields();
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const UAPickupResponse& default_instance();
-
-  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const UAPickupResponse* internal_default_instance() {
-    return reinterpret_cast<const UAPickupResponse*>(
-               &_UAPickupResponse_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    2;
-
-  void Swap(UAPickupResponse* other);
-  friend void swap(UAPickupResponse& a, UAPickupResponse& b) {
-    a.Swap(&b);
-  }
-
-  // implements Message ----------------------------------------------
-
-  inline UAPickupResponse* New() const final {
-    return CreateMaybeMessage<UAPickupResponse>(NULL);
-  }
-
-  UAPickupResponse* New(::google::protobuf::Arena* arena) const final {
-    return CreateMaybeMessage<UAPickupResponse>(arena);
-  }
-  void CopyFrom(const ::google::protobuf::Message& from) final;
-  void MergeFrom(const ::google::protobuf::Message& from) final;
-  void CopyFrom(const UAPickupResponse& from);
-  void MergeFrom(const UAPickupResponse& from);
-  void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input) final;
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const final;
-  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
-      bool deterministic, ::google::protobuf::uint8* target) const final;
-  int GetCachedSize() const final { return _cached_size_.Get(); }
-
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const final;
-  void InternalSwap(UAPickupResponse* other);
-  private:
-  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
-    return NULL;
-  }
-  inline void* MaybeArenaPtr() const {
-    return NULL;
-  }
-  public:
-
-  ::google::protobuf::Metadata GetMetadata() const final;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // required int64 packageid = 1;
-  bool has_packageid() const;
-  void clear_packageid();
-  static const int kPackageidFieldNumber = 1;
-  ::google::protobuf::int64 packageid() const;
-  void set_packageid(::google::protobuf::int64 value);
-
-  // required int64 seqnum = 255;
-  bool has_seqnum() const;
-  void clear_seqnum();
-  static const int kSeqnumFieldNumber = 255;
-  ::google::protobuf::int64 seqnum() const;
-  void set_seqnum(::google::protobuf::int64 value);
-
-  // @@protoc_insertion_point(class_scope:UAPickupResponse)
- private:
-  void set_has_packageid();
-  void clear_has_packageid();
-  void set_has_seqnum();
-  void clear_has_seqnum();
-
-  // helper for ByteSizeLong()
-  size_t RequiredFieldsByteSizeFallback() const;
-
-  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::google::protobuf::internal::HasBits<1> _has_bits_;
-  mutable ::google::protobuf::internal::CachedSize _cached_size_;
-  ::google::protobuf::int64 packageid_;
   ::google::protobuf::int64 seqnum_;
   friend struct ::protobuf_ups_5famazon_2eproto::TableStruct;
 };
@@ -605,12 +615,12 @@ class UAArrived : public ::google::protobuf::Message /* @@protoc_insertion_point
 
   // accessors -------------------------------------------------------
 
-  // required int64 packageid = 2;
-  bool has_packageid() const;
-  void clear_packageid();
-  static const int kPackageidFieldNumber = 2;
-  ::google::protobuf::int64 packageid() const;
-  void set_packageid(::google::protobuf::int64 value);
+  // required int64 trackingnum = 2;
+  bool has_trackingnum() const;
+  void clear_trackingnum();
+  static const int kTrackingnumFieldNumber = 2;
+  ::google::protobuf::int64 trackingnum() const;
+  void set_trackingnum(::google::protobuf::int64 value);
 
   // required int32 truckid = 1;
   bool has_truckid() const;
@@ -630,8 +640,8 @@ class UAArrived : public ::google::protobuf::Message /* @@protoc_insertion_point
  private:
   void set_has_truckid();
   void clear_has_truckid();
-  void set_has_packageid();
-  void clear_has_packageid();
+  void set_has_trackingnum();
+  void clear_has_trackingnum();
   void set_has_seqnum();
   void clear_has_seqnum();
 
@@ -641,7 +651,7 @@ class UAArrived : public ::google::protobuf::Message /* @@protoc_insertion_point
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::internal::HasBits<1> _has_bits_;
   mutable ::google::protobuf::internal::CachedSize _cached_size_;
-  ::google::protobuf::int64 packageid_;
+  ::google::protobuf::int64 trackingnum_;
   ::google::protobuf::int32 truckid_;
   ::google::protobuf::int64 seqnum_;
   friend struct ::protobuf_ups_5famazon_2eproto::TableStruct;
@@ -754,12 +764,12 @@ class AULoadOver : public ::google::protobuf::Message /* @@protoc_insertion_poin
   ::UDeliveryLocation* mutable_loc();
   void set_allocated_loc(::UDeliveryLocation* loc);
 
-  // required int64 packageid = 1;
-  bool has_packageid() const;
-  void clear_packageid();
-  static const int kPackageidFieldNumber = 1;
-  ::google::protobuf::int64 packageid() const;
-  void set_packageid(::google::protobuf::int64 value);
+  // required int64 trackingnum = 1;
+  bool has_trackingnum() const;
+  void clear_trackingnum();
+  static const int kTrackingnumFieldNumber = 1;
+  ::google::protobuf::int64 trackingnum() const;
+  void set_trackingnum(::google::protobuf::int64 value);
 
   // required int32 truckid = 2;
   bool has_truckid() const;
@@ -777,8 +787,8 @@ class AULoadOver : public ::google::protobuf::Message /* @@protoc_insertion_poin
 
   // @@protoc_insertion_point(class_scope:AULoadOver)
  private:
-  void set_has_packageid();
-  void clear_has_packageid();
+  void set_has_trackingnum();
+  void clear_has_trackingnum();
   void set_has_truckid();
   void clear_has_truckid();
   void set_has_loc();
@@ -793,7 +803,7 @@ class AULoadOver : public ::google::protobuf::Message /* @@protoc_insertion_poin
   ::google::protobuf::internal::HasBits<1> _has_bits_;
   mutable ::google::protobuf::internal::CachedSize _cached_size_;
   ::UDeliveryLocation* loc_;
-  ::google::protobuf::int64 packageid_;
+  ::google::protobuf::int64 trackingnum_;
   ::google::protobuf::int32 truckid_;
   ::google::protobuf::int64 seqnum_;
   friend struct ::protobuf_ups_5famazon_2eproto::TableStruct;
@@ -906,12 +916,12 @@ class AUChangeAddress : public ::google::protobuf::Message /* @@protoc_insertion
   ::UDeliveryLocation* mutable_loc();
   void set_allocated_loc(::UDeliveryLocation* loc);
 
-  // required int64 packageid = 1;
-  bool has_packageid() const;
-  void clear_packageid();
-  static const int kPackageidFieldNumber = 1;
-  ::google::protobuf::int64 packageid() const;
-  void set_packageid(::google::protobuf::int64 value);
+  // required int64 trackingnum = 1;
+  bool has_trackingnum() const;
+  void clear_trackingnum();
+  static const int kTrackingnumFieldNumber = 1;
+  ::google::protobuf::int64 trackingnum() const;
+  void set_trackingnum(::google::protobuf::int64 value);
 
   // required int64 seqnum = 255;
   bool has_seqnum() const;
@@ -922,8 +932,8 @@ class AUChangeAddress : public ::google::protobuf::Message /* @@protoc_insertion
 
   // @@protoc_insertion_point(class_scope:AUChangeAddress)
  private:
-  void set_has_packageid();
-  void clear_has_packageid();
+  void set_has_trackingnum();
+  void clear_has_trackingnum();
   void set_has_loc();
   void clear_has_loc();
   void set_has_seqnum();
@@ -936,7 +946,7 @@ class AUChangeAddress : public ::google::protobuf::Message /* @@protoc_insertion
   ::google::protobuf::internal::HasBits<1> _has_bits_;
   mutable ::google::protobuf::internal::CachedSize _cached_size_;
   ::UDeliveryLocation* loc_;
-  ::google::protobuf::int64 packageid_;
+  ::google::protobuf::int64 trackingnum_;
   ::google::protobuf::int64 seqnum_;
   friend struct ::protobuf_ups_5famazon_2eproto::TableStruct;
 };
@@ -1036,12 +1046,12 @@ class UADeliverOver : public ::google::protobuf::Message /* @@protoc_insertion_p
 
   // accessors -------------------------------------------------------
 
-  // required int64 packageid = 1;
-  bool has_packageid() const;
-  void clear_packageid();
-  static const int kPackageidFieldNumber = 1;
-  ::google::protobuf::int64 packageid() const;
-  void set_packageid(::google::protobuf::int64 value);
+  // required int64 trackingnum = 1;
+  bool has_trackingnum() const;
+  void clear_trackingnum();
+  static const int kTrackingnumFieldNumber = 1;
+  ::google::protobuf::int64 trackingnum() const;
+  void set_trackingnum(::google::protobuf::int64 value);
 
   // required int64 seqnum = 255;
   bool has_seqnum() const;
@@ -1052,8 +1062,8 @@ class UADeliverOver : public ::google::protobuf::Message /* @@protoc_insertion_p
 
   // @@protoc_insertion_point(class_scope:UADeliverOver)
  private:
-  void set_has_packageid();
-  void clear_has_packageid();
+  void set_has_trackingnum();
+  void clear_has_trackingnum();
   void set_has_seqnum();
   void clear_has_seqnum();
 
@@ -1063,7 +1073,7 @@ class UADeliverOver : public ::google::protobuf::Message /* @@protoc_insertion_p
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::internal::HasBits<1> _has_bits_;
   mutable ::google::protobuf::internal::CachedSize _cached_size_;
-  ::google::protobuf::int64 packageid_;
+  ::google::protobuf::int64 trackingnum_;
   ::google::protobuf::int64 seqnum_;
   friend struct ::protobuf_ups_5famazon_2eproto::TableStruct;
 };
@@ -1199,8 +1209,22 @@ class AUCommand : public ::google::protobuf::Message /* @@protoc_insertion_point
   const ::google::protobuf::RepeatedPtrField< ::AUChangeAddress >&
       changeaddr() const;
 
+  // optional .AUQueryUpsid queryupsid = 4;
+  bool has_queryupsid() const;
+  void clear_queryupsid();
+  static const int kQueryupsidFieldNumber = 4;
+  private:
+  const ::AUQueryUpsid& _internal_queryupsid() const;
+  public:
+  const ::AUQueryUpsid& queryupsid() const;
+  ::AUQueryUpsid* release_queryupsid();
+  ::AUQueryUpsid* mutable_queryupsid();
+  void set_allocated_queryupsid(::AUQueryUpsid* queryupsid);
+
   // @@protoc_insertion_point(class_scope:AUCommand)
  private:
+  void set_has_queryupsid();
+  void clear_has_queryupsid();
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::internal::HasBits<1> _has_bits_;
@@ -1208,6 +1232,7 @@ class AUCommand : public ::google::protobuf::Message /* @@protoc_insertion_point
   ::google::protobuf::RepeatedPtrField< ::AURequestPickup > pickup_;
   ::google::protobuf::RepeatedPtrField< ::AULoadOver > packloaded_;
   ::google::protobuf::RepeatedPtrField< ::AUChangeAddress > changeaddr_;
+  ::AUQueryUpsid* queryupsid_;
   friend struct ::protobuf_ups_5famazon_2eproto::TableStruct;
 };
 // -------------------------------------------------------------------
@@ -1451,22 +1476,10 @@ class UAResponses : public ::google::protobuf::Message /* @@protoc_insertion_poi
 
   // accessors -------------------------------------------------------
 
-  // repeated .UAPickupResponse pickupresp = 1;
-  int pickupresp_size() const;
-  void clear_pickupresp();
-  static const int kPickuprespFieldNumber = 1;
-  ::UAPickupResponse* mutable_pickupresp(int index);
-  ::google::protobuf::RepeatedPtrField< ::UAPickupResponse >*
-      mutable_pickupresp();
-  const ::UAPickupResponse& pickupresp(int index) const;
-  ::UAPickupResponse* add_pickupresp();
-  const ::google::protobuf::RepeatedPtrField< ::UAPickupResponse >&
-      pickupresp() const;
-
-  // repeated .Err errors = 2;
+  // repeated .Err errors = 1;
   int errors_size() const;
   void clear_errors();
-  static const int kErrorsFieldNumber = 2;
+  static const int kErrorsFieldNumber = 1;
   ::Err* mutable_errors(int index);
   ::google::protobuf::RepeatedPtrField< ::Err >*
       mutable_errors();
@@ -1475,10 +1488,10 @@ class UAResponses : public ::google::protobuf::Message /* @@protoc_insertion_poi
   const ::google::protobuf::RepeatedPtrField< ::Err >&
       errors() const;
 
-  // repeated int64 acks = 3;
+  // repeated int64 acks = 2;
   int acks_size() const;
   void clear_acks();
-  static const int kAcksFieldNumber = 3;
+  static const int kAcksFieldNumber = 2;
   ::google::protobuf::int64 acks(int index) const;
   void set_acks(int index, ::google::protobuf::int64 value);
   void add_acks(::google::protobuf::int64 value);
@@ -1493,7 +1506,6 @@ class UAResponses : public ::google::protobuf::Message /* @@protoc_insertion_poi
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::internal::HasBits<1> _has_bits_;
   mutable ::google::protobuf::internal::CachedSize _cached_size_;
-  ::google::protobuf::RepeatedPtrField< ::UAPickupResponse > pickupresp_;
   ::google::protobuf::RepeatedPtrField< ::Err > errors_;
   ::google::protobuf::RepeatedField< ::google::protobuf::int64 > acks_;
   friend struct ::protobuf_ups_5famazon_2eproto::TableStruct;
@@ -1844,6 +1856,58 @@ inline void UASendWorldId::set_seqnum(::google::protobuf::int64 value) {
 
 // -------------------------------------------------------------------
 
+// AUQueryUpsid
+
+// required int64 upsid = 1;
+inline bool AUQueryUpsid::has_upsid() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void AUQueryUpsid::set_has_upsid() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void AUQueryUpsid::clear_has_upsid() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void AUQueryUpsid::clear_upsid() {
+  upsid_ = GOOGLE_LONGLONG(0);
+  clear_has_upsid();
+}
+inline ::google::protobuf::int64 AUQueryUpsid::upsid() const {
+  // @@protoc_insertion_point(field_get:AUQueryUpsid.upsid)
+  return upsid_;
+}
+inline void AUQueryUpsid::set_upsid(::google::protobuf::int64 value) {
+  set_has_upsid();
+  upsid_ = value;
+  // @@protoc_insertion_point(field_set:AUQueryUpsid.upsid)
+}
+
+// required int64 seqnum = 255;
+inline bool AUQueryUpsid::has_seqnum() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void AUQueryUpsid::set_has_seqnum() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void AUQueryUpsid::clear_has_seqnum() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void AUQueryUpsid::clear_seqnum() {
+  seqnum_ = GOOGLE_LONGLONG(0);
+  clear_has_seqnum();
+}
+inline ::google::protobuf::int64 AUQueryUpsid::seqnum() const {
+  // @@protoc_insertion_point(field_get:AUQueryUpsid.seqnum)
+  return seqnum_;
+}
+inline void AUQueryUpsid::set_seqnum(::google::protobuf::int64 value) {
+  set_has_seqnum();
+  seqnum_ = value;
+  // @@protoc_insertion_point(field_set:AUQueryUpsid.seqnum)
+}
+
+// -------------------------------------------------------------------
+
 // AURequestPickup
 
 // repeated .AProduct things = 1;
@@ -1927,15 +1991,39 @@ inline void AURequestPickup::set_allocated_wareinfo(::AInitWarehouse* wareinfo) 
   // @@protoc_insertion_point(field_set_allocated:AURequestPickup.wareinfo)
 }
 
-// optional int64 upsid = 3;
-inline bool AURequestPickup::has_upsid() const {
+// required int64 trackingnum = 3;
+inline bool AURequestPickup::has_trackingnum() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void AURequestPickup::set_has_upsid() {
+inline void AURequestPickup::set_has_trackingnum() {
   _has_bits_[0] |= 0x00000002u;
 }
-inline void AURequestPickup::clear_has_upsid() {
+inline void AURequestPickup::clear_has_trackingnum() {
   _has_bits_[0] &= ~0x00000002u;
+}
+inline void AURequestPickup::clear_trackingnum() {
+  trackingnum_ = GOOGLE_LONGLONG(0);
+  clear_has_trackingnum();
+}
+inline ::google::protobuf::int64 AURequestPickup::trackingnum() const {
+  // @@protoc_insertion_point(field_get:AURequestPickup.trackingnum)
+  return trackingnum_;
+}
+inline void AURequestPickup::set_trackingnum(::google::protobuf::int64 value) {
+  set_has_trackingnum();
+  trackingnum_ = value;
+  // @@protoc_insertion_point(field_set:AURequestPickup.trackingnum)
+}
+
+// optional int64 upsid = 4;
+inline bool AURequestPickup::has_upsid() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void AURequestPickup::set_has_upsid() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void AURequestPickup::clear_has_upsid() {
+  _has_bits_[0] &= ~0x00000004u;
 }
 inline void AURequestPickup::clear_upsid() {
   upsid_ = GOOGLE_LONGLONG(0);
@@ -1953,13 +2041,13 @@ inline void AURequestPickup::set_upsid(::google::protobuf::int64 value) {
 
 // required int64 seqnum = 255;
 inline bool AURequestPickup::has_seqnum() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000008u) != 0;
 }
 inline void AURequestPickup::set_has_seqnum() {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000008u;
 }
 inline void AURequestPickup::clear_has_seqnum() {
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000008u;
 }
 inline void AURequestPickup::clear_seqnum() {
   seqnum_ = GOOGLE_LONGLONG(0);
@@ -1973,58 +2061,6 @@ inline void AURequestPickup::set_seqnum(::google::protobuf::int64 value) {
   set_has_seqnum();
   seqnum_ = value;
   // @@protoc_insertion_point(field_set:AURequestPickup.seqnum)
-}
-
-// -------------------------------------------------------------------
-
-// UAPickupResponse
-
-// required int64 packageid = 1;
-inline bool UAPickupResponse::has_packageid() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void UAPickupResponse::set_has_packageid() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void UAPickupResponse::clear_has_packageid() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void UAPickupResponse::clear_packageid() {
-  packageid_ = GOOGLE_LONGLONG(0);
-  clear_has_packageid();
-}
-inline ::google::protobuf::int64 UAPickupResponse::packageid() const {
-  // @@protoc_insertion_point(field_get:UAPickupResponse.packageid)
-  return packageid_;
-}
-inline void UAPickupResponse::set_packageid(::google::protobuf::int64 value) {
-  set_has_packageid();
-  packageid_ = value;
-  // @@protoc_insertion_point(field_set:UAPickupResponse.packageid)
-}
-
-// required int64 seqnum = 255;
-inline bool UAPickupResponse::has_seqnum() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void UAPickupResponse::set_has_seqnum() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void UAPickupResponse::clear_has_seqnum() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void UAPickupResponse::clear_seqnum() {
-  seqnum_ = GOOGLE_LONGLONG(0);
-  clear_has_seqnum();
-}
-inline ::google::protobuf::int64 UAPickupResponse::seqnum() const {
-  // @@protoc_insertion_point(field_get:UAPickupResponse.seqnum)
-  return seqnum_;
-}
-inline void UAPickupResponse::set_seqnum(::google::protobuf::int64 value) {
-  set_has_seqnum();
-  seqnum_ = value;
-  // @@protoc_insertion_point(field_set:UAPickupResponse.seqnum)
 }
 
 // -------------------------------------------------------------------
@@ -2055,28 +2091,28 @@ inline void UAArrived::set_truckid(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:UAArrived.truckid)
 }
 
-// required int64 packageid = 2;
-inline bool UAArrived::has_packageid() const {
+// required int64 trackingnum = 2;
+inline bool UAArrived::has_trackingnum() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void UAArrived::set_has_packageid() {
+inline void UAArrived::set_has_trackingnum() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void UAArrived::clear_has_packageid() {
+inline void UAArrived::clear_has_trackingnum() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void UAArrived::clear_packageid() {
-  packageid_ = GOOGLE_LONGLONG(0);
-  clear_has_packageid();
+inline void UAArrived::clear_trackingnum() {
+  trackingnum_ = GOOGLE_LONGLONG(0);
+  clear_has_trackingnum();
 }
-inline ::google::protobuf::int64 UAArrived::packageid() const {
-  // @@protoc_insertion_point(field_get:UAArrived.packageid)
-  return packageid_;
+inline ::google::protobuf::int64 UAArrived::trackingnum() const {
+  // @@protoc_insertion_point(field_get:UAArrived.trackingnum)
+  return trackingnum_;
 }
-inline void UAArrived::set_packageid(::google::protobuf::int64 value) {
-  set_has_packageid();
-  packageid_ = value;
-  // @@protoc_insertion_point(field_set:UAArrived.packageid)
+inline void UAArrived::set_trackingnum(::google::protobuf::int64 value) {
+  set_has_trackingnum();
+  trackingnum_ = value;
+  // @@protoc_insertion_point(field_set:UAArrived.trackingnum)
 }
 
 // required int64 seqnum = 255;
@@ -2107,28 +2143,28 @@ inline void UAArrived::set_seqnum(::google::protobuf::int64 value) {
 
 // AULoadOver
 
-// required int64 packageid = 1;
-inline bool AULoadOver::has_packageid() const {
+// required int64 trackingnum = 1;
+inline bool AULoadOver::has_trackingnum() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void AULoadOver::set_has_packageid() {
+inline void AULoadOver::set_has_trackingnum() {
   _has_bits_[0] |= 0x00000002u;
 }
-inline void AULoadOver::clear_has_packageid() {
+inline void AULoadOver::clear_has_trackingnum() {
   _has_bits_[0] &= ~0x00000002u;
 }
-inline void AULoadOver::clear_packageid() {
-  packageid_ = GOOGLE_LONGLONG(0);
-  clear_has_packageid();
+inline void AULoadOver::clear_trackingnum() {
+  trackingnum_ = GOOGLE_LONGLONG(0);
+  clear_has_trackingnum();
 }
-inline ::google::protobuf::int64 AULoadOver::packageid() const {
-  // @@protoc_insertion_point(field_get:AULoadOver.packageid)
-  return packageid_;
+inline ::google::protobuf::int64 AULoadOver::trackingnum() const {
+  // @@protoc_insertion_point(field_get:AULoadOver.trackingnum)
+  return trackingnum_;
 }
-inline void AULoadOver::set_packageid(::google::protobuf::int64 value) {
-  set_has_packageid();
-  packageid_ = value;
-  // @@protoc_insertion_point(field_set:AULoadOver.packageid)
+inline void AULoadOver::set_trackingnum(::google::protobuf::int64 value) {
+  set_has_trackingnum();
+  trackingnum_ = value;
+  // @@protoc_insertion_point(field_set:AULoadOver.trackingnum)
 }
 
 // required int32 truckid = 2;
@@ -2237,28 +2273,28 @@ inline void AULoadOver::set_seqnum(::google::protobuf::int64 value) {
 
 // AUChangeAddress
 
-// required int64 packageid = 1;
-inline bool AUChangeAddress::has_packageid() const {
+// required int64 trackingnum = 1;
+inline bool AUChangeAddress::has_trackingnum() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void AUChangeAddress::set_has_packageid() {
+inline void AUChangeAddress::set_has_trackingnum() {
   _has_bits_[0] |= 0x00000002u;
 }
-inline void AUChangeAddress::clear_has_packageid() {
+inline void AUChangeAddress::clear_has_trackingnum() {
   _has_bits_[0] &= ~0x00000002u;
 }
-inline void AUChangeAddress::clear_packageid() {
-  packageid_ = GOOGLE_LONGLONG(0);
-  clear_has_packageid();
+inline void AUChangeAddress::clear_trackingnum() {
+  trackingnum_ = GOOGLE_LONGLONG(0);
+  clear_has_trackingnum();
 }
-inline ::google::protobuf::int64 AUChangeAddress::packageid() const {
-  // @@protoc_insertion_point(field_get:AUChangeAddress.packageid)
-  return packageid_;
+inline ::google::protobuf::int64 AUChangeAddress::trackingnum() const {
+  // @@protoc_insertion_point(field_get:AUChangeAddress.trackingnum)
+  return trackingnum_;
 }
-inline void AUChangeAddress::set_packageid(::google::protobuf::int64 value) {
-  set_has_packageid();
-  packageid_ = value;
-  // @@protoc_insertion_point(field_set:AUChangeAddress.packageid)
+inline void AUChangeAddress::set_trackingnum(::google::protobuf::int64 value) {
+  set_has_trackingnum();
+  trackingnum_ = value;
+  // @@protoc_insertion_point(field_set:AUChangeAddress.trackingnum)
 }
 
 // required .UDeliveryLocation loc = 2;
@@ -2343,28 +2379,28 @@ inline void AUChangeAddress::set_seqnum(::google::protobuf::int64 value) {
 
 // UADeliverOver
 
-// required int64 packageid = 1;
-inline bool UADeliverOver::has_packageid() const {
+// required int64 trackingnum = 1;
+inline bool UADeliverOver::has_trackingnum() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void UADeliverOver::set_has_packageid() {
+inline void UADeliverOver::set_has_trackingnum() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void UADeliverOver::clear_has_packageid() {
+inline void UADeliverOver::clear_has_trackingnum() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void UADeliverOver::clear_packageid() {
-  packageid_ = GOOGLE_LONGLONG(0);
-  clear_has_packageid();
+inline void UADeliverOver::clear_trackingnum() {
+  trackingnum_ = GOOGLE_LONGLONG(0);
+  clear_has_trackingnum();
 }
-inline ::google::protobuf::int64 UADeliverOver::packageid() const {
-  // @@protoc_insertion_point(field_get:UADeliverOver.packageid)
-  return packageid_;
+inline ::google::protobuf::int64 UADeliverOver::trackingnum() const {
+  // @@protoc_insertion_point(field_get:UADeliverOver.trackingnum)
+  return trackingnum_;
 }
-inline void UADeliverOver::set_packageid(::google::protobuf::int64 value) {
-  set_has_packageid();
-  packageid_ = value;
-  // @@protoc_insertion_point(field_set:UADeliverOver.packageid)
+inline void UADeliverOver::set_trackingnum(::google::protobuf::int64 value) {
+  set_has_trackingnum();
+  trackingnum_ = value;
+  // @@protoc_insertion_point(field_set:UADeliverOver.trackingnum)
 }
 
 // required int64 seqnum = 255;
@@ -2483,6 +2519,64 @@ inline const ::google::protobuf::RepeatedPtrField< ::AUChangeAddress >&
 AUCommand::changeaddr() const {
   // @@protoc_insertion_point(field_list:AUCommand.changeaddr)
   return changeaddr_;
+}
+
+// optional .AUQueryUpsid queryupsid = 4;
+inline bool AUCommand::has_queryupsid() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void AUCommand::set_has_queryupsid() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void AUCommand::clear_has_queryupsid() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void AUCommand::clear_queryupsid() {
+  if (queryupsid_ != NULL) queryupsid_->Clear();
+  clear_has_queryupsid();
+}
+inline const ::AUQueryUpsid& AUCommand::_internal_queryupsid() const {
+  return *queryupsid_;
+}
+inline const ::AUQueryUpsid& AUCommand::queryupsid() const {
+  const ::AUQueryUpsid* p = queryupsid_;
+  // @@protoc_insertion_point(field_get:AUCommand.queryupsid)
+  return p != NULL ? *p : *reinterpret_cast<const ::AUQueryUpsid*>(
+      &::_AUQueryUpsid_default_instance_);
+}
+inline ::AUQueryUpsid* AUCommand::release_queryupsid() {
+  // @@protoc_insertion_point(field_release:AUCommand.queryupsid)
+  clear_has_queryupsid();
+  ::AUQueryUpsid* temp = queryupsid_;
+  queryupsid_ = NULL;
+  return temp;
+}
+inline ::AUQueryUpsid* AUCommand::mutable_queryupsid() {
+  set_has_queryupsid();
+  if (queryupsid_ == NULL) {
+    auto* p = CreateMaybeMessage<::AUQueryUpsid>(GetArenaNoVirtual());
+    queryupsid_ = p;
+  }
+  // @@protoc_insertion_point(field_mutable:AUCommand.queryupsid)
+  return queryupsid_;
+}
+inline void AUCommand::set_allocated_queryupsid(::AUQueryUpsid* queryupsid) {
+  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == NULL) {
+    delete queryupsid_;
+  }
+  if (queryupsid) {
+    ::google::protobuf::Arena* submessage_arena = NULL;
+    if (message_arena != submessage_arena) {
+      queryupsid = ::google::protobuf::internal::GetOwnedMessage(
+          message_arena, queryupsid, submessage_arena);
+    }
+    set_has_queryupsid();
+  } else {
+    clear_has_queryupsid();
+  }
+  queryupsid_ = queryupsid;
+  // @@protoc_insertion_point(field_set_allocated:AUCommand.queryupsid)
 }
 
 // -------------------------------------------------------------------
@@ -2611,37 +2705,7 @@ UACommand::deliverover() const {
 
 // UAResponses
 
-// repeated .UAPickupResponse pickupresp = 1;
-inline int UAResponses::pickupresp_size() const {
-  return pickupresp_.size();
-}
-inline void UAResponses::clear_pickupresp() {
-  pickupresp_.Clear();
-}
-inline ::UAPickupResponse* UAResponses::mutable_pickupresp(int index) {
-  // @@protoc_insertion_point(field_mutable:UAResponses.pickupresp)
-  return pickupresp_.Mutable(index);
-}
-inline ::google::protobuf::RepeatedPtrField< ::UAPickupResponse >*
-UAResponses::mutable_pickupresp() {
-  // @@protoc_insertion_point(field_mutable_list:UAResponses.pickupresp)
-  return &pickupresp_;
-}
-inline const ::UAPickupResponse& UAResponses::pickupresp(int index) const {
-  // @@protoc_insertion_point(field_get:UAResponses.pickupresp)
-  return pickupresp_.Get(index);
-}
-inline ::UAPickupResponse* UAResponses::add_pickupresp() {
-  // @@protoc_insertion_point(field_add:UAResponses.pickupresp)
-  return pickupresp_.Add();
-}
-inline const ::google::protobuf::RepeatedPtrField< ::UAPickupResponse >&
-UAResponses::pickupresp() const {
-  // @@protoc_insertion_point(field_list:UAResponses.pickupresp)
-  return pickupresp_;
-}
-
-// repeated .Err errors = 2;
+// repeated .Err errors = 1;
 inline int UAResponses::errors_size() const {
   return errors_.size();
 }
@@ -2671,7 +2735,7 @@ UAResponses::errors() const {
   return errors_;
 }
 
-// repeated int64 acks = 3;
+// repeated int64 acks = 2;
 inline int UAResponses::acks_size() const {
   return acks_.size();
 }

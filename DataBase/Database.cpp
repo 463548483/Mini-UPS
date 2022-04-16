@@ -12,8 +12,6 @@
 using namespace std;
 using namespace pqxx;
 
-atomic<int> ORDER_ID(0);
-
 Database::Database() {
   setup();
 }
@@ -23,10 +21,10 @@ void Database::setup() {
 
   cout << "testing\n";
   // clean all existing tables or types
-  cleanTables(C);
+  // cleanTables(C);
 
   // create tables
-  createTables(C);
+  // createTables(C);
 
   // test insert
   // SQLObject * truck1=new Truck(idle,0,0);
@@ -100,7 +98,6 @@ void Database::cleanTables(connection * C) {
   dropATable(C, "WAREHOUSES");
   dropATable(C, "ACCOUNT");
   dropATable(C, "TRUCKS");
-  //dropATable(C, "account");
 
   // clean the enum type
   /* Create a transactional object. */
@@ -117,7 +114,7 @@ void Database::cleanTables(connection * C) {
     cout << "Enum type truck_status dropped successfully" << endl;
   }
   catch (const exception & e) {
-    //cout << "Enum type truck_status doesn't exist. Ignoring the drop.\n";
+    cout << e.what() << endl;
   }
 }
 
@@ -279,6 +276,31 @@ string Database::queryPackageStatus(connection * C, int trackingNum) {
   ss << "select status from packages where trackingNum='" << trackingNum << "';";
   result r = W.exec(ss.str());
   return r.begin()[0].as<string>();
+}
+
+vector<int64_t> Database::queryTrackingNumToPickUp(connection *C, int truckid, int warehouseid) {
+  vector<int64_t> trackingNums;
+
+  work W(*C);
+  stringstream ss;
+  ss << "select trackingnum from packages where truckid='" << truckid << 
+  "' and warehouseid='" << warehouseid << "' and status='wait for pickup';";
+  result r = W.exec(ss.str());
+
+  for (result::const_iterator it = r.begin(); it != r.end(); ++it) {
+    trackingNums.push_back(it[0].as<int64_t>());
+  }
+  return trackingNums;
+}
+
+int Database::queryWarehouseId(connection * C, int x, int y) {
+  work W(*C);
+  stringstream ss;
+  ss << "select warehouseid from warehouses where x=" << x << 
+  " and y=" << y << ";";
+  result r = W.exec(ss.str());
+
+  return r.begin()[0].as<int>();
 }
 
 #endif

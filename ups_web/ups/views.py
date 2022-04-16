@@ -35,13 +35,13 @@ def track_shipment_view(request, *args, **kwargs):
         track_num = int(request.POST.get('tracking_number'))
 
         packages = Package.objects.filter(
-            packageid = track_num,
-        ).order_by('packageid') 
+            trackingnum = track_num,
+        ).order_by('trackingnum') 
 
         message = "Found %s results." % (len(packages))    
     else:
         # get all packages
-        packages = Package.objects.filter().order_by('packageid')
+        packages = Package.objects.filter().order_by('trackingnum')
 
         message = "Overview of all shipments."
 
@@ -51,14 +51,14 @@ def track_shipment_view(request, *args, **kwargs):
 def my_packages_view(request, *args, **kwargs):
     packages = Package.objects.filter(
         accountid = request.user.pk,
-    ).order_by('packageid') 
+    ).order_by('trackingnum') 
     
     context = {'packages': packages}
     return render(request, 'ups/my_packages.html', context=context)
 
 def package_detail_view(request, *args, **kwargs):
     items = Item.objects.filter(
-        packageid = kwargs['package_id']
+        trackingnum = kwargs['package_id']
     ).order_by('itemid')
     
     context = {'items': items}
@@ -71,11 +71,10 @@ def address_change_view(request, *args, **kwargs):
         print('Get new address (%d, %d)' % (new_x, new_y))
         # request backend to change address
 
-        packageid = kwargs['package_id']
         redirect_path = '/my_packages'
         return redirect(redirect_path)
     else:
-        package = Package.objects.get(packageid = kwargs['package_id'])
+        package = Package.objects.get(trackingnum = kwargs['package_id'])
         dest_x = package.destx
         dest_y = package.desty
     

@@ -20,15 +20,15 @@
 </tr>
 {% for package in packages %}
 <tr>
-    <td>{{package.packageid}}</td>
+    <td>{{package.trackingnum}}</td>
     <td>{{package.status}}</td>
     <td>#{{package.warehouseid}}</td>
     <td>Truck {{package.truckid.truckid}}</td>
     <td>({{package.destx}}, {{package.desty}})</td>
-    <td><a href="{{package.packageid}}/detail/">Detail</a></td>
+    <td><a href="{{package.trackingnum}}/detail/">Detail</a></td>
     <td>
         {% if package.status != 'delivering' and package.status != 'delivered' %}
-        <a href="{{package.packageid}}/change_address/">Change</a>
+        <a href="{{package.trackingnum}}/change_address/">Change</a>
         {% else %}
         Unavailable
         {% endif %}

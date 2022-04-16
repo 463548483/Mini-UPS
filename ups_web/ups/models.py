@@ -20,13 +20,13 @@ class Item(models.Model):
     itemid = models.AutoField(primary_key=True)
     description = models.CharField(max_length=2000)
     amount = models.IntegerField()
-    packageid = models.ForeignKey('Package', models.DO_NOTHING, db_column='packageid')
+    trackingnum = models.ForeignKey('Package', models.DO_NOTHING, db_column='trackingnum')
 
     class Meta:
         db_table = 'items'
 
 class Package(models.Model):
-    packageid = models.AutoField(primary_key=True)
+    trackingnum = models.AutoField(primary_key=True)
     destx = models.IntegerField(blank=True, null=True)
     desty = models.IntegerField(blank=True, null=True)
     truckid = models.ForeignKey('Truck', models.DO_NOTHING, db_column='truckid', blank=True, null=True)
@@ -65,3 +65,11 @@ class Truck(models.Model):
 
     class Meta:
         db_table = 'trucks'
+
+class Warehouse(models.Model):
+    warehouseid = models.IntegerField(primary_key=True)
+    x = models.IntegerField()
+    y = models.IntegerField()
+
+    class Meta:
+        db_table = 'warehouses'
