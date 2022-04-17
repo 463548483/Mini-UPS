@@ -57,7 +57,7 @@ class Package : virtual public SQLObject {
     else {
       ss << truckId << ",";
     }
-    if (accountId == -1) {
+    if (accountId == -1 || accountId ==0) {
       ss << "NULL,";
     }
     else {

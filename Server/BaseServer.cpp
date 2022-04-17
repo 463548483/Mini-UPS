@@ -19,7 +19,6 @@
 #include <unordered_set>
 #include <vector>
 
-#include "../DataBase/Database.hpp"
 #include "../Utils/utils.hpp"
 
 using namespace std;
@@ -83,10 +82,11 @@ BaseServer::BaseServer(const char * _hostname,
     backlog(_backlog),
     threadNum(_threadNum),
     init(threadNum) {
-  // create, bind, and listen to a socket
-  setupServer(_hostname, _port);
   // &db=new Database();
   // db.setup();
+  // create, bind, and listen to a socket
+  //setupServer(_hostname, _port);
+  
 }
 
 void BaseServer::setupServer(const char * hostname, const char * port) {
@@ -309,6 +309,7 @@ void BaseServer::amazonCommunicate() {
   while (1) {
     cout << "Wait for Amazon command" << endl;
     AUCommand acommd;
+    //getTestAUCommand(acommd);
     bool status = recvMesgFrom<AUCommand>(acommd, amazonIn);
     if (!status) {
       cerr << "Receive AUCommand from amazon failed.\n";
@@ -922,14 +923,14 @@ int BaseServer::findTrucks() {
           }
           int queryNum = seqnum.fetch_add(1);
           //db.updateTruck(C, traveling, closestTruckIds);
-          requestPickUpToWorld(closestTruckId, warehouseId, queryNum);
+          //requestPickUpToWorld(closestTruckId, warehouseId, queryNum);
           if (waitWorldProcess(queryNum) == false) {
             cout << "Request truck pick up fail" << endl;
             continue;
           }
           for (auto const & trackingNum : trackingNums) {
             db.updatePackage(C, wait_for_loading, trackingNum);
-            notifyArrivalToAmazon(closestTruckId, trackingNum, seqnum.fetch_add(1));
+            //notifyArrivalToAmazon(closestTruckId, trackingNum, seqnum.fetch_add(1));
           }
         }
       }
@@ -941,8 +942,60 @@ int BaseServer::findTrucks() {
   }
 }
 
+void BaseServer::getTestAUCommand(AUCommand & aResq){
+  AURequestPickup * pickup=aResq.add_pickup();
+  pickup->set_seqnum(1001);
+  pickup->set_trackingnum(120393503);
+  AProduct * aProduct=pickup->add_things();
+  aProduct->set_id(12);
+  aProduct->set_description("clothss");
+  aProduct->set_count(3);
+  AProduct * aProduct2=pickup->add_things();
+  aProduct2->set_id(13);
+  aProduct2->set_description("ss");
+  aProduct2->set_count(4);
+  Warehouse * warehouse=new Warehouse();
+  warehouse->set_id(99);
+  warehouse->set_x(99);
+  warehouse->set_y(99);
+  pickup->set_allocated_wareinfo(warehouse);
+  AURequestPickup * pickup2=aResq.add_pickup();
+  pickup2->set_seqnum(1002);
+  pickup2->set_trackingnum(120393504);
+  AProduct * aProduct3=pickup2->add_things();
+  aProduct3->set_id(12);
+  aProduct3->set_description("cc");
+  aProduct3->set_count(3);
+  AProduct * aProduct4=pickup2->add_things();
+  aProduct4->set_id(13);
+  aProduct4->set_description("dd");
+  aProduct4->set_count(4);
+  Warehouse * warehouse2=new Warehouse();;
+  warehouse2->set_id(99);
+  warehouse2->set_x(99);
+  warehouse2->set_y(99);
+  pickup2->set_allocated_wareinfo(warehouse);
+  AULoadOver * loaded=aResq.add_packloaded();
+  loaded->set_seqnum(120393504);
+  loaded->set_truckid(1);
+  UDeliveryLocation * loc=new UDeliveryLocation();
+  loc->set_packageid(120393504);
+  loc->set_x(101);
+  loc->set_y(101);
+  loaded->set_allocated_loc(loc);
+  loaded->set_seqnum(1005);
+  AUQueryUpsid * queryUpsid=new AUQueryUpsid();
+  queryUpsid->set_upsid(19);
+  queryUpsid->set_seqnum(1006);
+  aResq.set_allocated_queryupsid(queryUpsid);
+}
+
 //process query upsid request from Amazon
 void BaseServer::processAmazonUpsQuery(connection * C, AUCommand & aResq) {
+  if (!aResq.has_queryupsid()){
+    return;
+  }
+  cout<<"qeury for upsid"<<endl;
   const AUQueryUpsid & queryUpsid = aResq.queryupsid();
   int64_t upsId = queryUpsid.upsid();
   if (!db.queryUpsid(C, upsId)) {
@@ -955,10 +1008,10 @@ void BaseServer::processAmazonUpsQuery(connection * C, AUCommand & aResq) {
 
 // process pickup request from Amazon
 void BaseServer::processAmazonPickup(connection * C, AUCommand & aResq) {
+  cout<<"pickup size="<<aResq.pickup_size()<<endl;
   for (int i = 0; i < aResq.pickup_size(); i++) {
     const AURequestPickup & pickup = aResq.pickup(i);
     ackToAmazon(pickup.seqnum());
-    //if (pickup.has_upsid());
     const int warehouseId = pickup.wareinfo().id();
     WarehouseInfo * newWarehouseInfo =
         new WarehouseInfo(warehouseId, pickup.wareinfo().x(), pickup.wareinfo().y());
@@ -991,6 +1044,7 @@ void BaseServer::processAmazonPickup(connection * C, AUCommand & aResq) {
 }
 
 void BaseServer::processAmazonLoaded(connection * C, AUCommand & aResq) {
+  cout<<"process loaded size="<<aResq.packloaded_size()<<endl;
   unordered_map<int,vector<UDeliveryLocation>> truckPackageMap;
   for (int i = 0; i < aResq.packloaded_size(); i++) {
     const AULoadOver & loadOver = aResq.packloaded(i);

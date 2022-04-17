@@ -22,6 +22,7 @@
 #include "../DataBase/Database.hpp"
 #include "../protos/ups_amazon.pb.h"
 #include "../protos/world_ups.pb.h"
+#include "../protos/world_amazon.pb.h"
 #include "BaseSocket.hpp"
 
 class ConnectToAmazonFailure : public std::exception {
@@ -32,7 +33,7 @@ class ConnectToAmazonFailure : public std::exception {
 };
 
 class BaseServer {
- private:
+ public:
   // listening socket, for accepting connection
   MySocket * sock;
   // communicating with the world
@@ -87,12 +88,14 @@ class BaseServer {
   void sendErrToAmazon(std::string err, int64_t originseqnum, int64_t seqnum);
   void ackToAmazon(int64_t ack);
 
+
   //interface for process amazon request
   void processAmazonPickup(pqxx::connection * C, AUCommand & aResq);
   void processAmazonLoaded(pqxx::connection * C, AUCommand & aResq);
   void processAmazonUpsQuery(pqxx::connection * C, AUCommand & aResq);
   bool waitWorldProcess(int64_t seqNum);
   int findTrucks();
+  void getTestAUCommand(AUCommand & acommd);
 
   void setupServer(const char * _hostname, const char * _port);
 

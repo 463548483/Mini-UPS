@@ -1,0 +1,5 @@
+if(EXISTS "/home/zw255/erss-project-yd160-zw255/test/build/test-Amazon[1]_tests.cmake")
+  include("/home/zw255/erss-project-yd160-zw255/test/build/test-Amazon[1]_tests.cmake")
+else()
+  add_test(test-Amazon_NOT_BUILT test-Amazon_NOT_BUILT)
+endif()

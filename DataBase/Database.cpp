@@ -28,8 +28,8 @@ void Database::setup() {
   createTables(C);
 
   // // //test insert
-  // SQLObject * truck1 = new Truck(idle, 0, 0);
-  // insertTables(C, truck1);
+  SQLObject * truck1 = new Truck(idle, 0, 0);
+  insertTables(C, truck1);
   // SQLObject * account1 = new Account("eaeeer");
   // insertTables(C, account1);
 
