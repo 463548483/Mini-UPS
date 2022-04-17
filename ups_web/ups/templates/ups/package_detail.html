@@ -1,0 +1,38 @@
+{% extends 'ups/base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+
+<div style="text-align:left;">
+    <a href="javascript:history.go(-1);" class="button">Back</a> 
+</div>
+
+<h1>All items in this package</h1>
+
+<table id="customers">
+<tr>
+    <th>Id</th>
+    <th>Description</th>
+    <th>Amount</th>
+</tr>
+{% for item in items %}
+<tr>
+    <td>{{item.itemid}}</td>
+    <td>{{item.description}}</td>
+    <td>{{item.amount}}</td>
+</tr>
+{% endfor %}
+</table>
+
+
+{% else %}
+
+<p>Already have an account? Login <a href="/login">here</a></p>
+<p>Don't have an account? Register <a href="/register">here</a></p>
+
+{% endif %}
+
+{% endblock %}

@@ -4,16 +4,14 @@
 
 #include <atomic>
 #include <iostream>
+#include <list>
 #include <mutex>
 #include <sstream>
-#include <list>
 
 #define TRANS(name) #name
 
 using namespace std;
 using namespace pqxx;
-
-atomic<int> ORDER_ID(0);
 
 Database::Database() {
   setup();
@@ -29,30 +27,30 @@ void Database::setup() {
   // create tables
   createTables(C);
 
-  // //test insert
-  // SQLObject * truck1=new Truck(idle,0,0);
-  // insertTables(C,truck1);
-  // SQLObject * account1=new Account("a","eaeeer");
-  // insertTables(C,account1);
+  // // //test insert
+  // SQLObject * truck1 = new Truck(idle, 0, 0);
+  // insertTables(C, truck1);
+  // SQLObject * account1 = new Account("eaeeer");
+  // insertTables(C, account1);
 
-  // SQLObject * warehouse1=new Warehouse(1,3,3);
-  // insertTables(C,warehouse1);
-  // SQLObject * pkg1=new Package(1231,1,delivered);
-  // insertTables(C,pkg1);
-  // SQLObject * item1=new Item("cloth",3,1231);
-  // insertTables(C,item1);
+  // SQLObject * warehouse1 = new WarehouseInfo(1, 3, 3);
+  // insertTables(C, warehouse1);
+  // SQLObject * pkg1 = new Package(1231, 1, delivered);
+  // insertTables(C, pkg1);
+  // SQLObject * item1 = new Item("cloth", 3, 1231);
+  // insertTables(C, item1);
 
-  // updateTruck(C,delivering,9,9,1);
-  // updatePackage(C,out_for_deliver,10,10,1231);
-  // updatePackage(C,out_for_deliver,1,1231);
-  // updatePackage(C,wait_for_loading,1,1231);
-  // string st=queryPackageStatus(C,1231);
-  // cout<<st<<" status for pkg"<<endl;
-  // list<int> truckIds=queryAvailableTrucksPerDistance(C,2,2);
-  // cout<<truckIds.front()<<endl;
+  // updateTruck(C, delivering, 9, 9, 1);
+  // updatePackage(C, out_for_deliver, 10, 10, 1231);
+  // updatePackage(C, out_for_deliver, 1, 1231);
+  // updatePackage(C, wait_for_loading, 1, 1231);
+  // string st = queryPackageStatus(C, 1231);
+  // cout << st << " status for pkg" << endl;
+  // int truckIds = queryAvailableTrucksPerDistance(C, 1);
+  // cout << "find truck " << truckIds << endl;
 
-  C->disconnect();
-  delete C;
+  // C->disconnect();
+  // delete C;
 }
 
 Database::~Database() {
@@ -103,7 +101,6 @@ void Database::cleanTables(connection * C) {
   dropATable(C, "WAREHOUSES");
   dropATable(C, "ACCOUNT");
   dropATable(C, "TRUCKS");
-  //dropATable(C, "account");
 
   // clean the enum type
   /* Create a transactional object. */
@@ -120,7 +117,7 @@ void Database::cleanTables(connection * C) {
     cout << "Enum type truck_status dropped successfully" << endl;
   }
   catch (const exception & e) {
-    //cout << "Enum type truck_status doesn't exist. Ignoring the drop.\n";
+    cout << e.what() << endl;
   }
 }
 
@@ -141,9 +138,8 @@ void Database::createTables(connection * C) {
     );";
 
   string createAccount = "CREATE TABLE ACCOUNT (\
-    accountId     SERIAL              NOT NULL,\
+    accountId     BIGSERIAL              NOT NULL,\
     username      varchar(40)         NOT NULL,\
-    password      varchar(40)         NOT NULL,\
     CONSTRAINT ACCOUNTID_PK PRIMARY KEY (accountId)\
     );";
 
@@ -155,11 +151,11 @@ void Database::createTables(connection * C) {
     );";
 
   string createPackage = "CREATE TABLE PACKAGES (\
-    trackingNum    int             PRIMARY KEY,\
+    trackingNum    bigint             PRIMARY KEY,\
     destX          int             ,\
     destY          int             ,\
     truckId        int             ,\
-    accountId      int             ,\
+    accountId      bigint             ,\
     warehouseId    int             NOT NULL,\
     status         package_status  NOT NULL,\
     CONSTRAINT PACKAGE_TRUCKFK FOREIGN KEY (truckId) REFERENCES TRUCKS(truckId) ON DELETE SET NULL ON UPDATE CASCADE,\
@@ -168,10 +164,10 @@ void Database::createTables(connection * C) {
     );";
 
   string createItem = "CREATE TABLE ITEMS (\
-    itemId         SERIAL          PRIMARY KEY,\
+    itemId         BIGSERIAL          PRIMARY KEY,\
     description    varchar(2000)   NOT NULL,\
     amount         int             NOT NULL,\
-    trackingNum    int             NOT NULL,\
+    trackingNum    bigint             NOT NULL,\
     CONSTRAINT ITEM_PACKAGEFK FOREIGN KEY (trackingNum) REFERENCES PACKAGES(trackingNum) ON DELETE SET NULL ON UPDATE CASCADE\
     );";
 
@@ -200,7 +196,7 @@ void Database::insertTables(connection * C, SQLObject * object) {
     try {
       T.exec(object->sql_insert());
       T.commit();
-      cout << object->getTableName()<<" one row inserted successfully" << endl;
+      cout << object->getTableName() << " one row inserted successfully" << endl;
       break;
     }
     catch (const pqxx::serialization_failure & e) {
@@ -209,12 +205,17 @@ void Database::insertTables(connection * C, SQLObject * object) {
   }
 }
 
-void Database::updateTruck(connection * C,truck_status_t status,int x,int y, int truckId ) {
+void Database::updateTruck(connection * C,
+                           truck_status_t status,
+                           int x,
+                           int y,
+                           int truckId) {
   transaction<serializable, read_write> T(*C);
   while (true) {
     try {
       stringstream ss;
-      ss<<"update trucks set status='"<<truck_enum_str[status]<<"', x="<<x<<", y="<<y<<" where truckid="<<truckId<<";";
+      ss << "update trucks set status='" << truck_enum_str[status] << "', x=" << x
+         << ", y=" << y << " where truckid=" << truckId << ";";
       T.exec(ss.str());
       T.commit();
       cout << "trucks one row update successfully" << endl;
@@ -226,12 +227,36 @@ void Database::updateTruck(connection * C,truck_status_t status,int x,int y, int
   }
 }
 
-void Database::updatePackage(connection * C,package_status_t status,int destX,int destY, int trackingNum ) {
+void Database::updateTruck(connection * C, truck_status_t status, int truckId) {
   transaction<serializable, read_write> T(*C);
   while (true) {
     try {
       stringstream ss;
-      ss<<"update packages set status='"<<package_enum_str[status]<<"', destX="<<destX<<", destY="<<destY<<" where trackingNum="<<trackingNum<<";";
+      ss << "update trucks set status='" << truck_enum_str[status]
+         << "' where truckid=" << truckId << ";";
+      T.exec(ss.str());
+      T.commit();
+      cout << "trucks one row update successfully" << endl;
+      break;
+    }
+    catch (const pqxx::serialization_failure & e) {
+      cout << e.what() << endl;
+    }
+  }
+}
+
+void Database::updatePackage(connection * C,
+                             package_status_t status,
+                             int destX,
+                             int destY,
+                             int64_t trackingNum) {
+  transaction<serializable, read_write> T(*C);
+  while (true) {
+    try {
+      stringstream ss;
+      ss << "update packages set status='" << package_enum_str[status]
+         << "', destX=" << destX << ", destY=" << destY
+         << " where trackingNum=" << trackingNum << ";";
       T.exec(ss.str());
       T.commit();
       cout << "packages one row update successfully" << endl;
@@ -243,12 +268,16 @@ void Database::updatePackage(connection * C,package_status_t status,int destX,in
   }
 }
 
-void Database::updatePackage(connection * C,package_status_t status,int truckid, int trackingNum ) {
+void Database::updatePackage(connection * C,
+                             package_status_t status,
+                             int truckid,
+                             int64_t trackingNum) {
   transaction<serializable, read_write> T(*C);
   while (true) {
     try {
       stringstream ss;
-      ss<<"update packages set status='"<<package_enum_str[status]<<"', truckid="<<truckid<<" where trackingNum="<<trackingNum<<";";
+      ss << "update packages set status='" << package_enum_str[status]
+         << "', truckid=" << truckid << " where trackingNum=" << trackingNum << ";";
       T.exec(ss.str());
       T.commit();
       cout << "packages one row update successfully" << endl;
@@ -260,12 +289,15 @@ void Database::updatePackage(connection * C,package_status_t status,int truckid,
   }
 }
 
-void Database::updatePackage(connection * C,package_status_t status, int trackingNum ) {
+void Database::updatePackage(connection * C,
+                             package_status_t status,
+                             int64_t trackingNum) {
   transaction<serializable, read_write> T(*C);
   while (true) {
     try {
       stringstream ss;
-      ss<<"update packages set status='"<<package_enum_str[status]<<"' where trackingNum="<<trackingNum<<";";
+      ss << "update packages set status='" << package_enum_str[status]
+         << "' where trackingNum=" << trackingNum << ";";
       T.exec(ss.str());
       T.commit();
       cout << "packages one row update successfully" << endl;
@@ -277,7 +309,7 @@ void Database::updatePackage(connection * C,package_status_t status, int trackin
   }
 }
 
-string Database::queryPackageStatus(connection * C, int trackingNum) {
+string Database::queryPackageStatus(connection * C, int64_t trackingNum) {
   work W(*C);
   stringstream ss;
   ss << "select status from packages where trackingNum='" << trackingNum << "';";
@@ -286,11 +318,34 @@ string Database::queryPackageStatus(connection * C, int trackingNum) {
 }
 
 int Database::queryAvailableTrucksPerDistance(connection * C, int warehouseId) {
-  work W(*C);
-  stringstream ss;
-  ss << "select truckid, (trucks.x-warehouses.x)^2+(trucks.y-warehouses.y)^2 as distance"<<" from trucks, warehouses where warehouseId="<<warehouseId<<" order by distance;";
-  result r = W.exec(ss.str());
-  return r.begin()[0].as<int>();
+  transaction<serializable, read_write> T(*C);
+  while (true) {
+    try {
+      stringstream ss;
+      ss << "select truckid, (trucks.x-warehouses.x)^2+(trucks.y-warehouses.y)^2 as "
+            "distance"
+         << " from trucks, warehouses where warehouseId=" << warehouseId
+         << " and trucks.status in ('idle','delivering','arrive warehouse')  order by "
+            "distance;";
+      result r = T.exec(ss.str());
+      for (size_t i = 0; i < r.size(); i++) {
+        int truckId = r[i][0].as<int>();
+        ss = stringstream();
+        ss << "select * from packages where truckid=" << truckId
+           << " and status in ('wait for loading', 'wait for pickup');";
+        result check = T.exec(ss.str());
+        if (check.size() == 0) {
+          updateTruck(C, traveling, truckId);
+          T.commit();
+          return truckId;
+        }
+      }
+      return 0;
+    }
+    catch (const pqxx::serialization_failure & e) {
+      cout << e.what() << endl;
+    }
+  }
 }
 
 list<int> Database::queryTrucks(connection * C) {
@@ -300,25 +355,49 @@ list<int> Database::queryTrucks(connection * C) {
   result r = W.exec(ss.str());
   list<int> truckIds;
   //for (size_t i=0;i<r.size();i++){
-  for (pqxx::result::const_iterator it=r.begin();it!=r.end();++it){
+  for (pqxx::result::const_iterator it = r.begin(); it != r.end(); ++it) {
     truckIds.push_back(it[0].as<int>());
   }
   return truckIds;
 }
 
-
-boolean Database::queryWarehouse(connection * C, int warehouseId) {
+bool Database::queryUpsid(connection * C, int64_t upsId) {
   work W(*C);
   stringstream ss;
-  ss << "select * from warehouses where warehouseId="<<warehouseId<<";";
+  ss << "select * from account where accountId=" << upsId << ";";
   result r = W.exec(ss.str());
-  if (r.size()>0){
+  if (r.size() > 0) {
     return true;
   }
-  else{
+  else {
     return false;
   }
 }
 
+vector<int64_t> Database::queryTrackingNumToPickUp(connection * C,
+                                                   int truckid,
+                                                   int warehouseid) {
+  vector<int64_t> trackingNums;
+
+  work W(*C);
+  stringstream ss;
+  ss << "select trackingnum from packages where truckid='" << truckid
+     << "' and warehouseid='" << warehouseid << "' and status='wait for pickup';";
+  result r = W.exec(ss.str());
+
+  for (result::const_iterator it = r.begin(); it != r.end(); ++it) {
+    trackingNums.push_back(it[0].as<int64_t>());
+  }
+  return trackingNums;
+}
+
+int Database::queryWarehouseId(connection * C, int x, int y) {
+  work W(*C);
+  stringstream ss;
+  ss << "select warehouseid from warehouses where x=" << x << " and y=" << y << ";";
+  result r = W.exec(ss.str());
+
+  return r.begin()[0].as<int>();
+}
 
 #endif

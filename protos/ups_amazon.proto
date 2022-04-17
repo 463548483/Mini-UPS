@@ -71,7 +71,6 @@ message UACommand{
 }
 
 message UAResponses{
-   // base
    repeated Err errors = 1;
    repeated int64 acks = 2;
 }

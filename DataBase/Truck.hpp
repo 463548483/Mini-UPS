@@ -4,8 +4,8 @@
 
 #include "SQLObject.hpp"
 using namespace std;
-static const char * truck_enum_str[] = {"idle", "traveling", "arrive warehouse", "loading","delivering"};
-enum truck_status_t { idle, traveling, arrive_warehouse,loading, delivering };
+static const char * truck_enum_str[] = {"idle", "traveling", "arrive warehouse", "loading", "delivering"};
+enum truck_status_t { idle, traveling, arrive_warehouse, loading, delivering };
 
 class Truck : virtual public SQLObject {
  private:

@@ -1,0 +1,20 @@
+{% extends 'ups/base.html' %}
+
+{% block content %}
+{% if user.is_authenticated %}
+<p>Want to create another account? <a href="/logout">Logout</a> first</p>
+{% else %}
+<h1>{{ register_message }}</h1>
+
+{% load crispy_forms_tags %}
+<div class="col-5">
+  <form method="POST" class="form-group"> {% csrf_token %}
+    <div align='left'>
+      {{form|crispy}}
+    </div>
+    <p>Already have an account? Login <a href="/login">here</a></p>
+  <button type="submit" class="btn btn-success">Register</button>
+</form>
+</div>
+{% endif %}
+{% endblock %}

@@ -5,6 +5,7 @@
 #include <sys/time.h>
 
 #include <atomic>
+#include <cassert>
 #include <chrono>
 #include <cmath>
 #include <fstream>
@@ -31,6 +32,8 @@ using namespace google::protobuf::io;
 #define TIME_OUT_LIMIT 1
 #define SIMWORLD_UPS_HOST "vcm-25032.vm.duke.edu"
 #define SIMWORLD_UPS_PORT "12345"
+#define AMAZON_HOST "vcm-25794.vm.duke.edu"
+#define AMAZON_PORT "9999"
 
 struct requestInfo {
   int64_t seqnum;
@@ -55,6 +58,19 @@ mutex waitAckMutex;
 unordered_map<int64_t, string> errorCmds;
 unordered_set<int64_t> errorFreeCmds;
 
+// indicate if UConnected is received
+bool worldIdReady = false;
+mutex worldIdReadyMutex;
+UConnected connectedResp;
+
+// record the sequence numbers from UResponses which are already processed
+unordered_set<int64_t> alreadyAckToWorld;
+mutex alreadyAckMutex;
+
+// map for packages need to find trucks, key=warehouseId, value=list of trackingNum
+unordered_map<int, list<int> > warehousePkgMap;
+mutex findTruckMutex;
+
 BaseServer::BaseServer(const char * _hostname,
                        const char * _port,
                        int _backlog,
@@ -70,11 +86,13 @@ BaseServer::BaseServer(const char * _hostname,
   // create, bind, and listen to a socket
   setupServer(_hostname, _port);
   // &db=new Database();
-  db.setup();
+  // db.setup();
 }
 
 void BaseServer::setupServer(const char * hostname, const char * port) {
   // create, bind, and listen to a socket
+  // this socket is used for communication between frontend and backend
+  // e.g. change address
   struct addrinfo host_info;
 
   memset(&host_info, 0, sizeof(host_info));
@@ -89,6 +107,17 @@ void BaseServer::setupServer(const char * hostname, const char * port) {
   sock->listenSocket(backlog);
 
   // connect to sim world
+  connectToSimWorld();
+
+  // get world id
+  setWorldId(getWorldIdFromSim());
+
+  // connect to amazon
+  connectToAmazon();
+}
+
+void BaseServer::connectToSimWorld() {
+  struct addrinfo host_info;
   memset(&host_info, 0, sizeof(host_info));
   host_info.ai_family = AF_UNSPEC;
   host_info.ai_socktype = SOCK_STREAM;
@@ -98,43 +127,120 @@ void BaseServer::setupServer(const char * hostname, const char * port) {
   // create socket in/out file stream
   worldOut = new FileOutputStream(worldSock->getSocketFd());
   worldIn = new FileInputStream(worldSock->getSocketFd());
-  // get world id
-  setWorldId(getWorldIdFromSim());
-
-  // connect to amazon
 }
 
+void BaseServer::connectToAmazon() {
+  // create socket between amazon and ups
+  struct addrinfo host_info;
+  memset(&host_info, 0, sizeof(host_info));
+  host_info.ai_family = AF_UNSPEC;
+  host_info.ai_socktype = SOCK_STREAM;
+
+  amazonSock = new MySocket(host_info, AMAZON_HOST, AMAZON_PORT);
+  amazonSock->connectSocket();
+  // create socket in/out file stream
+  amazonOut = new FileOutputStream(amazonSock->getSocketFd());
+  amazonIn = new FileInputStream(amazonSock->getSocketFd());
+  cout << "Successfully connect to amazon\n";
+
+  // help the amazon connect to the world
+  while (true) {
+    int64_t seqnumCopy = seqnum.fetch_add(1);
+    cout << "Send world id to amazon\n";
+    sendWorldIdToAmazon(worldId, seqnumCopy);
+
+    cout << "Wait for response from amazon\n";
+    AUResponses resp;
+    bool status = recvMesgFrom<AUResponses>(resp, amazonIn);
+    if (!status) {
+      cerr << "Receive AUResponses from amazon failed. Probably of wrong format.\n";
+      throw ConnectToAmazonFailure();
+    }
+
+    // check if ack is correctly returned
+    assert(resp.acks_size() > 0);
+    assert(seqnumCopy == resp.acks(0));
+
+    // if received error message, resend the world id
+    if (resp.errors_size() != 0) {
+      cout << "Received " << resp.errors_size() << " errors.\n";
+      for (int i = 0; i < resp.errors_size(); ++i) {
+        cout << resp.errors(i).err() << endl;
+        ackToAmazon(resp.errors(i).seqnum());
+      }
+    }
+    // if no error
+    else {
+      cout << "Amazon connected to the world!\n";
+
+      // send back ack
+      assert(resp.has_seqnum());
+      ackToAmazon(resp.seqnum());
+      break;
+    }
+    cout << "Sending world id again\n";
+  }
+}
+
+void BaseServer::receiveUConnected() {
+  cout << "waiting for world id from sim world.....\n";
+  int status = recvMesgFrom<UConnected>(connectedResp, worldIn);
+  if (status) {
+    worldIdReadyMutex.lock();
+    worldIdReady = true;
+    worldIdReadyMutex.unlock();
+  }
+  else {
+    exitWithError("Can't receive world id from sim world.");
+  }
+}
+
+// note that we need timeout and retransmission here
 int64_t BaseServer::getWorldIdFromSim() {
-  vector<int> xs = {0, 23, 323};
-  vector<int> ys = {5, 1, 379};
+  vector<int> xs = {0, 23, 323, 4, 32, 4, 5, 4, 4};
+  vector<int> ys = {5, 1, 379, 324, 3, 45, 6, 34, 3};
+  // vector<int> xs = {0,23,323};
+  // vector<int> ys = {5,1,379};
 
   UConnect ucon;
   ucon.set_isamazon(false);
+  connection * C = db.connectToDatabase();
 
-  for (size_t i = 0; i < 3; ++i) {
+  for (size_t i = 0; i < xs.size(); ++i) {
     UInitTruck * truck = ucon.add_trucks();
-    truck->set_id(i);
+    truck->set_id(i + 1);
     truck->set_x(xs[i]);
     truck->set_y(ys[i]);
+
+    // store the truck in the database
+    SQLObject * truckObj = new Truck(loading, xs[i], ys[i]);
+    db.insertTables(C, truckObj);
+    delete truckObj;
   }
 
-  sendMesgTo<UConnect>(ucon, worldOut);
+  // this thread waits for the UConnected response
+  group.run([=] { receiveUConnected(); });
 
-  // wait for response
-  cout << "waiting for world id from sim world.....\n";
-  UConnected resp;
-  recvMesgFrom<UConnected>(resp, worldIn);
+  while (true) {
+    bool isReady = false;
+    worldIdReadyMutex.lock();
+    isReady = worldIdReady;
+    worldIdReadyMutex.unlock();
+    if (isReady) {
+      break;
+    }
+    sendMesgTo<UConnect>(ucon, worldOut);
+    sleep(2);
+  }
 
-  if (resp.result() == "connected!") {
-    cout << "Connected to world: " << resp.worldid() << endl;
+  if (connectedResp.result() == "connected!") {
+    cout << "Connected to world: " << connectedResp.worldid() << endl;
   }
   else {
-    cout << "Something went wrong with receiving world id from sim world: "
-         << resp.worldid();
+    cout << "Something went wrong when receiving world id from sim world" << endl;
   }
 
-  google::protobuf::ShutdownProtobufLibrary();
-  return resp.worldid();
+  return connectedResp.worldid();
 }
 
 BaseServer::~BaseServer() {
@@ -143,6 +249,8 @@ BaseServer::~BaseServer() {
   delete amazonSock;
   delete worldIn;
   delete worldOut;
+  delete amazonIn;
+  delete amazonOut;
 }
 
 void BaseServer::launch() {
@@ -154,6 +262,11 @@ void BaseServer::launch() {
   group.run([=] { amazonCommunicate(); });
   // one thread for implementing timeout and retransmission mechanism
   group.run([=] { timeoutAndRetransmission(); });
+
+  //mutiple thread for truck finding
+  group.run([=] { findTrucks(); });
+  group.run([=] { findTrucks(); });
+  group.run([=] { findTrucks(); });
 
   group.wait();
 }
@@ -209,38 +322,40 @@ void BaseServer::simWorldCommunicate() {
   // set sim world speed, default is 100
   adjustSimSpeed(100);
 
-  cout << "Sending test command\n";
-  sendTestCommand();
+  // cout << "Sending test command\n";
+  // sendTestCommand();
 
   while (1) {
     cout << "Waiting for responses\n";
     UResponses resp;
-    bool status = recvMesgFrom<UResponses>(resp, worldIn);
+
+    // bool status = recvMesgFrom<UResponses>(resp, worldIn);
+    cout << "Constructing test response\n";
+    bool status = true;
+    getTestResponse(resp);
 
     if (status) {
       // get all sequence numbers
       vector<int64_t> seqnums = extractSeqNums(resp);
       // send back acks
-      for (int64_t seqnum : seqnums) {
-        ackToWorld(seqnum);
-      }
+      ackToWorld(seqnums);
 
       // displaying responses
-      displayUResponses(resp);
+      // displayUResponses(resp);
 
       // upon receiving different responses, update the database, and do other related stuff
       // do stuff related to completions
-      processCompletions(resp);
+      processCompletions(C, resp);
       // do stuff related to delivered
-      processDelivered(resp);
+      processDelivered(C, resp);
       // do stuff related to truckstatus
-      processTruckStatus(resp);
+      processTruckStatus(C, resp);
       // do stuff related to error
       processErrors(resp);
       // do stuff related to acks
       processAcks(resp);
       // If the world set finished, then we would not receive responses from the world again, just exit the while loop
-      if (resp.finished()) {
+      if (resp.has_finished() && resp.finished()) {
         break;
       }
     }
@@ -249,90 +364,168 @@ void BaseServer::simWorldCommunicate() {
               "skipped.\n";
     }
 
-    google::protobuf::ShutdownProtobufLibrary();
+    // cout << "Results of errCommands and errFreeCommands:\n";
+    // for (auto cmd : errorFreeCmds) {
+    //     cout << cmd << ' ';
+    // }
+    // cout << endl;
+    // for (auto p : errorCmds) {
+    //     cout << p.first << ": " << p.second << ", ";
+    // }
+    // cout << endl;
+    break;
   }
 
+  google::protobuf::ShutdownProtobufLibrary();
   C->disconnect();
   delete C;
+}
+
+bool BaseServer::checkIfAlreadyProcessed(int64_t seq) {
+  bool processed = false;
+  alreadyAckMutex.lock();
+  // if this response has already been processed
+  if (alreadyAckToWorld.find(seq) != alreadyAckToWorld.end()) {
+    processed = true;
+  }
+  else {
+    alreadyAckToWorld.insert(seq);
+  }
+  alreadyAckMutex.unlock();
+
+  return processed;
 }
 
 void BaseServer::processErrors(UResponses & resp) {
   for (int i = 0; i < resp.error_size(); ++i) {
     const UErr & err = resp.error(i);
-    // if this response has already been processed, skip it
-    if (unackeds.find(err.seqnum()) == unackeds.end()) {
+
+    bool processed = checkIfAlreadyProcessed(err.seqnum());
+    if (processed)
       continue;
-    }
 
     // display the error
     cerr << err.err() << " when dealing with request " << err.originseqnum() << endl;
   }
+
+  // display the error
+  cerr << err.err() << " when dealing with request " << err.originseqnum() << endl;
 }
 
 void BaseServer::processAcks(UResponses & resp) {
   waitAckMutex.lock();
+  // add sequence number to error commands
+  for (int i = 0; i < resp.error_size(); ++i) {
+    int64_t seq = resp.error(i).originseqnum();
+    errorCmds[seq] = resp.error(i).err();
+  }
+
   // remove the corresponding sequence number in unackeds
   for (int i = 0; i < resp.acks_size(); ++i) {
     // if has indeed not been acked
     if (unackeds.find(resp.acks(i)) != unackeds.end())
       unackeds.erase(resp.acks(i));
+
+    // add sequence number to error free commands
+    if (errorCmds.find(resp.acks(i)) == errorCmds.end())
+      errorFreeCmds.insert(resp.acks(i));
   }
+
   waitAckMutex.unlock();
 }
 
-void BaseServer::processTruckStatus(UResponses & resp) {
+void BaseServer::processTruckStatus(connection * C, UResponses & resp) {
   // update the truckStatus
   for (int i = 0; i < resp.truckstatus_size(); ++i) {
     const UTruck & truck = resp.truckstatus(i);
-    // if this response has already been processed, skip it
-    if (unackeds.find(truck.seqnum()) == unackeds.end()) {
+
+    bool processed = checkIfAlreadyProcessed(truck.seqnum());
+    if (processed)
+      continue;
+    // update truck table
+    truck_status_t status;
+    if (!getCorrespondTruckStatus(truck.status(), status)) {
+      cerr << "Received unknown truck status: " << truck.status() << endl;
       continue;
     }
 
-    // update truck table
+    db.updateTruck(C, status, truck.x(), truck.y(), truck.truckid());
   }
+
+  // update truck table
 }
 
-void BaseServer::processDelivered(UResponses & resp) {
+void BaseServer::processDelivered(connection * C, UResponses & resp) {
   for (int i = 0; i < resp.delivered_size(); ++i) {
-    const UDeliveryMade & delivered = resp.delivered(i);
-    // if this response has already been processed, skip it
-    if (unackeds.find(delivered.seqnum()) == unackeds.end()) {
+    const UDeliveryMade & deliveryMade = resp.delivered(i);
+
+    bool processed = checkIfAlreadyProcessed(deliveryMade.seqnum());
+    if (processed)
       continue;
-    }
 
     // notify amazon the package has been delivered
-    notifyDeliveredToAmazon(delivered.packageid(), seqnum.fetch_add(1));
+    notifyDeliveredToAmazon(deliveryMade.packageid(), seqnum.fetch_add(1));
 
     // update the package table, setting the status to be "delivered"
+    db.updatePackage(C, delivered, deliveryMade.packageid());
   }
 }
 
-void BaseServer::processCompletions(UResponses & resp) {
+void BaseServer::processCompletions(connection * C, UResponses & resp) {
   for (int i = 0; i < resp.completions_size(); ++i) {
     const UFinished & finished = resp.completions(i);
-    // if this response has already been processed, skip it
-    if (unackeds.find(finished.seqnum()) == unackeds.end()) {
+
+    bool processed = checkIfAlreadyProcessed(finished.seqnum());
+    if (processed)
       continue;
-    }
 
     string status = finished.status();
+    cout << "While processing completions, truck status is received: " << status << endl;
 
     // completion for pickup
     if (status == "ARRIVE WAREHOUSE") {
+      // query the database to get the warehouse id
+      int warehouseId = db.queryWarehouseId(C, finished.x(), finished.y());
+
       // query the database to get all packages whose state is "wait for pickup"
-      // and truck id is the correct one
-      vector<int64_t> packageIds;
+      // and truck id is the correct one, warehouse id is the correct one
+      vector<int64_t> trackingNums =
+          db.queryTrackingNumToPickUp(C, finished.truckid(), warehouseId);
 
       // notify amazon the truck has arrived
-      for (size_t i = 0; i < packageIds.size(); ++i)
-        notifyArrivalToAmazon(finished.truckid(), packageIds[i], seqnum.fetch_add(1));
-
       // update package table, setting status to "wait for loading"
+      for (size_t i = 0; i < trackingNums.size(); ++i) {
+        notifyArrivalToAmazon(finished.truckid(), trackingNums[i], seqnum.fetch_add(1));
+        db.updatePackage(C, wait_for_loading, trackingNums[i]);
+      }
     }
 
     // update truck table in database
+    truck_status_t newStatus;
+    if (!getCorrespondTruckStatus(status, newStatus)) {
+      cerr << "Received unknown truck status: " << status << endl;
+      continue;
+    }
+    db.updateTruck(C, newStatus, finished.x(), finished.y(), finished.truckid());
   }
+}
+
+bool BaseServer::getCorrespondTruckStatus(const string & status,
+                                          truck_status_t & newStatus) {
+  if (status == "IDLE")
+    newStatus = idle;
+  else if (status == "TRAVELING")
+    newStatus = traveling;
+  else if (status == "ARRIVE WAREHOUSE")
+    newStatus = arrive_warehouse;
+  else if (status == "LOADING")
+    newStatus = loading;
+  else if (status == "DELIVERING")
+    newStatus = delivering;
+  else
+    return false;
+
+  return true;
 }
 
 vector<int64_t> BaseServer::extractSeqNums(UResponses & resp) {
@@ -353,9 +546,53 @@ vector<int64_t> BaseServer::extractSeqNums(UResponses & resp) {
 }
 
 void BaseServer::sendTestCommand() {
-  requestQueryToWorld(0, seqnum.fetch_add(1));
+  requestQueryToWorld(2, seqnum.fetch_add(1));
   requestQueryToWorld(1, seqnum.fetch_add(1));
   requestQueryToWorld(3, seqnum.fetch_add(1));
+}
+
+void BaseServer::getTestResponse(UResponses & resp) {
+  UFinished * finished = resp.add_completions();
+  finished->set_truckid(7);
+  finished->set_x(999);
+  finished->set_y(999);
+  finished->set_status("ARRIVE WAREHOUSE");
+  finished->set_seqnum(233);
+
+  finished = resp.add_completions();
+  finished->set_truckid(5);
+  finished->set_x(-999);
+  finished->set_y(-999);
+  finished->set_status("IDLE");
+  finished->set_seqnum(466);
+
+  // UTruck *truck = resp.add_truckstatus();
+  // truck->set_truckid(6);
+  // truck->set_status("ARRIVE WAREHOUSE");
+  // truck->set_x(0);
+  // truck->set_y(0);
+  // truck->set_seqnum(233);
+
+  // truck = resp.add_truckstatus();
+  // truck->set_truckid(9);
+  // truck->set_status("TRAVELING");
+  // truck->set_x(-1);
+  // truck->set_y(-1);
+  // truck->set_seqnum(677);
+
+  // UErr *err = resp.add_error();
+  // err->set_err("Testing error1!!!");
+  // err->set_originseqnum(333);
+  // err->set_seqnum(355);
+
+  // err = resp.add_error();
+  // err->set_err("Testing error2!!!");
+  // err->set_originseqnum(23);
+  // err->set_seqnum(87);
+
+  // resp.add_acks(100);
+  // resp.add_acks(333);
+  // resp.add_acks(23);
 }
 
 void BaseServer::displayUResponses(UResponses & resp) {
@@ -473,7 +710,6 @@ void BaseServer::requestPickUpToWorld(int truckid, int whid, int64_t seqnum) {
   else {
     addToWaitAcks(seqnum, ucom);
   }
-  google::protobuf::ShutdownProtobufLibrary();
 }
 
 void BaseServer::requestDeliverToWorld(int truckid,
@@ -501,7 +737,6 @@ void BaseServer::requestDeliverToWorld(int truckid,
   else {
     addToWaitAcks(seqnum, ucom);
   }
-  google::protobuf::ShutdownProtobufLibrary();
 }
 
 void BaseServer::requestQueryToWorld(int truckid, int64_t seqnum) {
@@ -517,7 +752,6 @@ void BaseServer::requestQueryToWorld(int truckid, int64_t seqnum) {
   else {
     addToWaitAcks(seqnum, ucom);
   }
-  google::protobuf::ShutdownProtobufLibrary();
 }
 
 // note that adjust speed doesn't need sequence number
@@ -528,7 +762,6 @@ void BaseServer::adjustSimSpeed(unsigned int simspeed) {
   if (!status) {
     cerr << "Can't send sim speed to the world\n";
   }
-  google::protobuf::ShutdownProtobufLibrary();
 }
 
 // note that disconnect doesn't need sequence number
@@ -539,18 +772,18 @@ void BaseServer::requestDisconnectToWorld() {
   if (!status) {
     cerr << "Can't send disconnect message to the world\n";
   }
-  google::protobuf::ShutdownProtobufLibrary();
 }
 
 // note that ACK doesn't need sequence number
-void BaseServer::ackToWorld(int64_t ack) {
+void BaseServer::ackToWorld(vector<int64_t> acks) {
   UCommands ucom;
-  ucom.add_acks(ack);
+  for (int64_t ack : acks) {
+    ucom.add_acks(ack);
+  }
   int status = sendMesgTo<UCommands>(ucom, worldOut);
   if (!status) {
     cerr << "Can't send ack to the world\n";
   }
-  google::protobuf::ShutdownProtobufLibrary();
 }
 
 // interfaces of request to amazon
@@ -574,7 +807,7 @@ void BaseServer::notifyArrivalToAmazon(int truckid, int64_t packageid, int64_t s
   UACommand uacom;
   UAArrived * arrived = uacom.add_arrived();
   arrived->set_truckid(truckid);
-  arrived->set_packageid(packageid);
+  arrived->set_trackingnum(packageid);
   arrived->set_seqnum(seqnum);
 
   int status = sendMesgTo<UACommand>(uacom, amazonOut);
@@ -587,7 +820,7 @@ void BaseServer::notifyArrivalToAmazon(int truckid, int64_t packageid, int64_t s
 void BaseServer::notifyDeliveredToAmazon(int64_t packageid, int64_t seqnum) {
   UACommand uacom;
   UADeliverOver * delover = uacom.add_deliverover();
-  delover->set_packageid(packageid);
+  delover->set_trackingnum(packageid);
   delover->set_seqnum(seqnum);
 
   int status = sendMesgTo<UACommand>(uacom, amazonOut);
@@ -611,19 +844,6 @@ void BaseServer::sendErrToAmazon(std::string err, int64_t originseqnum, int64_t 
   google::protobuf::ShutdownProtobufLibrary();
 }
 
-void BaseServer::sendPickUpResponseToAmazon(int64_t packageid, int64_t seqnum) {
-  UAResponses uaresp;
-  UAPickupResponse * pickupResp = uaresp.add_pickupresp();
-  pickupResp->set_packageid(packageid);
-  pickupResp->set_seqnum(seqnum);
-
-  int status = sendMesgTo<UAResponses>(uaresp, amazonOut);
-  if (!status) {
-    cerr << "Can't send pickup response info to amazon\n";
-  }
-  google::protobuf::ShutdownProtobufLibrary();
-}
-
 void BaseServer::ackToAmazon(int64_t ack) {
   UAResponses uaresp;
   uaresp.add_acks(ack);
@@ -635,84 +855,140 @@ void BaseServer::ackToAmazon(int64_t ack) {
   google::protobuf::ShutdownProtobufLibrary();
 }
 
-bool waitWorldProcess(int seqNum){
-  return true;
+bool BaseServer::waitWorldProcess(int64_t seqNum) {
+  while (true) {
+    if (unackeds.find(seqNum) != unackeds.end()) {
+      sleep(10);
+      continue;
+    }
+    else {
+      if (errorCmds.find(seqNum) != errorCmds.end()) {
+        errorCmds.erase(seqNum);
+        return false;
+      }
+      else {
+        if (errorFreeCmds.find(seqNum) != errorFreeCmds.end()) {
+          errorFreeCmds.erase(seqNum);
+          return true;
+        }
+        else {
+          cerr << "World Response either not in error or not in errorFree set";
+          return false;
+        }
+      }
+    }
+  }
 }
 
-int findTruck(Warehouse * warehouse) {
-  //update status for all trucks in database 
-  list<int> truckIds = queryTrucks();
-  unordered_set<int64_t> querySet;
-  for (auto & truckId : truckIds) {
-    int queryNum = seqnum.fetch_add(1);
-    querySet.insert(queryNum);
-    requestQueryToWorld(truckId, queryNum);
-  }
-
+int BaseServer::findTrucks() {
+  //update status for all trucks in database
+  // list<int> truckIds = queryTrucks();
+  // unordered_set<int64_t> querySet;
+  // for (auto & truckId : truckIds) {
+  //   int queryNum = seqnum.fetch_add(1);
+  //   querySet.insert(queryNum);
+  //   requestQueryToWorld(truckId, queryNum);
+  // }
   //wait until truck data updated
-  for (auto & queryNum:querySet){
-    waitWorldProcess(queryNum);
-  }
-
-  //find the closest truck
-  while (true){
-    vector<int> closestTruckIds =
-        queryAvailableTrucksPerDistance(warehouse.getX(), warehouse.getY());
-    for (auto & truckid : closestTruckIds) {
-      int queryNum = seqnum.fetch_add(1);
-      requestPickUpToWorld(closestTruckId, warehouseId, queryNum);
-      unordered_set<int64_t> processSet;
-      processSet.insert(queryNum);
-      if (waitWorldProcess(processSet)==false){
+  // for (auto & queryNum:querySet){
+  //   waitWorldProcess(queryNum);
+  // }
+  //depend truck status through whether it has packages to pick up
+  Connection * C;
+  while (true) {
+    if (warehousePkgMap.size() > 0) {
+      findTruckMutex.lock();
+      if (warehousePkgMap.size() == 0) {
+        findTruckMutex.unlock();
+        sleep(10);
         continue;
       }
-      return closestTruckIds;
+      else {
+        unordered_map<int, list<int> >::iterator it = warehousePkgMap.begin();
+        warehousePkgMap.erase(it);
+        findTruckMutex.unlock();
+        int warehouseId = it->first;
+        list<int> trackingNums = warehousePkgMap.begin()->second;
+        //find the closest truck if without other package to pick up
+        while (true) {
+          int closestTruckId =
+              db.queryAvailableTrucksPerDistance(C,warehouseId);
+          if (closestTruckId==0){
+            cout<<"cannot find available trucks currently"<<endl;
+            continue;
+          }
+          int queryNum = seqnum.fetch_add(1);
+          //db.updateTruck(C, traveling, closestTruckIds);
+          requestPickUpToWorld(closestTruckId, warehouseId, queryNum);
+          if (waitWorldProcess(queryNum) == false) {
+            cout<<"Request truck pick up fail"<<endl;
+            continue;
+          }
+          for (auto const & trackingNum : trackingNums) {
+            db.updatePackage(C, wait_for_loading, trackingNum);
+            notifyArrivalToAmazon(closestTruckId, trackingNum, seqnum.fetch_add(1));
+          }
+        }
+      }
     }
-    sleep(10);
+
+    else {
+      sleep(10);
+    }
   }
 }
 
-// process request from Amazon
-void BaseServer::processAmazonPickup(AUCommand & aResq) {
+//process query upsid request from Amazon
+void BaseServer::processAmazonUpsQuery(connection * C, AUCommand& aResq) {
+
+  AUQueryUpsid * queryUpsid = aResq.queryupsid();
+  int upsId=queryUpsid->upsid();
+  if (!db.queryUpsid(C,upsId)){
+    sendErrToAmazon("cannot find this upsId",aResq.seqnum(),seqnum.fetch_add(1));
+  }
+  else{
+    ackToAmazon(aResq.());
+  }
+
+}
+
+// process pickup request from Amazon
+void BaseServer::processAmazonPickup(connection * C, AUCommand & aResq) {
   ackToAmazon(aResq.seqnum());
-  unordered_map<int,list<int>> warehousePkgMap;
   for (int i = 0; i < aResq.pickup_size(); i++) {
     AURequestPickup * pickup = aResq.pickup(i);
     //if (pickup->has_upsid());
-    int warehouseId=pickup->wareinfo().id;
-    Warehouse * newWarehouse =
-        new Warehouse(warehouseId, pickup->wareinfo().x, pickup->wareinfo().y);
-    Package * newPackage = new Package(
-        pickup->trackingnum, pickup->wareinfo().id, wait_for_loading, pickup->upsid());
-    db.sql_insert(newPackage);
+    int warehouseId = pickup->wareinfo().id;
+    WarehouseInfo * newWarehouseInfo =
+        new WarehouseInfo(warehouseId, pickup->wareinfo().x, pickup->wareinfo().y);
+    db.sql_insert(C, newWarehouseInfo);
+    Package * newPackage =
+        new Package(pickup->trackingnum, warehouseId, wait_for_loading, pickup->upsid());
+    db.sql_insert(C, newPackage);
     for (int j = 0; j < pickup->things_size; j++) {
       AProduct * newProduct = pickup->things(j);
       Item * newItem =
           new Item(newProduct->description(), newProduct->count, pickup->trackingnum);
-      db.sql_insert(newItem);
+      db.sql_insert(C, newItem);
     }
-    auto search=warehousePkgMap.find(warehouseId);
-    if (search!=warehousePkgMap.end()){
+    findTruckMutex.lock();
+    auto search = warehousePkgMap.find(warehouseId);
+    if (search != warehousePkgMap.end()) {
       search->second.push_back(pickup->trackingnum);
     }
-    else{
+    else {
       list<int> packagesToPickUp;
       packagesToPickUp.push_back(pickup->trackingnum);
-      warehousePkgMap.insert({warehouseId,packagesToPickUp});
+      warehousePkgMap.emplace(warehouseId, packagesToPickUp);
     }
+    findTruckMutex.unlock();
   }
-  for (auto & warehouse: warehousePkgMap){
-    int truckId = findTruck(newWarehouse);
-    for (auto & package: warehouse.second){
-      db.updatePackage(, wait_for_loading, pickup->trackingnum);
-      notifyArrivalToAmazon(truckid, pickup->trackingnum, seqnum.fetch_add(1));
-    }
-  }
+  //findTruck() will handle the truck finding and notify to amazon
 }
 
-void BaseServer::processAmazonLoaded(AUCommand & aResq) {
+void BaseServer::processAmazonLoaded(connection * C, AUCommand & aResq) {
   ackToAmazon(aResq.seqnum());
-  unordered_map<int64_t,int64_t> requestDeliverMap;
+  unordered_map<int64_t, int64_t> requestDeliverMap;
   for (int i = 0; i < aResq.packloaded_size(); i++) {
     AULoadOver * loadOver = aResq.packloaded(i);
     db.updatePackage(,
@@ -720,13 +996,14 @@ void BaseServer::processAmazonLoaded(AUCommand & aResq) {
                      loadOver->loc().x,
                      loadOver->loc().y,
                      loadOver->loc().packageid);
-    db.updateTruck(, delivering, loadOver->truckid);  //status?
-    int seqNum=seqnum.fetch_add(1);
+    db.updateTruck(
+        C, arrive_warehouse, loadOver->loc().x, loadOver->loc().y, loadOver->truckid);
+    int seqNum = seqnum.fetch_add(1);
     requestDeliverToWorld(loadOver->truckid, pickup->trackingnum, seqNum);
-    requestDeliverMap.add(seqNum,pickup->trackingnum);
+    requestDeliverMap.add(seqNum, pickup->trackingnum);
   }
   //sendLoadedResponse
-  for (auto const & req:requestDeliverMap){
+  for (auto const & req : requestDeliverMap) {
     waitWorldProcess(req.first);
     notifyDeliveredToAmazon(req.second, seqnum.fetch_add(1));
   }
