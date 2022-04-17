@@ -1,4 +1,4 @@
-CPPFLAGS = -Wall -Werror -pedantic -pthread -std=c++17 -ggdb3
+CPPFLAGS = -Wall -Werror -pedantic -pthread -std=c++20 -ggdb3
 EXTRAFLAGS = -lpqxx -lpq -ltbb -lboost_thread
 TARGETS = BaseSocket.o BaseServer.o
 

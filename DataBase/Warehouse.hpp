@@ -19,7 +19,7 @@ class Warehouse : virtual public SQLObject {
   std::string sql_insert() {
     stringstream ss;
     ss << "insert into " << tableName << " (warehouseId,x,y) values (" << warehouseId
-       << "," << x << "," << y << ");";
+       << "," << x << "," << y << ") on conflict update;";
     return ss.str();
   }
 };

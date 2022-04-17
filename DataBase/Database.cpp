@@ -6,6 +6,7 @@
 #include <iostream>
 #include <mutex>
 #include <sstream>
+#include <list>
 
 #define TRANS(name) #name
 
@@ -28,7 +29,7 @@ void Database::setup() {
   // create tables
   createTables(C);
 
-  // test insert
+  // //test insert
   // SQLObject * truck1=new Truck(idle,0,0);
   // insertTables(C,truck1);
   // SQLObject * account1=new Account("a","eaeeer");
@@ -47,6 +48,8 @@ void Database::setup() {
   // updatePackage(C,wait_for_loading,1,1231);
   // string st=queryPackageStatus(C,1231);
   // cout<<st<<" status for pkg"<<endl;
+  // list<int> truckIds=queryAvailableTrucksPerDistance(C,2,2);
+  // cout<<truckIds.front()<<endl;
 
   C->disconnect();
   delete C;
@@ -281,5 +284,41 @@ string Database::queryPackageStatus(connection * C, int trackingNum) {
   result r = W.exec(ss.str());
   return r.begin()[0].as<string>();
 }
+
+int Database::queryAvailableTrucksPerDistance(connection * C, int warehouseId) {
+  work W(*C);
+  stringstream ss;
+  ss << "select truckid, (trucks.x-warehouses.x)^2+(trucks.y-warehouses.y)^2 as distance"<<" from trucks, warehouses where warehouseId="<<warehouseId<<" order by distance;";
+  result r = W.exec(ss.str());
+  return r.begin()[0].as<int>();
+}
+
+list<int> Database::queryTrucks(connection * C) {
+  work W(*C);
+  stringstream ss;
+  ss << "select truckid from trucks;";
+  result r = W.exec(ss.str());
+  list<int> truckIds;
+  //for (size_t i=0;i<r.size();i++){
+  for (pqxx::result::const_iterator it=r.begin();it!=r.end();++it){
+    truckIds.push_back(it[0].as<int>());
+  }
+  return truckIds;
+}
+
+
+boolean Database::queryWarehouse(connection * C, int warehouseId) {
+  work W(*C);
+  stringstream ss;
+  ss << "select * from warehouses where warehouseId="<<warehouseId<<";";
+  result r = W.exec(ss.str());
+  if (r.size()>0){
+    return true;
+  }
+  else{
+    return false;
+  }
+}
+
 
 #endif

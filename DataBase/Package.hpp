@@ -25,9 +25,10 @@ class Package : virtual public SQLObject {
           int warehouseId,
           package_status_t status,
           int accountId = -1,
+          int truckId = -1,
           int destX = INT32_MAX,
-          int destY = INT32_MAX,
-          int truckId = -1) :
+          int destY = INT32_MAX
+          ) :
       SQLObject("PACKAGES"),
       trackingNum(trackingNum),
       warehouseId(warehouseId),

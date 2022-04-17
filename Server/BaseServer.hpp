@@ -89,7 +89,8 @@ public:
     //interface for process amazon request
     void processAmazonPickup(AUCommand &aResq);
     void processAmazonLoaded(AUCommand &aResq);
-    void processAmazonChangeAdd(AUCommand &aResq);
+    bool waitWorldProcess(int seqNum);
+    int findTrucks(unordered_map<int, list<int> > warehousePkgMap);
 
     void setupServer(const char *_hostname, const char *_port);
     

@@ -48,6 +48,8 @@ class Database {
                      int trackingNum);
   void updatePackage(pqxx::connection * C, package_status_t status, int trackingNum);
   string queryPackageStatus(pqxx::connection * C, int packageId);
+  list<int> queryAvailableTrucksPerDistance(pqxx::connection * C, int x, int y);
+  list<int> queryTrucks(connection * C) 
   // pqxx::connection *getConnection();
 };
 

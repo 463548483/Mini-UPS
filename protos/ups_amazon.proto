@@ -7,30 +7,38 @@ message UASendWorldId {
    required int64 seqnum = 255;
 }
 
+// A->U: query updid
+message AUQueryUpsid {
+  required int64 upsid = 1;
+  required int64 seqnum = 255;
+}
+
+message Warehouse{
+  required int32 id = 1;
+  required int32 x = 2;
+  required int32 y = 3;
+}
+
 // A->U: prepare truck
 message AURequestPickup {
   repeated AProduct things = 1;
-  required AInitWarehouse wareinfo = 2;
-  optional int64 upsid = 3;
+  required Warehouse wareinfo = 2;
+  required int64 trackingnum = 3;
+  optional int64 upsid = 4;
   required int64 seqnum = 255;
-}
-// U->A pickup
-message UAPickupResponse{
-   required int64 packageid = 1;
-   required int64 seqnum = 255;
 }
 
 // U -> A: car arrive
 message UAArrived{
    required int32 truckid = 1;
-   required int64 packageid = 2;
+   required int64 trackingnum = 2;
    required int64 seqnum = 255;
 }
 
 
 // A->U: load over
 message AULoadOver {
-  required int64 packageid = 1;
+  required int64 trackingnum = 1;
   required int32 truckid = 2;
   required UDeliveryLocation loc = 3;
   required int64 seqnum = 255;
@@ -38,14 +46,14 @@ message AULoadOver {
 
 // A->U: change address
 message AUChangeAddress{
-    required int64 packageid = 1;
+    required int64 trackingnum = 1;
     required UDeliveryLocation loc = 2;
     required int64 seqnum = 255;
 }
 
 // U->A: deliver over
 message UADeliverOver {
-  required int64 packageid = 1;
+  required int64 trackingnum = 1;
   required int64 seqnum = 255;
 }
 
@@ -53,6 +61,7 @@ message AUCommand{
    repeated AURequestPickup pickup= 1;
    repeated AULoadOver packloaded= 2;
    repeated AUChangeAddress changeaddr= 3;
+   optional AUQueryUpsid queryupsid= 4;
 }
 
 message UACommand{
@@ -62,10 +71,9 @@ message UACommand{
 }
 
 message UAResponses{
-   repeated UAPickupResponse pickupresp = 1;// []
    // base
-   repeated Err errors = 2;
-   repeated int64 acks = 3;
+   repeated Err errors = 1;
+   repeated int64 acks = 2;
 }
 
 message AUResponses{
