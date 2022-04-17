@@ -71,9 +71,7 @@ class BaseServer {
   // interfaces of request to world
   void requestPickUpToWorld(int truckid, int whid, int64_t seqnum);
   void requestDeliverToWorld(int truckid,
-                             std::vector<int64_t> packageids,
-                             std::vector<int> xs,
-                             std::vector<int> ys,
+                             const vector<UDeliveryLocation> & packages,
                              int64_t seqnum);
   void requestQueryToWorld(int truckids, int64_t seqnums);
   void adjustSimSpeed(unsigned int simspeed);

@@ -68,7 +68,7 @@ unordered_set<int64_t> alreadyAckToWorld;
 mutex alreadyAckMutex;
 
 // map for packages need to find trucks, key=warehouseId, value=list of trackingNum
-unordered_map<int, list<int> > warehousePkgMap;
+unordered_map<int, list<int64_t> > warehousePkgMap;
 mutex findTruckMutex;
 
 BaseServer::BaseServer(const char * _hostname,
@@ -263,10 +263,10 @@ void BaseServer::launch() {
   // one thread for implementing timeout and retransmission mechanism
   group.run([=] { timeoutAndRetransmission(); });
 
-  //mutiple thread for truck finding
-  group.run([=] { findTrucks(); });
-  group.run([=] { findTrucks(); });
-  group.run([=] { findTrucks(); });
+  // //mutiple thread for truck finding
+  // group.run([=] { findTrucks(); });
+  // group.run([=] { findTrucks(); });
+  // group.run([=] { findTrucks(); });
 
   group.wait();
 }
@@ -305,12 +305,23 @@ void BaseServer::timeoutAndRetransmission() {
 // logic of communication with sim world
 void BaseServer::amazonCommunicate() {
   // big while loop
-  // while (1) {
-  // wait for notification
-
-  // processing order and update database
-
-  // }
+  connection * C = db.connectToDatabase();
+  while (1) {
+    cout << "Wait for Amazon command" << endl;
+    AUCommand acommd;
+    bool status = recvMesgFrom<AUCommand>(acommd, amazonIn);
+    if (!status) {
+      cerr << "Receive AUCommand from amazon failed.\n";
+      throw ConnectToAmazonFailure();
+    }
+    processAmazonUpsQuery(C, acommd);
+    processAmazonPickup(C, acommd);
+    //mutiple thread for truck finding
+    group.run([=] { findTrucks(); });
+    group.run([=] { findTrucks(); });
+    group.run([=] { findTrucks(); });
+    processAmazonLoaded(C, acommd);
+  }
 }
 
 // logic of communication with sim world
@@ -407,9 +418,6 @@ void BaseServer::processErrors(UResponses & resp) {
     // display the error
     cerr << err.err() << " when dealing with request " << err.originseqnum() << endl;
   }
-
-  // display the error
-  cerr << err.err() << " when dealing with request " << err.originseqnum() << endl;
 }
 
 void BaseServer::processAcks(UResponses & resp) {
@@ -713,19 +721,15 @@ void BaseServer::requestPickUpToWorld(int truckid, int whid, int64_t seqnum) {
 }
 
 void BaseServer::requestDeliverToWorld(int truckid,
-                                       std::vector<int64_t> packageids,
-                                       std::vector<int> xs,
-                                       std::vector<int> ys,
+                                       const vector<UDeliveryLocation> & packages,
                                        int64_t seqnum) {
   UCommands ucom;
   UGoDeliver * deliver = ucom.add_deliveries();
   deliver->set_truckid(truckid);
 
-  for (size_t i = 0; i < packageids.size(); ++i) {
+  for (size_t i = 0; i < packages.size(); ++i) {
     UDeliveryLocation * loc = deliver->add_packages();
-    loc->set_packageid(packageids[i]);
-    loc->set_x(xs[i]);
-    loc->set_y(ys[i]);
+    *loc=packages[i];
   }
 
   deliver->set_seqnum(seqnum);
@@ -894,7 +898,7 @@ int BaseServer::findTrucks() {
   //   waitWorldProcess(queryNum);
   // }
   //depend truck status through whether it has packages to pick up
-  Connection * C;
+  pqxx::connection * C= db.connectToDatabase();
   while (true) {
     if (warehousePkgMap.size() > 0) {
       findTruckMutex.lock();
@@ -904,24 +908,23 @@ int BaseServer::findTrucks() {
         continue;
       }
       else {
-        unordered_map<int, list<int> >::iterator it = warehousePkgMap.begin();
-        warehousePkgMap.erase(it);
+        unordered_map<int, list<int64_t> >::iterator it = warehousePkgMap.begin();
+        warehousePkgMap.erase(it->first);
         findTruckMutex.unlock();
         int warehouseId = it->first;
-        list<int> trackingNums = warehousePkgMap.begin()->second;
+        list<int64_t> trackingNums = warehousePkgMap.begin()->second;
         //find the closest truck if without other package to pick up
         while (true) {
-          int closestTruckId =
-              db.queryAvailableTrucksPerDistance(C,warehouseId);
-          if (closestTruckId==0){
-            cout<<"cannot find available trucks currently"<<endl;
+          int closestTruckId = db.queryAvailableTrucksPerDistance(C, warehouseId);
+          if (closestTruckId == 0) {
+            cout << "cannot find available trucks currently" << endl;
             continue;
           }
           int queryNum = seqnum.fetch_add(1);
           //db.updateTruck(C, traveling, closestTruckIds);
           requestPickUpToWorld(closestTruckId, warehouseId, queryNum);
           if (waitWorldProcess(queryNum) == false) {
-            cout<<"Request truck pick up fail"<<endl;
+            cout << "Request truck pick up fail" << endl;
             continue;
           }
           for (auto const & trackingNum : trackingNums) {
@@ -939,46 +942,47 @@ int BaseServer::findTrucks() {
 }
 
 //process query upsid request from Amazon
-void BaseServer::processAmazonUpsQuery(connection * C, AUCommand& aResq) {
-
-  AUQueryUpsid * queryUpsid = aResq.queryupsid();
-  int upsId=queryUpsid->upsid();
-  if (!db.queryUpsid(C,upsId)){
-    sendErrToAmazon("cannot find this upsId",aResq.seqnum(),seqnum.fetch_add(1));
+void BaseServer::processAmazonUpsQuery(connection * C, AUCommand & aResq) {
+  const AUQueryUpsid & queryUpsid = aResq.queryupsid();
+  int64_t upsId = queryUpsid.upsid();
+  if (!db.queryUpsid(C, upsId)) {
+    sendErrToAmazon("cannot find this upsId", queryUpsid.seqnum(), seqnum.fetch_add(1));
   }
-  else{
-    ackToAmazon(aResq.());
+  else {
+    ackToAmazon(queryUpsid.seqnum());
   }
-
 }
 
 // process pickup request from Amazon
 void BaseServer::processAmazonPickup(connection * C, AUCommand & aResq) {
-  ackToAmazon(aResq.seqnum());
   for (int i = 0; i < aResq.pickup_size(); i++) {
-    AURequestPickup * pickup = aResq.pickup(i);
-    //if (pickup->has_upsid());
-    int warehouseId = pickup->wareinfo().id;
+    const AURequestPickup & pickup = aResq.pickup(i);
+    ackToAmazon(pickup.seqnum());
+    //if (pickup.has_upsid());
+    const int warehouseId = pickup.wareinfo().id();
     WarehouseInfo * newWarehouseInfo =
-        new WarehouseInfo(warehouseId, pickup->wareinfo().x, pickup->wareinfo().y);
-    db.sql_insert(C, newWarehouseInfo);
+        new WarehouseInfo(warehouseId, pickup.wareinfo().x(), pickup.wareinfo().y());
+    db.insertTables(C, newWarehouseInfo);
+    delete newWarehouseInfo;
     Package * newPackage =
-        new Package(pickup->trackingnum, warehouseId, wait_for_loading, pickup->upsid());
-    db.sql_insert(C, newPackage);
-    for (int j = 0; j < pickup->things_size; j++) {
-      AProduct * newProduct = pickup->things(j);
+        new Package(pickup.trackingnum(), warehouseId, wait_for_loading, pickup.upsid());
+    db.insertTables(C, newPackage);
+    delete newPackage;
+    for (int j = 0; j < pickup.things_size(); j++) {
+      const AProduct & newProduct = pickup.things(j);
       Item * newItem =
-          new Item(newProduct->description(), newProduct->count, pickup->trackingnum);
-      db.sql_insert(C, newItem);
+          new Item(newProduct.description(), newProduct.count(), pickup.trackingnum());
+      db.insertTables(C, newItem);
+      delete newItem;
     }
     findTruckMutex.lock();
     auto search = warehousePkgMap.find(warehouseId);
     if (search != warehousePkgMap.end()) {
-      search->second.push_back(pickup->trackingnum);
+      search->second.push_back(pickup.trackingnum());
     }
     else {
-      list<int> packagesToPickUp;
-      packagesToPickUp.push_back(pickup->trackingnum);
+      list<int64_t> packagesToPickUp;
+      packagesToPickUp.push_back(pickup.trackingnum());
       warehousePkgMap.emplace(warehouseId, packagesToPickUp);
     }
     findTruckMutex.unlock();
@@ -987,26 +991,37 @@ void BaseServer::processAmazonPickup(connection * C, AUCommand & aResq) {
 }
 
 void BaseServer::processAmazonLoaded(connection * C, AUCommand & aResq) {
-  ackToAmazon(aResq.seqnum());
-  unordered_map<int64_t, int64_t> requestDeliverMap;
+  unordered_map<int,vector<UDeliveryLocation>> truckPackageMap;
   for (int i = 0; i < aResq.packloaded_size(); i++) {
-    AULoadOver * loadOver = aResq.packloaded(i);
-    db.updatePackage(,
+    const AULoadOver & loadOver = aResq.packloaded(i);
+    ackToAmazon(loadOver.seqnum());
+    db.updatePackage(C,
                      out_for_deliver,
-                     loadOver->loc().x,
-                     loadOver->loc().y,
-                     loadOver->loc().packageid);
+                     loadOver.loc().x(),
+                     loadOver.loc().y(),
+                     loadOver.loc().packageid());
     db.updateTruck(
-        C, arrive_warehouse, loadOver->loc().x, loadOver->loc().y, loadOver->truckid);
-    int seqNum = seqnum.fetch_add(1);
-    requestDeliverToWorld(loadOver->truckid, pickup->trackingnum, seqNum);
-    requestDeliverMap.add(seqNum, pickup->trackingnum);
+        C, arrive_warehouse, loadOver.loc().x(), loadOver.loc().y(), loadOver.truckid());
+    unordered_map<int,vector<UDeliveryLocation>>::iterator it=truckPackageMap.find(loadOver.truckid());
+    if (it!=truckPackageMap.end()){
+      it->second.push_back(loadOver.loc());
+    }
+    else{
+      vector<UDeliveryLocation> loadedPackages;
+      loadedPackages.push_back(loadOver.loc());
+      truckPackageMap.emplace(loadOver.truckid(),loadedPackages);
+    }
   }
-  //sendLoadedResponse
-  for (auto const & req : requestDeliverMap) {
-    waitWorldProcess(req.first);
-    notifyDeliveredToAmazon(req.second, seqnum.fetch_add(1));
+  vector<int64_t> seqNums;
+  for (auto const it:truckPackageMap){
+    int64_t seqNum = seqnum.fetch_add(1);
+    requestDeliverToWorld(it.first, it.second, seqNum);
+    seqNums.push_back(seqNum);
   }
+  for(auto const seqNum:seqNums){
+    waitWorldProcess(seqNum);
+  }
+
 }
 
 // getter functions
