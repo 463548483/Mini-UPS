@@ -92,6 +92,7 @@ public:
 
     void setupServer(const char *_hostname, const char *_port);
     
+    void frontendCommunicate();
     void simWorldCommunicate();
     void amazonCommunicate();
     void timeoutAndRetransmission();

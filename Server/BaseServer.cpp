@@ -18,7 +18,9 @@
 #include <cassert>
 #include <chrono>
 #include <atomic>
+#include <nlohmann/json.hpp>
 
+using json = nlohmann::json;
 using namespace std;
 using namespace pqxx;
 using namespace tbb;
@@ -98,7 +100,7 @@ void BaseServer::setupServer(const char *hostname, const char *port) {
     setWorldId(getWorldIdFromSim());
 
     // connect to amazon
-    connectToAmazon();
+    // connectToAmazon();
 }
 
 void BaseServer::connectToSimWorld() {
@@ -240,6 +242,8 @@ BaseServer::~BaseServer() {
 void BaseServer::launch() {
 	// daemonize();
 
+    // one thread for communicating with front-end
+    group.run([=]{frontendCommunicate();});
     // one thread for receiving responses from sim world
     group.run([=]{simWorldCommunicate();});
     // one or more threads for communicating with amazon
@@ -248,6 +252,58 @@ void BaseServer::launch() {
     group.run([=]{timeoutAndRetransmission();});
 
 	group.wait();
+}
+
+void BaseServer::frontendCommunicate() {
+    while (1) {
+        // accept connection
+        MySocket *backendSock = sock->acceptConnection();
+        cout << "Accepting connection from back-end\n";
+        string req = backendSock->receiveData();
+        // if really received data
+        if (req.size() != 0) {
+            json req_parsed = json::parse(req);
+            
+            // change address request
+            if (req_parsed["request"] == "Change Address") {
+                int truckId = req_parsed["truck_id"];
+                vector<int64_t> packageIds = {req_parsed["tracking_num"]};
+                vector<int> xs = {req_parsed["new_x"]};
+                vector<int> ys = {req_parsed["new_y"]};
+                int64_t seq = seqnum.fetch_add(1);
+                requestDeliverToWorld(truckId, packageIds, xs, ys, seq);
+
+                // send fake response
+                // stringstream ss;
+                // ss << "{\"result\": \"failure\", \"error\": \"error message\"}";
+                // backendSock->sendData(ss.str());
+                // wait for response from world
+                while (1) {
+                    sleep(2);
+
+                    waitAckMutex.lock();
+                    if (errorCmds.find(seq) != errorCmds.end()) {
+                        stringstream ss;
+                        ss << "{\"result\": \"failure\", \"error\": \"" << errorCmds[seq] << "\"}";
+                        backendSock->sendData(ss.str());
+                        waitAckMutex.unlock();
+                        break;
+                    } else if (errorFreeCmds.find(seq) != errorFreeCmds.end()) {
+                        stringstream ss;
+                        ss << "{\"result\": \"success\"}";
+                        backendSock->sendData(ss.str());
+                        waitAckMutex.unlock();
+                        break;
+                    }
+                    waitAckMutex.unlock();
+                }
+            } else {
+                cerr << "Unknown request. Ignoring it.\n";
+            }
+        }
+            
+        delete backendSock;
+    }
 }
 
 void BaseServer::timeoutAndRetransmission() {
@@ -307,51 +363,56 @@ void BaseServer::simWorldCommunicate() {
         cout << "Waiting for responses\n";
         UResponses resp;
 
-        // bool status = recvMesgFrom<UResponses>(resp, worldIn);
-        cout << "Constructing test response\n";
-        bool status = true;
-        getTestResponse(resp);
+        try {
 
-        if (status) {
-            // get all sequence numbers
-            vector<int64_t> seqnums = extractSeqNums(resp);
-            // send back acks
-            ackToWorld(seqnums);
+            bool status = recvMesgFrom<UResponses>(resp, worldIn);
+            // cout << "Constructing test response\n";
+            // bool status = true;
+            // getTestResponse(resp);
 
-            // displaying responses
-            // displayUResponses(resp);
+            if (status) {
+                // get all sequence numbers
+                vector<int64_t> seqnums = extractSeqNums(resp);
+                // send back acks
+                ackToWorld(seqnums);
 
-            // upon receiving different responses, update the database, and do other related stuff
-            // do stuff related to completions
-            processCompletions(C, resp);
-            // do stuff related to delivered
-            processDelivered(C, resp);
-            // do stuff related to truckstatus
-            processTruckStatus(C, resp);
-            // do stuff related to error
-            processErrors(resp);
-            // do stuff related to acks
-            processAcks(resp);
-            // If the world set finished, then we would not receive responses from the world again, just exit the while loop
-            if (resp.has_finished() && resp.finished()) {
-                break;
+                // displaying responses
+                // displayUResponses(resp);
+
+                // upon receiving different responses, update the database, and do other related stuff
+                // do stuff related to completions
+                processCompletions(C, resp);
+                // do stuff related to delivered
+                processDelivered(C, resp);
+                // do stuff related to truckstatus
+                processTruckStatus(C, resp);
+                // do stuff related to error
+                processErrors(resp);
+                // do stuff related to acks
+                processAcks(resp);
+                // If the world set finished, then we would not receive responses from the world again, just exit the while loop
+                if (resp.has_finished() && resp.finished()) {
+                    break;
+                }
+            } else {
+                cerr << "The message received is of wrong format. Can't parse it. So this would be skipped.\n";
             }
-        } else {
-            cerr << "The message received is of wrong format. Can't parse it. So this would be skipped.\n";
+
+            // cout << "Results of errCommands and errFreeCommands:\n";
+            // for (auto cmd : errorFreeCmds) {
+            //     cout << cmd << ' ';
+            // }
+            // cout << endl;
+            // for (auto p : errorCmds) {
+            //     cout << p.first << ": " << p.second << ", ";
+            // }
+            // cout << endl;
         }
-
-        // cout << "Results of errCommands and errFreeCommands:\n";
-        // for (auto cmd : errorFreeCmds) {
-        //     cout << cmd << ' ';
-        // }
-        // cout << endl;
-        // for (auto p : errorCmds) {
-        //     cout << p.first << ": " << p.second << ", ";
-        // }
-        // cout << endl;
-        break;
+        catch(const std::exception& e) {
+            std::cerr << e.what() << '\n';
+        }
     }
-
+    // cout << "Finished the thread\n";
     google::protobuf::ShutdownProtobufLibrary();
 	C->disconnect();
 	delete C;

@@ -300,6 +300,10 @@ int Database::queryWarehouseId(connection * C, int x, int y) {
   " and y=" << y << ";";
   result r = W.exec(ss.str());
 
+  if (r.size() == 0) {
+    throw WareHouseNotExist();
+  }  
+  
   return r.begin()[0].as<int>();
 }
 
