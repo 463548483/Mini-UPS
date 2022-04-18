@@ -1,3 +1,0 @@
-/home/zw255/erss-project-yd160-zw255/test/build/_deps/googletest-subbuild/CMakeFiles/rebuild_cache.dir
-/home/zw255/erss-project-yd160-zw255/test/build/_deps/googletest-subbuild/CMakeFiles/edit_cache.dir
-/home/zw255/erss-project-yd160-zw255/test/build/_deps/googletest-subbuild/CMakeFiles/googletest-populate.dir
