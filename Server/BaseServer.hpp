@@ -21,8 +21,8 @@
 
 #include "../DataBase/Database.hpp"
 #include "../protos/ups_amazon.pb.h"
-#include "../protos/world_ups.pb.h"
 #include "../protos/world_amazon.pb.h"
+#include "../protos/world_ups.pb.h"
 #include "BaseSocket.hpp"
 
 class ConnectToAmazonFailure : public std::exception {
@@ -88,6 +88,14 @@ class BaseServer {
   void sendErrToAmazon(std::string err, int64_t originseqnum, int64_t seqnum);
   void ackToAmazon(int64_t ack);
 
+  void setupServer(const char * _hostname, const char * _port);
+
+  void frontendCommunicate();
+  void simWorldCommunicate();
+  void amazonCommunicate();
+  void timeoutAndRetransmission();
+  void launch();
+  void daemonize();
 
   //interface for process amazon request
   void processAmazonPickup(pqxx::connection * C, AUCommand & aResq);
@@ -96,14 +104,6 @@ class BaseServer {
   bool waitWorldProcess(int64_t seqNum);
   int findTrucks();
   void getTestAUCommand(AUCommand & acommd);
-
-  void setupServer(const char * _hostname, const char * _port);
-
-  void simWorldCommunicate();
-  void amazonCommunicate();
-  void timeoutAndRetransmission();
-  void launch();
-  void daemonize();
 
   // getter
   int getBacklog() const;

@@ -1,7 +1,15 @@
 # from asyncio.windows_events import NULL
+import json
+import socket
+import threading
 from django.shortcuts import render, redirect
+from django.contrib import messages
+from requests import request
 from .forms import RegisterForm
 from .models import Account, Package, Truck, Item
+
+BACKEND_HOST = "127.0.0.1"
+BACKEND_PORT = 5555 
 
 # Create your views here.
 def home_view(request, *args, **kwargs):
@@ -69,7 +77,13 @@ def address_change_view(request, *args, **kwargs):
         new_x = int(request.POST.get('new_x'))
         new_y = int(request.POST.get('new_y'))
         print('Get new address (%d, %d)' % (new_x, new_y))
+        tracking_num = kwargs['package_id'] 
+        truck_id = Package.objects.get(trackingnum = tracking_num).truckid.truckid
+        
         # request backend to change address
+        # t = threading.Thread(target=RequestBackendToChangeAddress, args=(request, tracking_num, new_x, new_y, truck_id,))
+        # t.start()
+        RequestBackendToChangeAddress(request, tracking_num, new_x, new_y, truck_id)
 
         redirect_path = '/my_packages'
         return redirect(redirect_path)
@@ -81,3 +95,29 @@ def address_change_view(request, *args, **kwargs):
         context = {'dest_x': dest_x, 'dest_y': dest_y}
         return render(request, 'ups/address_change.html', context=context)
 
+def RequestBackendToChangeAddress(request, tracking_num, new_x, new_y, truck_id):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        print(tracking_num, new_x, new_y, truck_id)
+        try:
+            s.connect((BACKEND_HOST, BACKEND_PORT))
+            print("sending message to backend")
+            change_request = {"request": "Change Address",
+                              "tracking_num": tracking_num, 
+                              "new_x": new_x,
+                              "new_y": new_y,
+                              "truck_id": truck_id}
+            change_request_json = json.dumps(change_request)
+            s.sendall(bytes(change_request_json, encoding="utf-8"))
+            
+            result_raw = s.recv(1024)
+            print("Received result from backend")
+            result = json.loads(result_raw)
+            if result['result'] == 'failure':
+                # notify user of failure
+                messages.error(request, result['error'])
+            elif result['result'] == 'success':
+                # notify user of success
+                messages.success(request, "Address changed successfully")
+        except:
+            print("Something went wrong while communicating with backend")
+        

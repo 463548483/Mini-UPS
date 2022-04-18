@@ -23,6 +23,11 @@ class DatabaseConnectionError : public std::exception {
   virtual const char * what() const noexcept { return "Cannot connect to the database."; }
 };
 
+class WareHouseNotExist : public std::exception {
+ public:
+  virtual const char * what() const noexcept { return "Can't find the corresponding warehouse."; }
+};
+
 class Database {
  public:
   Database();

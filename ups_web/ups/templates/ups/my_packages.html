@@ -27,7 +27,7 @@
     <td>({{package.destx}}, {{package.desty}})</td>
     <td><a href="{{package.trackingnum}}/detail/">Detail</a></td>
     <td>
-        {% if package.status != 'delivering' and package.status != 'delivered' %}
+        {% if package.status == 'delivering' %}
         <a href="{{package.trackingnum}}/change_address/">Change</a>
         {% else %}
         Unavailable
