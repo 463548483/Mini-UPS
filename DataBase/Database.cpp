@@ -171,6 +171,11 @@ void Database::createTables(connection * C) {
     CONSTRAINT ITEM_PACKAGEFK FOREIGN KEY (trackingNum) REFERENCES PACKAGES(trackingNum) ON DELETE SET NULL ON UPDATE CASCADE\
     );";
 
+  string createSearchHistory = "CREATE TABLE SEARCHHISTORY (\
+    accountId      bigint   PRIMARY KEY,\
+    trackingnum    bigint   NOT NULL\
+    );";
+
   /* Execute SQL query */
   try {
     W.exec(createEnumTruck);
@@ -180,8 +185,9 @@ void Database::createTables(connection * C) {
     W.exec(createWarehouse);
     W.exec(createPackage);
     W.exec(createItem);
+    
 
-    //W.exec(createSearchHisotry);
+    W.exec(createSearchHistory);
     W.commit();
     cout << "All tables created successfully" << endl;
   }
