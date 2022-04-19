@@ -1,0 +1,5 @@
+Django>3.0
+asgiref
+django-crispy-forms
+psycopg2
+sqlparse
