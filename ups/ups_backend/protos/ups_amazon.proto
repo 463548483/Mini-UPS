@@ -22,6 +22,7 @@ message Warehouse{
 // A->U: prepare truck
 message AURequestPickup {
   repeated AProduct things = 1;
+
   required Warehouse wareinfo = 2;
   required int64 trackingnum = 3;
   optional int64 upsid = 4;
@@ -44,12 +45,6 @@ message AULoadOver {
   required int64 seqnum = 255;
 }
 
-// A->U: change address
-message AUChangeAddress{
-    required int64 trackingnum = 1;
-    required UDeliveryLocation loc = 2;
-    required int64 seqnum = 255;
-}
 
 // U->A: deliver over
 message UADeliverOver {
@@ -60,11 +55,10 @@ message UADeliverOver {
 message AUCommand{
    repeated AURequestPickup pickup= 1;
    repeated AULoadOver packloaded= 2;
-   repeated AUChangeAddress changeaddr= 3;
-   optional AUQueryUpsid queryupsid= 4;
-   repeated Err errors = 5;
-   repeated int64 acks = 6;
-   optional int64 seqnum = 255; // new add 
+   optional AUQueryUpsid queryupsid= 3;
+   repeated Err errors = 4;
+   repeated int64 acks = 5;
+   optional int64 seqnum = 255;
 }
 
 message UACommand{
@@ -75,10 +69,9 @@ message UACommand{
     repeated int64 acks = 5;
 }
 
-
 // same as brian's version
 message Err{
   required string err = 1;
   required int64 originseqnum = 2;
-  required int64 seqnum = 3;
+  required int64 seqnum = 255;
 }

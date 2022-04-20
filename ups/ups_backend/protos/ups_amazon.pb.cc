@@ -26,7 +26,6 @@ extern PROTOBUF_INTERNAL_EXPORT_protobuf_ups_5famazon_2eproto ::google::protobuf
 extern PROTOBUF_INTERNAL_EXPORT_protobuf_ups_5famazon_2eproto ::google::protobuf::internal::SCCInfo<0> scc_info_UADeliverOver;
 extern PROTOBUF_INTERNAL_EXPORT_protobuf_ups_5famazon_2eproto ::google::protobuf::internal::SCCInfo<0> scc_info_UASendWorldId;
 extern PROTOBUF_INTERNAL_EXPORT_protobuf_ups_5famazon_2eproto ::google::protobuf::internal::SCCInfo<0> scc_info_Warehouse;
-extern PROTOBUF_INTERNAL_EXPORT_protobuf_ups_5famazon_2eproto ::google::protobuf::internal::SCCInfo<1> scc_info_AUChangeAddress;
 extern PROTOBUF_INTERNAL_EXPORT_protobuf_ups_5famazon_2eproto ::google::protobuf::internal::SCCInfo<1> scc_info_AULoadOver;
 extern PROTOBUF_INTERNAL_EXPORT_protobuf_ups_5famazon_2eproto ::google::protobuf::internal::SCCInfo<2> scc_info_AURequestPickup;
 }  // namespace protobuf_ups_5famazon_2eproto
@@ -66,11 +65,6 @@ class AULoadOverDefaultTypeInternal {
   ::google::protobuf::internal::ExplicitlyConstructed<AULoadOver>
       _instance;
 } _AULoadOver_default_instance_;
-class AUChangeAddressDefaultTypeInternal {
- public:
-  ::google::protobuf::internal::ExplicitlyConstructed<AUChangeAddress>
-      _instance;
-} _AUChangeAddress_default_instance_;
 class UADeliverOverDefaultTypeInternal {
  public:
   ::google::protobuf::internal::ExplicitlyConstructed<UADeliverOver>
@@ -179,21 +173,6 @@ static void InitDefaultsAULoadOver() {
     {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 1, InitDefaultsAULoadOver}, {
       &protobuf_world_5fups_2eproto::scc_info_UDeliveryLocation.base,}};
 
-static void InitDefaultsAUChangeAddress() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::_AUChangeAddress_default_instance_;
-    new (ptr) ::AUChangeAddress();
-    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::AUChangeAddress::InitAsDefaultInstance();
-}
-
-::google::protobuf::internal::SCCInfo<1> scc_info_AUChangeAddress =
-    {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 1, InitDefaultsAUChangeAddress}, {
-      &protobuf_world_5fups_2eproto::scc_info_UDeliveryLocation.base,}};
-
 static void InitDefaultsUADeliverOver() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -219,11 +198,10 @@ static void InitDefaultsAUCommand() {
   ::AUCommand::InitAsDefaultInstance();
 }
 
-::google::protobuf::internal::SCCInfo<5> scc_info_AUCommand =
-    {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 5, InitDefaultsAUCommand}, {
+::google::protobuf::internal::SCCInfo<4> scc_info_AUCommand =
+    {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 4, InitDefaultsAUCommand}, {
       &protobuf_ups_5famazon_2eproto::scc_info_AURequestPickup.base,
       &protobuf_ups_5famazon_2eproto::scc_info_AULoadOver.base,
-      &protobuf_ups_5famazon_2eproto::scc_info_AUChangeAddress.base,
       &protobuf_ups_5famazon_2eproto::scc_info_AUQueryUpsid.base,
       &protobuf_ups_5famazon_2eproto::scc_info_Err.base,}};
 
@@ -266,14 +244,13 @@ void InitDefaults() {
   ::google::protobuf::internal::InitSCC(&scc_info_AURequestPickup.base);
   ::google::protobuf::internal::InitSCC(&scc_info_UAArrived.base);
   ::google::protobuf::internal::InitSCC(&scc_info_AULoadOver.base);
-  ::google::protobuf::internal::InitSCC(&scc_info_AUChangeAddress.base);
   ::google::protobuf::internal::InitSCC(&scc_info_UADeliverOver.base);
   ::google::protobuf::internal::InitSCC(&scc_info_AUCommand.base);
   ::google::protobuf::internal::InitSCC(&scc_info_UACommand.base);
   ::google::protobuf::internal::InitSCC(&scc_info_Err.base);
 }
 
-::google::protobuf::Metadata file_level_metadata[11];
+::google::protobuf::Metadata file_level_metadata[10];
 
 const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::UASendWorldId, _has_bits_),
@@ -344,17 +321,6 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   2,
   0,
   3,
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::AUChangeAddress, _has_bits_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::AUChangeAddress, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::AUChangeAddress, trackingnum_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::AUChangeAddress, loc_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::AUChangeAddress, seqnum_),
-  1,
-  0,
-  2,
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::UADeliverOver, _has_bits_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::UADeliverOver, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -371,12 +337,10 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   ~0u,  // no _weak_field_map_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::AUCommand, pickup_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::AUCommand, packloaded_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::AUCommand, changeaddr_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::AUCommand, queryupsid_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::AUCommand, errors_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::AUCommand, acks_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::AUCommand, seqnum_),
-  ~0u,
   ~0u,
   ~0u,
   0,
@@ -417,11 +381,10 @@ static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROT
   { 29, 39, sizeof(::AURequestPickup)},
   { 44, 52, sizeof(::UAArrived)},
   { 55, 64, sizeof(::AULoadOver)},
-  { 68, 76, sizeof(::AUChangeAddress)},
-  { 79, 86, sizeof(::UADeliverOver)},
-  { 88, 100, sizeof(::AUCommand)},
-  { 107, 117, sizeof(::UACommand)},
-  { 122, 130, sizeof(::Err)},
+  { 68, 75, sizeof(::UADeliverOver)},
+  { 77, 88, sizeof(::AUCommand)},
+  { 94, 104, sizeof(::UACommand)},
+  { 109, 117, sizeof(::Err)},
 };
 
 static ::google::protobuf::Message const * const file_default_instances[] = {
@@ -431,7 +394,6 @@ static ::google::protobuf::Message const * const file_default_instances[] = {
   reinterpret_cast<const ::google::protobuf::Message*>(&::_AURequestPickup_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&::_UAArrived_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&::_AULoadOver_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::_AUChangeAddress_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&::_UADeliverOver_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&::_AUCommand_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&::_UACommand_default_instance_),
@@ -453,7 +415,7 @@ void protobuf_AssignDescriptorsOnce() {
 void protobuf_RegisterTypes(const ::std::string&) GOOGLE_PROTOBUF_ATTRIBUTE_COLD;
 void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::internal::RegisterAllTypes(file_level_metadata, 11);
+  ::google::protobuf::internal::RegisterAllTypes(file_level_metadata, 10);
 }
 
 void AddDescriptorsImpl() {
@@ -471,24 +433,21 @@ void AddDescriptorsImpl() {
       "\022\023\n\013trackingnum\030\002 \002(\003\022\017\n\006seqnum\030\377\001 \002(\003\"d"
       "\n\nAULoadOver\022\023\n\013trackingnum\030\001 \002(\003\022\017\n\007tru"
       "ckid\030\002 \002(\005\022\037\n\003loc\030\003 \002(\0132\022.UDeliveryLocat"
-      "ion\022\017\n\006seqnum\030\377\001 \002(\003\"X\n\017AUChangeAddress\022"
-      "\023\n\013trackingnum\030\001 \002(\003\022\037\n\003loc\030\002 \002(\0132\022.UDel"
-      "iveryLocation\022\017\n\006seqnum\030\377\001 \002(\003\"5\n\rUADeli"
-      "verOver\022\023\n\013trackingnum\030\001 \002(\003\022\017\n\006seqnum\030\377"
-      "\001 \002(\003\"\314\001\n\tAUCommand\022 \n\006pickup\030\001 \003(\0132\020.AU"
-      "RequestPickup\022\037\n\npackloaded\030\002 \003(\0132\013.AULo"
-      "adOver\022$\n\nchangeaddr\030\003 \003(\0132\020.AUChangeAdd"
-      "ress\022!\n\nqueryupsid\030\004 \001(\0132\r.AUQueryUpsid\022"
-      "\024\n\006errors\030\005 \003(\0132\004.Err\022\014\n\004acks\030\006 \003(\003\022\017\n\006s"
-      "eqnum\030\377\001 \001(\003\"\221\001\n\tUACommand\022\036\n\006sendid\030\001 \001"
-      "(\0132\016.UASendWorldId\022\033\n\007arrived\030\002 \003(\0132\n.UA"
-      "Arrived\022#\n\013deliverover\030\003 \003(\0132\016.UADeliver"
-      "Over\022\024\n\006errors\030\004 \003(\0132\004.Err\022\014\n\004acks\030\005 \003(\003"
-      "\"8\n\003Err\022\013\n\003err\030\001 \002(\t\022\024\n\014originseqnum\030\002 \002"
-      "(\003\022\016\n\006seqnum\030\003 \002(\003"
+      "ion\022\017\n\006seqnum\030\377\001 \002(\003\"5\n\rUADeliverOver\022\023\n"
+      "\013trackingnum\030\001 \002(\003\022\017\n\006seqnum\030\377\001 \002(\003\"\246\001\n\t"
+      "AUCommand\022 \n\006pickup\030\001 \003(\0132\020.AURequestPic"
+      "kup\022\037\n\npackloaded\030\002 \003(\0132\013.AULoadOver\022!\n\n"
+      "queryupsid\030\003 \001(\0132\r.AUQueryUpsid\022\024\n\006error"
+      "s\030\004 \003(\0132\004.Err\022\014\n\004acks\030\005 \003(\003\022\017\n\006seqnum\030\377\001"
+      " \001(\003\"\221\001\n\tUACommand\022\036\n\006sendid\030\001 \001(\0132\016.UAS"
+      "endWorldId\022\033\n\007arrived\030\002 \003(\0132\n.UAArrived\022"
+      "#\n\013deliverover\030\003 \003(\0132\016.UADeliverOver\022\024\n\006"
+      "errors\030\004 \003(\0132\004.Err\022\014\n\004acks\030\005 \003(\003\"9\n\003Err\022"
+      "\013\n\003err\030\001 \002(\t\022\024\n\014originseqnum\030\002 \002(\003\022\017\n\006se"
+      "qnum\030\377\001 \002(\003"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 1058);
+      descriptor, 931);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "ups_amazon.proto", &protobuf_RegisterTypes);
   ::protobuf_world_5famazon_2eproto::AddDescriptors();
@@ -2623,365 +2582,6 @@ void AULoadOver::InternalSwap(AULoadOver* other) {
 
 // ===================================================================
 
-void AUChangeAddress::InitAsDefaultInstance() {
-  ::_AUChangeAddress_default_instance_._instance.get_mutable()->loc_ = const_cast< ::UDeliveryLocation*>(
-      ::UDeliveryLocation::internal_default_instance());
-}
-void AUChangeAddress::clear_loc() {
-  if (loc_ != NULL) loc_->Clear();
-  clear_has_loc();
-}
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int AUChangeAddress::kTrackingnumFieldNumber;
-const int AUChangeAddress::kLocFieldNumber;
-const int AUChangeAddress::kSeqnumFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
-
-AUChangeAddress::AUChangeAddress()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
-  ::google::protobuf::internal::InitSCC(
-      &protobuf_ups_5famazon_2eproto::scc_info_AUChangeAddress.base);
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:AUChangeAddress)
-}
-AUChangeAddress::AUChangeAddress(const AUChangeAddress& from)
-  : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
-      _has_bits_(from._has_bits_) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  if (from.has_loc()) {
-    loc_ = new ::UDeliveryLocation(*from.loc_);
-  } else {
-    loc_ = NULL;
-  }
-  ::memcpy(&trackingnum_, &from.trackingnum_,
-    static_cast<size_t>(reinterpret_cast<char*>(&seqnum_) -
-    reinterpret_cast<char*>(&trackingnum_)) + sizeof(seqnum_));
-  // @@protoc_insertion_point(copy_constructor:AUChangeAddress)
-}
-
-void AUChangeAddress::SharedCtor() {
-  ::memset(&loc_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&seqnum_) -
-      reinterpret_cast<char*>(&loc_)) + sizeof(seqnum_));
-}
-
-AUChangeAddress::~AUChangeAddress() {
-  // @@protoc_insertion_point(destructor:AUChangeAddress)
-  SharedDtor();
-}
-
-void AUChangeAddress::SharedDtor() {
-  if (this != internal_default_instance()) delete loc_;
-}
-
-void AUChangeAddress::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
-}
-const ::google::protobuf::Descriptor* AUChangeAddress::descriptor() {
-  ::protobuf_ups_5famazon_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_ups_5famazon_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
-}
-
-const AUChangeAddress& AUChangeAddress::default_instance() {
-  ::google::protobuf::internal::InitSCC(&protobuf_ups_5famazon_2eproto::scc_info_AUChangeAddress.base);
-  return *internal_default_instance();
-}
-
-
-void AUChangeAddress::Clear() {
-// @@protoc_insertion_point(message_clear_start:AUChangeAddress)
-  ::google::protobuf::uint32 cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
-    GOOGLE_DCHECK(loc_ != NULL);
-    loc_->Clear();
-  }
-  if (cached_has_bits & 6u) {
-    ::memset(&trackingnum_, 0, static_cast<size_t>(
-        reinterpret_cast<char*>(&seqnum_) -
-        reinterpret_cast<char*>(&trackingnum_)) + sizeof(seqnum_));
-  }
-  _has_bits_.Clear();
-  _internal_metadata_.Clear();
-}
-
-bool AUChangeAddress::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:AUChangeAddress)
-  for (;;) {
-    ::std::pair<::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(16383u);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required int64 trackingnum = 1;
-      case 1: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(8u /* 8 & 0xFF */)) {
-          set_has_trackingnum();
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_INT64>(
-                 input, &trackingnum_)));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // required .UDeliveryLocation loc = 2;
-      case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
-               input, mutable_loc()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // required int64 seqnum = 255;
-      case 255: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(248u /* 2040 & 0xFF */)) {
-          set_has_seqnum();
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_INT64>(
-                 input, &seqnum_)));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, _internal_metadata_.mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:AUChangeAddress)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:AUChangeAddress)
-  return false;
-#undef DO_
-}
-
-void AUChangeAddress::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:AUChangeAddress)
-  ::google::protobuf::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  cached_has_bits = _has_bits_[0];
-  // required int64 trackingnum = 1;
-  if (cached_has_bits & 0x00000002u) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt64(1, this->trackingnum(), output);
-  }
-
-  // required .UDeliveryLocation loc = 2;
-  if (cached_has_bits & 0x00000001u) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->_internal_loc(), output);
-  }
-
-  // required int64 seqnum = 255;
-  if (cached_has_bits & 0x00000004u) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt64(255, this->seqnum(), output);
-  }
-
-  if (_internal_metadata_.have_unknown_fields()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        _internal_metadata_.unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:AUChangeAddress)
-}
-
-::google::protobuf::uint8* AUChangeAddress::InternalSerializeWithCachedSizesToArray(
-    bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic; // Unused
-  // @@protoc_insertion_point(serialize_to_array_start:AUChangeAddress)
-  ::google::protobuf::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  cached_has_bits = _has_bits_[0];
-  // required int64 trackingnum = 1;
-  if (cached_has_bits & 0x00000002u) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteInt64ToArray(1, this->trackingnum(), target);
-  }
-
-  // required .UDeliveryLocation loc = 2;
-  if (cached_has_bits & 0x00000001u) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        2, this->_internal_loc(), deterministic, target);
-  }
-
-  // required int64 seqnum = 255;
-  if (cached_has_bits & 0x00000004u) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteInt64ToArray(255, this->seqnum(), target);
-  }
-
-  if (_internal_metadata_.have_unknown_fields()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:AUChangeAddress)
-  return target;
-}
-
-size_t AUChangeAddress::RequiredFieldsByteSizeFallback() const {
-// @@protoc_insertion_point(required_fields_byte_size_fallback_start:AUChangeAddress)
-  size_t total_size = 0;
-
-  if (has_loc()) {
-    // required .UDeliveryLocation loc = 2;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::MessageSize(
-        *loc_);
-  }
-
-  if (has_trackingnum()) {
-    // required int64 trackingnum = 1;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::Int64Size(
-        this->trackingnum());
-  }
-
-  if (has_seqnum()) {
-    // required int64 seqnum = 255;
-    total_size += 2 +
-      ::google::protobuf::internal::WireFormatLite::Int64Size(
-        this->seqnum());
-  }
-
-  return total_size;
-}
-size_t AUChangeAddress::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:AUChangeAddress)
-  size_t total_size = 0;
-
-  if (_internal_metadata_.have_unknown_fields()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        _internal_metadata_.unknown_fields());
-  }
-  if (((_has_bits_[0] & 0x00000007) ^ 0x00000007) == 0) {  // All required fields are present.
-    // required .UDeliveryLocation loc = 2;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::MessageSize(
-        *loc_);
-
-    // required int64 trackingnum = 1;
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::Int64Size(
-        this->trackingnum());
-
-    // required int64 seqnum = 255;
-    total_size += 2 +
-      ::google::protobuf::internal::WireFormatLite::Int64Size(
-        this->seqnum());
-
-  } else {
-    total_size += RequiredFieldsByteSizeFallback();
-  }
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
-}
-
-void AUChangeAddress::MergeFrom(const ::google::protobuf::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:AUChangeAddress)
-  GOOGLE_DCHECK_NE(&from, this);
-  const AUChangeAddress* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const AUChangeAddress>(
-          &from);
-  if (source == NULL) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:AUChangeAddress)
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:AUChangeAddress)
-    MergeFrom(*source);
-  }
-}
-
-void AUChangeAddress::MergeFrom(const AUChangeAddress& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:AUChangeAddress)
-  GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::google::protobuf::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  cached_has_bits = from._has_bits_[0];
-  if (cached_has_bits & 7u) {
-    if (cached_has_bits & 0x00000001u) {
-      mutable_loc()->::UDeliveryLocation::MergeFrom(from.loc());
-    }
-    if (cached_has_bits & 0x00000002u) {
-      trackingnum_ = from.trackingnum_;
-    }
-    if (cached_has_bits & 0x00000004u) {
-      seqnum_ = from.seqnum_;
-    }
-    _has_bits_[0] |= cached_has_bits;
-  }
-}
-
-void AUChangeAddress::CopyFrom(const ::google::protobuf::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:AUChangeAddress)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void AUChangeAddress::CopyFrom(const AUChangeAddress& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:AUChangeAddress)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool AUChangeAddress::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
-  if (has_loc()) {
-    if (!this->loc_->IsInitialized()) return false;
-  }
-  return true;
-}
-
-void AUChangeAddress::Swap(AUChangeAddress* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
-void AUChangeAddress::InternalSwap(AUChangeAddress* other) {
-  using std::swap;
-  swap(loc_, other->loc_);
-  swap(trackingnum_, other->trackingnum_);
-  swap(seqnum_, other->seqnum_);
-  swap(_has_bits_[0], other->_has_bits_[0]);
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-}
-
-::google::protobuf::Metadata AUChangeAddress::GetMetadata() const {
-  protobuf_ups_5famazon_2eproto::protobuf_AssignDescriptorsOnce();
-  return ::protobuf_ups_5famazon_2eproto::file_level_metadata[kIndexInFileMessages];
-}
-
-
-// ===================================================================
-
 void UADeliverOver::InitAsDefaultInstance() {
 }
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
@@ -3287,7 +2887,6 @@ void AUCommand::InitAsDefaultInstance() {
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int AUCommand::kPickupFieldNumber;
 const int AUCommand::kPackloadedFieldNumber;
-const int AUCommand::kChangeaddrFieldNumber;
 const int AUCommand::kQueryupsidFieldNumber;
 const int AUCommand::kErrorsFieldNumber;
 const int AUCommand::kAcksFieldNumber;
@@ -3307,7 +2906,6 @@ AUCommand::AUCommand(const AUCommand& from)
       _has_bits_(from._has_bits_),
       pickup_(from.pickup_),
       packloaded_(from.packloaded_),
-      changeaddr_(from.changeaddr_),
       errors_(from.errors_),
       acks_(from.acks_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
@@ -3357,7 +2955,6 @@ void AUCommand::Clear() {
 
   pickup_.Clear();
   packloaded_.Clear();
-  changeaddr_.Clear();
   errors_.Clear();
   acks_.Clear();
   cached_has_bits = _has_bits_[0];
@@ -3404,22 +3001,10 @@ bool AUCommand::MergePartialFromCodedStream(
         break;
       }
 
-      // repeated .AUChangeAddress changeaddr = 3;
+      // optional .AUQueryUpsid queryupsid = 3;
       case 3: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
             static_cast< ::google::protobuf::uint8>(26u /* 26 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
-                input, add_changeaddr()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // optional .AUQueryUpsid queryupsid = 4;
-      case 4: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(34u /* 34 & 0xFF */)) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
                input, mutable_queryupsid()));
         } else {
@@ -3428,10 +3013,10 @@ bool AUCommand::MergePartialFromCodedStream(
         break;
       }
 
-      // repeated .Err errors = 5;
-      case 5: {
+      // repeated .Err errors = 4;
+      case 4: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(42u /* 42 & 0xFF */)) {
+            static_cast< ::google::protobuf::uint8>(34u /* 34 & 0xFF */)) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
                 input, add_errors()));
         } else {
@@ -3440,16 +3025,16 @@ bool AUCommand::MergePartialFromCodedStream(
         break;
       }
 
-      // repeated int64 acks = 6;
-      case 6: {
+      // repeated int64 acks = 5;
+      case 5: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(48u /* 48 & 0xFF */)) {
+            static_cast< ::google::protobuf::uint8>(40u /* 40 & 0xFF */)) {
           DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitive<
                    ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_INT64>(
-                 1, 48u, input, this->mutable_acks())));
+                 1, 40u, input, this->mutable_acks())));
         } else if (
             static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(50u /* 50 & 0xFF */)) {
+            static_cast< ::google::protobuf::uint8>(42u /* 42 & 0xFF */)) {
           DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitiveNoInline<
                    ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_INT64>(
                  input, this->mutable_acks())));
@@ -3517,35 +3102,26 @@ void AUCommand::SerializeWithCachedSizes(
       output);
   }
 
-  // repeated .AUChangeAddress changeaddr = 3;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->changeaddr_size()); i < n; i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3,
-      this->changeaddr(static_cast<int>(i)),
-      output);
-  }
-
   cached_has_bits = _has_bits_[0];
-  // optional .AUQueryUpsid queryupsid = 4;
+  // optional .AUQueryUpsid queryupsid = 3;
   if (cached_has_bits & 0x00000001u) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      4, this->_internal_queryupsid(), output);
+      3, this->_internal_queryupsid(), output);
   }
 
-  // repeated .Err errors = 5;
+  // repeated .Err errors = 4;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->errors_size()); i < n; i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      5,
+      4,
       this->errors(static_cast<int>(i)),
       output);
   }
 
-  // repeated int64 acks = 6;
+  // repeated int64 acks = 5;
   for (int i = 0, n = this->acks_size(); i < n; i++) {
     ::google::protobuf::internal::WireFormatLite::WriteInt64(
-      6, this->acks(i), output);
+      5, this->acks(i), output);
   }
 
   // optional int64 seqnum = 255;
@@ -3583,33 +3159,25 @@ void AUCommand::SerializeWithCachedSizes(
         2, this->packloaded(static_cast<int>(i)), deterministic, target);
   }
 
-  // repeated .AUChangeAddress changeaddr = 3;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->changeaddr_size()); i < n; i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        3, this->changeaddr(static_cast<int>(i)), deterministic, target);
-  }
-
   cached_has_bits = _has_bits_[0];
-  // optional .AUQueryUpsid queryupsid = 4;
+  // optional .AUQueryUpsid queryupsid = 3;
   if (cached_has_bits & 0x00000001u) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        4, this->_internal_queryupsid(), deterministic, target);
+        3, this->_internal_queryupsid(), deterministic, target);
   }
 
-  // repeated .Err errors = 5;
+  // repeated .Err errors = 4;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->errors_size()); i < n; i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        5, this->errors(static_cast<int>(i)), deterministic, target);
+        4, this->errors(static_cast<int>(i)), deterministic, target);
   }
 
-  // repeated int64 acks = 6;
+  // repeated int64 acks = 5;
   target = ::google::protobuf::internal::WireFormatLite::
-    WriteInt64ToArray(6, this->acks_, target);
+    WriteInt64ToArray(5, this->acks_, target);
 
   // optional int64 seqnum = 255;
   if (cached_has_bits & 0x00000002u) {
@@ -3655,18 +3223,7 @@ size_t AUCommand::ByteSizeLong() const {
     }
   }
 
-  // repeated .AUChangeAddress changeaddr = 3;
-  {
-    unsigned int count = static_cast<unsigned int>(this->changeaddr_size());
-    total_size += 1UL * count;
-    for (unsigned int i = 0; i < count; i++) {
-      total_size +=
-        ::google::protobuf::internal::WireFormatLite::MessageSize(
-          this->changeaddr(static_cast<int>(i)));
-    }
-  }
-
-  // repeated .Err errors = 5;
+  // repeated .Err errors = 4;
   {
     unsigned int count = static_cast<unsigned int>(this->errors_size());
     total_size += 1UL * count;
@@ -3677,7 +3234,7 @@ size_t AUCommand::ByteSizeLong() const {
     }
   }
 
-  // repeated int64 acks = 6;
+  // repeated int64 acks = 5;
   {
     size_t data_size = ::google::protobuf::internal::WireFormatLite::
       Int64Size(this->acks_);
@@ -3687,7 +3244,7 @@ size_t AUCommand::ByteSizeLong() const {
   }
 
   if (_has_bits_[0 / 32] & 3u) {
-    // optional .AUQueryUpsid queryupsid = 4;
+    // optional .AUQueryUpsid queryupsid = 3;
     if (has_queryupsid()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSize(
@@ -3731,7 +3288,6 @@ void AUCommand::MergeFrom(const AUCommand& from) {
 
   pickup_.MergeFrom(from.pickup_);
   packloaded_.MergeFrom(from.packloaded_);
-  changeaddr_.MergeFrom(from.changeaddr_);
   errors_.MergeFrom(from.errors_);
   acks_.MergeFrom(from.acks_);
   cached_has_bits = from._has_bits_[0];
@@ -3763,7 +3319,6 @@ void AUCommand::CopyFrom(const AUCommand& from) {
 bool AUCommand::IsInitialized() const {
   if (!::google::protobuf::internal::AllAreInitialized(this->pickup())) return false;
   if (!::google::protobuf::internal::AllAreInitialized(this->packloaded())) return false;
-  if (!::google::protobuf::internal::AllAreInitialized(this->changeaddr())) return false;
   if (!::google::protobuf::internal::AllAreInitialized(this->errors())) return false;
   if (has_queryupsid()) {
     if (!this->queryupsid_->IsInitialized()) return false;
@@ -3779,7 +3334,6 @@ void AUCommand::InternalSwap(AUCommand* other) {
   using std::swap;
   CastToBase(&pickup_)->InternalSwap(CastToBase(&other->pickup_));
   CastToBase(&packloaded_)->InternalSwap(CastToBase(&other->packloaded_));
-  CastToBase(&changeaddr_)->InternalSwap(CastToBase(&other->changeaddr_));
   CastToBase(&errors_)->InternalSwap(CastToBase(&other->errors_));
   acks_.InternalSwap(&other->acks_);
   swap(queryupsid_, other->queryupsid_);
@@ -4305,7 +3859,7 @@ bool Err::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   // @@protoc_insertion_point(parse_start:Err)
   for (;;) {
-    ::std::pair<::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(16383u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
@@ -4339,10 +3893,10 @@ bool Err::MergePartialFromCodedStream(
         break;
       }
 
-      // required int64 seqnum = 3;
-      case 3: {
+      // required int64 seqnum = 255;
+      case 255: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(24u /* 24 & 0xFF */)) {
+            static_cast< ::google::protobuf::uint8>(248u /* 2040 & 0xFF */)) {
           set_has_seqnum();
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_INT64>(
@@ -4395,9 +3949,9 @@ void Err::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt64(2, this->originseqnum(), output);
   }
 
-  // required int64 seqnum = 3;
+  // required int64 seqnum = 255;
   if (cached_has_bits & 0x00000004u) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt64(3, this->seqnum(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteInt64(255, this->seqnum(), output);
   }
 
   if (_internal_metadata_.have_unknown_fields()) {
@@ -4431,9 +3985,9 @@ void Err::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteInt64ToArray(2, this->originseqnum(), target);
   }
 
-  // required int64 seqnum = 3;
+  // required int64 seqnum = 255;
   if (cached_has_bits & 0x00000004u) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteInt64ToArray(3, this->seqnum(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt64ToArray(255, this->seqnum(), target);
   }
 
   if (_internal_metadata_.have_unknown_fields()) {
@@ -4463,8 +4017,8 @@ size_t Err::RequiredFieldsByteSizeFallback() const {
   }
 
   if (has_seqnum()) {
-    // required int64 seqnum = 3;
-    total_size += 1 +
+    // required int64 seqnum = 255;
+    total_size += 2 +
       ::google::protobuf::internal::WireFormatLite::Int64Size(
         this->seqnum());
   }
@@ -4491,8 +4045,8 @@ size_t Err::ByteSizeLong() const {
       ::google::protobuf::internal::WireFormatLite::Int64Size(
         this->originseqnum());
 
-    // required int64 seqnum = 3;
-    total_size += 1 +
+    // required int64 seqnum = 255;
+    total_size += 2 +
       ::google::protobuf::internal::WireFormatLite::Int64Size(
         this->seqnum());
 
@@ -4601,9 +4155,6 @@ template<> GOOGLE_PROTOBUF_ATTRIBUTE_NOINLINE ::UAArrived* Arena::CreateMaybeMes
 }
 template<> GOOGLE_PROTOBUF_ATTRIBUTE_NOINLINE ::AULoadOver* Arena::CreateMaybeMessage< ::AULoadOver >(Arena* arena) {
   return Arena::CreateInternal< ::AULoadOver >(arena);
-}
-template<> GOOGLE_PROTOBUF_ATTRIBUTE_NOINLINE ::AUChangeAddress* Arena::CreateMaybeMessage< ::AUChangeAddress >(Arena* arena) {
-  return Arena::CreateInternal< ::AUChangeAddress >(arena);
 }
 template<> GOOGLE_PROTOBUF_ATTRIBUTE_NOINLINE ::UADeliverOver* Arena::CreateMaybeMessage< ::UADeliverOver >(Arena* arena) {
   return Arena::CreateInternal< ::UADeliverOver >(arena);
