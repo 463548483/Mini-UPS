@@ -186,6 +186,7 @@ void BaseServer::connectToAmazon() {
         break;
       }
       cout << "Sending world id again\n";
+      break;
     }
     catch (const std::exception & e) {
       std::cerr << e.what() << '\n';
@@ -240,6 +241,7 @@ int64_t BaseServer::getWorldIdFromSim() {
     if (isReady) {
       break;
     }
+    cout<<ucon.ShortDebugString()<<endl;
     sendMesgTo<UConnect>(ucon, worldOut);
     sleep(2);
   }
