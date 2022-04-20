@@ -4,7 +4,7 @@ import threading
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import RegisterForm
-from .models import Account, Package, Truck, Item
+from .models import Account, Package, Truck, Item, Searchhistory
 
 # BACKEND_HOST = "vcm-25032.vm.duke.edu"
 BACKEND_HOST = "127.0.0.1"
@@ -44,15 +44,19 @@ def track_shipment_view(request, *args, **kwargs):
         packages = Package.objects.filter(
             trackingnum = track_num,
         ).order_by('trackingnum') 
+        Searchhistory.objects.create(accountid=request.user.pk, trackingnum=track_num)
 
-        message = "Found %s results." % (len(packages))    
+        message = "Found %s results." % (len(packages))  
+        context = {'packages': packages, 'message': message}  
     else:
         # get all packages
-        packages = Package.objects.filter().order_by('trackingnum')
-
-        message = "Overview of all shipments."
-
-    context = {'packages': packages, 'message': message}
+        searchhistory = Searchhistory.objects.filter(
+            accountid=request.user.pk,
+        ).order_by('trackingnum')
+        packages=''
+        message = "You have %s records search history." % (len(searchhistory))
+        context = {'searchhistory': searchhistory, 'message': message}
+    # context = {'packages': packages,'searchhistory': searchhistory, 'message': message}
     return render(request, 'ups/track_shipment.html', context=context)
 
 def my_packages_view(request, *args, **kwargs):

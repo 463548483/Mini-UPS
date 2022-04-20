@@ -40,16 +40,13 @@ namespace protobuf_ups_5famazon_2eproto {
 struct TableStruct {
   static const ::google::protobuf::internal::ParseTableField entries[];
   static const ::google::protobuf::internal::AuxillaryParseTableField aux[];
-  static const ::google::protobuf::internal::ParseTable schema[13];
+  static const ::google::protobuf::internal::ParseTable schema[10];
   static const ::google::protobuf::internal::FieldMetadata field_metadata[];
   static const ::google::protobuf::internal::SerializationTable serialization_table[];
   static const ::google::protobuf::uint32 offsets[];
 };
 void AddDescriptors();
 }  // namespace protobuf_ups_5famazon_2eproto
-class AUChangeAddress;
-class AUChangeAddressDefaultTypeInternal;
-extern AUChangeAddressDefaultTypeInternal _AUChangeAddress_default_instance_;
 class AUCommand;
 class AUCommandDefaultTypeInternal;
 extern AUCommandDefaultTypeInternal _AUCommand_default_instance_;
@@ -62,9 +59,6 @@ extern AUQueryUpsidDefaultTypeInternal _AUQueryUpsid_default_instance_;
 class AURequestPickup;
 class AURequestPickupDefaultTypeInternal;
 extern AURequestPickupDefaultTypeInternal _AURequestPickup_default_instance_;
-class AUResponses;
-class AUResponsesDefaultTypeInternal;
-extern AUResponsesDefaultTypeInternal _AUResponses_default_instance_;
 class Err;
 class ErrDefaultTypeInternal;
 extern ErrDefaultTypeInternal _Err_default_instance_;
@@ -77,9 +71,6 @@ extern UACommandDefaultTypeInternal _UACommand_default_instance_;
 class UADeliverOver;
 class UADeliverOverDefaultTypeInternal;
 extern UADeliverOverDefaultTypeInternal _UADeliverOver_default_instance_;
-class UAResponses;
-class UAResponsesDefaultTypeInternal;
-extern UAResponsesDefaultTypeInternal _UAResponses_default_instance_;
 class UASendWorldId;
 class UASendWorldIdDefaultTypeInternal;
 extern UASendWorldIdDefaultTypeInternal _UASendWorldId_default_instance_;
@@ -88,17 +79,14 @@ class WarehouseDefaultTypeInternal;
 extern WarehouseDefaultTypeInternal _Warehouse_default_instance_;
 namespace google {
 namespace protobuf {
-template<> ::AUChangeAddress* Arena::CreateMaybeMessage<::AUChangeAddress>(Arena*);
 template<> ::AUCommand* Arena::CreateMaybeMessage<::AUCommand>(Arena*);
 template<> ::AULoadOver* Arena::CreateMaybeMessage<::AULoadOver>(Arena*);
 template<> ::AUQueryUpsid* Arena::CreateMaybeMessage<::AUQueryUpsid>(Arena*);
 template<> ::AURequestPickup* Arena::CreateMaybeMessage<::AURequestPickup>(Arena*);
-template<> ::AUResponses* Arena::CreateMaybeMessage<::AUResponses>(Arena*);
 template<> ::Err* Arena::CreateMaybeMessage<::Err>(Arena*);
 template<> ::UAArrived* Arena::CreateMaybeMessage<::UAArrived>(Arena*);
 template<> ::UACommand* Arena::CreateMaybeMessage<::UACommand>(Arena*);
 template<> ::UADeliverOver* Arena::CreateMaybeMessage<::UADeliverOver>(Arena*);
-template<> ::UAResponses* Arena::CreateMaybeMessage<::UAResponses>(Arena*);
 template<> ::UASendWorldId* Arena::CreateMaybeMessage<::UASendWorldId>(Arena*);
 template<> ::Warehouse* Arena::CreateMaybeMessage<::Warehouse>(Arena*);
 }  // namespace protobuf
@@ -951,148 +939,6 @@ class AULoadOver : public ::google::protobuf::Message /* @@protoc_insertion_poin
 };
 // -------------------------------------------------------------------
 
-class AUChangeAddress : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:AUChangeAddress) */ {
- public:
-  AUChangeAddress();
-  virtual ~AUChangeAddress();
-
-  AUChangeAddress(const AUChangeAddress& from);
-
-  inline AUChangeAddress& operator=(const AUChangeAddress& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  #if LANG_CXX11
-  AUChangeAddress(AUChangeAddress&& from) noexcept
-    : AUChangeAddress() {
-    *this = ::std::move(from);
-  }
-
-  inline AUChangeAddress& operator=(AUChangeAddress&& from) noexcept {
-    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
-      if (this != &from) InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-  #endif
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields();
-  }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields();
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const AUChangeAddress& default_instance();
-
-  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const AUChangeAddress* internal_default_instance() {
-    return reinterpret_cast<const AUChangeAddress*>(
-               &_AUChangeAddress_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    6;
-
-  void Swap(AUChangeAddress* other);
-  friend void swap(AUChangeAddress& a, AUChangeAddress& b) {
-    a.Swap(&b);
-  }
-
-  // implements Message ----------------------------------------------
-
-  inline AUChangeAddress* New() const final {
-    return CreateMaybeMessage<AUChangeAddress>(NULL);
-  }
-
-  AUChangeAddress* New(::google::protobuf::Arena* arena) const final {
-    return CreateMaybeMessage<AUChangeAddress>(arena);
-  }
-  void CopyFrom(const ::google::protobuf::Message& from) final;
-  void MergeFrom(const ::google::protobuf::Message& from) final;
-  void CopyFrom(const AUChangeAddress& from);
-  void MergeFrom(const AUChangeAddress& from);
-  void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input) final;
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const final;
-  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
-      bool deterministic, ::google::protobuf::uint8* target) const final;
-  int GetCachedSize() const final { return _cached_size_.Get(); }
-
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const final;
-  void InternalSwap(AUChangeAddress* other);
-  private:
-  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
-    return NULL;
-  }
-  inline void* MaybeArenaPtr() const {
-    return NULL;
-  }
-  public:
-
-  ::google::protobuf::Metadata GetMetadata() const final;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // required .UDeliveryLocation loc = 2;
-  bool has_loc() const;
-  void clear_loc();
-  static const int kLocFieldNumber = 2;
-  private:
-  const ::UDeliveryLocation& _internal_loc() const;
-  public:
-  const ::UDeliveryLocation& loc() const;
-  ::UDeliveryLocation* release_loc();
-  ::UDeliveryLocation* mutable_loc();
-  void set_allocated_loc(::UDeliveryLocation* loc);
-
-  // required int64 trackingnum = 1;
-  bool has_trackingnum() const;
-  void clear_trackingnum();
-  static const int kTrackingnumFieldNumber = 1;
-  ::google::protobuf::int64 trackingnum() const;
-  void set_trackingnum(::google::protobuf::int64 value);
-
-  // required int64 seqnum = 255;
-  bool has_seqnum() const;
-  void clear_seqnum();
-  static const int kSeqnumFieldNumber = 255;
-  ::google::protobuf::int64 seqnum() const;
-  void set_seqnum(::google::protobuf::int64 value);
-
-  // @@protoc_insertion_point(class_scope:AUChangeAddress)
- private:
-  void set_has_trackingnum();
-  void clear_has_trackingnum();
-  void set_has_loc();
-  void clear_has_loc();
-  void set_has_seqnum();
-  void clear_has_seqnum();
-
-  // helper for ByteSizeLong()
-  size_t RequiredFieldsByteSizeFallback() const;
-
-  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::google::protobuf::internal::HasBits<1> _has_bits_;
-  mutable ::google::protobuf::internal::CachedSize _cached_size_;
-  ::UDeliveryLocation* loc_;
-  ::google::protobuf::int64 trackingnum_;
-  ::google::protobuf::int64 seqnum_;
-  friend struct ::protobuf_ups_5famazon_2eproto::TableStruct;
-};
-// -------------------------------------------------------------------
-
 class UADeliverOver : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:UADeliverOver) */ {
  public:
   UADeliverOver();
@@ -1135,7 +981,7 @@ class UADeliverOver : public ::google::protobuf::Message /* @@protoc_insertion_p
                &_UADeliverOver_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    7;
+    6;
 
   void Swap(UADeliverOver* other);
   friend void swap(UADeliverOver& a, UADeliverOver& b) {
@@ -1262,7 +1108,7 @@ class AUCommand : public ::google::protobuf::Message /* @@protoc_insertion_point
                &_AUCommand_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    8;
+    7;
 
   void Swap(AUCommand* other);
   friend void swap(AUCommand& a, AUCommand& b) {
@@ -1338,22 +1184,34 @@ class AUCommand : public ::google::protobuf::Message /* @@protoc_insertion_point
   const ::google::protobuf::RepeatedPtrField< ::AULoadOver >&
       packloaded() const;
 
-  // repeated .AUChangeAddress changeaddr = 3;
-  int changeaddr_size() const;
-  void clear_changeaddr();
-  static const int kChangeaddrFieldNumber = 3;
-  ::AUChangeAddress* mutable_changeaddr(int index);
-  ::google::protobuf::RepeatedPtrField< ::AUChangeAddress >*
-      mutable_changeaddr();
-  const ::AUChangeAddress& changeaddr(int index) const;
-  ::AUChangeAddress* add_changeaddr();
-  const ::google::protobuf::RepeatedPtrField< ::AUChangeAddress >&
-      changeaddr() const;
+  // repeated .Err errors = 4;
+  int errors_size() const;
+  void clear_errors();
+  static const int kErrorsFieldNumber = 4;
+  ::Err* mutable_errors(int index);
+  ::google::protobuf::RepeatedPtrField< ::Err >*
+      mutable_errors();
+  const ::Err& errors(int index) const;
+  ::Err* add_errors();
+  const ::google::protobuf::RepeatedPtrField< ::Err >&
+      errors() const;
 
-  // optional .AUQueryUpsid queryupsid = 4;
+  // repeated int64 acks = 5;
+  int acks_size() const;
+  void clear_acks();
+  static const int kAcksFieldNumber = 5;
+  ::google::protobuf::int64 acks(int index) const;
+  void set_acks(int index, ::google::protobuf::int64 value);
+  void add_acks(::google::protobuf::int64 value);
+  const ::google::protobuf::RepeatedField< ::google::protobuf::int64 >&
+      acks() const;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
+      mutable_acks();
+
+  // optional .AUQueryUpsid queryupsid = 3;
   bool has_queryupsid() const;
   void clear_queryupsid();
-  static const int kQueryupsidFieldNumber = 4;
+  static const int kQueryupsidFieldNumber = 3;
   private:
   const ::AUQueryUpsid& _internal_queryupsid() const;
   public:
@@ -1362,18 +1220,29 @@ class AUCommand : public ::google::protobuf::Message /* @@protoc_insertion_point
   ::AUQueryUpsid* mutable_queryupsid();
   void set_allocated_queryupsid(::AUQueryUpsid* queryupsid);
 
+  // optional int64 seqnum = 255;
+  bool has_seqnum() const;
+  void clear_seqnum();
+  static const int kSeqnumFieldNumber = 255;
+  ::google::protobuf::int64 seqnum() const;
+  void set_seqnum(::google::protobuf::int64 value);
+
   // @@protoc_insertion_point(class_scope:AUCommand)
  private:
   void set_has_queryupsid();
   void clear_has_queryupsid();
+  void set_has_seqnum();
+  void clear_has_seqnum();
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::internal::HasBits<1> _has_bits_;
   mutable ::google::protobuf::internal::CachedSize _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::AURequestPickup > pickup_;
   ::google::protobuf::RepeatedPtrField< ::AULoadOver > packloaded_;
-  ::google::protobuf::RepeatedPtrField< ::AUChangeAddress > changeaddr_;
+  ::google::protobuf::RepeatedPtrField< ::Err > errors_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int64 > acks_;
   ::AUQueryUpsid* queryupsid_;
+  ::google::protobuf::int64 seqnum_;
   friend struct ::protobuf_ups_5famazon_2eproto::TableStruct;
 };
 // -------------------------------------------------------------------
@@ -1420,7 +1289,7 @@ class UACommand : public ::google::protobuf::Message /* @@protoc_insertion_point
                &_UACommand_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    9;
+    8;
 
   void Swap(UACommand* other);
   friend void swap(UACommand& a, UACommand& b) {
@@ -1496,6 +1365,30 @@ class UACommand : public ::google::protobuf::Message /* @@protoc_insertion_point
   const ::google::protobuf::RepeatedPtrField< ::UADeliverOver >&
       deliverover() const;
 
+  // repeated .Err errors = 4;
+  int errors_size() const;
+  void clear_errors();
+  static const int kErrorsFieldNumber = 4;
+  ::Err* mutable_errors(int index);
+  ::google::protobuf::RepeatedPtrField< ::Err >*
+      mutable_errors();
+  const ::Err& errors(int index) const;
+  ::Err* add_errors();
+  const ::google::protobuf::RepeatedPtrField< ::Err >&
+      errors() const;
+
+  // repeated int64 acks = 5;
+  int acks_size() const;
+  void clear_acks();
+  static const int kAcksFieldNumber = 5;
+  ::google::protobuf::int64 acks(int index) const;
+  void set_acks(int index, ::google::protobuf::int64 value);
+  void add_acks(::google::protobuf::int64 value);
+  const ::google::protobuf::RepeatedField< ::google::protobuf::int64 >&
+      acks() const;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
+      mutable_acks();
+
   // optional .UASendWorldId sendid = 1;
   bool has_sendid() const;
   void clear_sendid();
@@ -1518,277 +1411,9 @@ class UACommand : public ::google::protobuf::Message /* @@protoc_insertion_point
   mutable ::google::protobuf::internal::CachedSize _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::UAArrived > arrived_;
   ::google::protobuf::RepeatedPtrField< ::UADeliverOver > deliverover_;
+  ::google::protobuf::RepeatedPtrField< ::Err > errors_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int64 > acks_;
   ::UASendWorldId* sendid_;
-  friend struct ::protobuf_ups_5famazon_2eproto::TableStruct;
-};
-// -------------------------------------------------------------------
-
-class UAResponses : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:UAResponses) */ {
- public:
-  UAResponses();
-  virtual ~UAResponses();
-
-  UAResponses(const UAResponses& from);
-
-  inline UAResponses& operator=(const UAResponses& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  #if LANG_CXX11
-  UAResponses(UAResponses&& from) noexcept
-    : UAResponses() {
-    *this = ::std::move(from);
-  }
-
-  inline UAResponses& operator=(UAResponses&& from) noexcept {
-    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
-      if (this != &from) InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-  #endif
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields();
-  }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields();
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const UAResponses& default_instance();
-
-  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const UAResponses* internal_default_instance() {
-    return reinterpret_cast<const UAResponses*>(
-               &_UAResponses_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    10;
-
-  void Swap(UAResponses* other);
-  friend void swap(UAResponses& a, UAResponses& b) {
-    a.Swap(&b);
-  }
-
-  // implements Message ----------------------------------------------
-
-  inline UAResponses* New() const final {
-    return CreateMaybeMessage<UAResponses>(NULL);
-  }
-
-  UAResponses* New(::google::protobuf::Arena* arena) const final {
-    return CreateMaybeMessage<UAResponses>(arena);
-  }
-  void CopyFrom(const ::google::protobuf::Message& from) final;
-  void MergeFrom(const ::google::protobuf::Message& from) final;
-  void CopyFrom(const UAResponses& from);
-  void MergeFrom(const UAResponses& from);
-  void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input) final;
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const final;
-  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
-      bool deterministic, ::google::protobuf::uint8* target) const final;
-  int GetCachedSize() const final { return _cached_size_.Get(); }
-
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const final;
-  void InternalSwap(UAResponses* other);
-  private:
-  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
-    return NULL;
-  }
-  inline void* MaybeArenaPtr() const {
-    return NULL;
-  }
-  public:
-
-  ::google::protobuf::Metadata GetMetadata() const final;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // repeated .Err errors = 1;
-  int errors_size() const;
-  void clear_errors();
-  static const int kErrorsFieldNumber = 1;
-  ::Err* mutable_errors(int index);
-  ::google::protobuf::RepeatedPtrField< ::Err >*
-      mutable_errors();
-  const ::Err& errors(int index) const;
-  ::Err* add_errors();
-  const ::google::protobuf::RepeatedPtrField< ::Err >&
-      errors() const;
-
-  // repeated int64 acks = 2;
-  int acks_size() const;
-  void clear_acks();
-  static const int kAcksFieldNumber = 2;
-  ::google::protobuf::int64 acks(int index) const;
-  void set_acks(int index, ::google::protobuf::int64 value);
-  void add_acks(::google::protobuf::int64 value);
-  const ::google::protobuf::RepeatedField< ::google::protobuf::int64 >&
-      acks() const;
-  ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
-      mutable_acks();
-
-  // @@protoc_insertion_point(class_scope:UAResponses)
- private:
-
-  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::google::protobuf::internal::HasBits<1> _has_bits_;
-  mutable ::google::protobuf::internal::CachedSize _cached_size_;
-  ::google::protobuf::RepeatedPtrField< ::Err > errors_;
-  ::google::protobuf::RepeatedField< ::google::protobuf::int64 > acks_;
-  friend struct ::protobuf_ups_5famazon_2eproto::TableStruct;
-};
-// -------------------------------------------------------------------
-
-class AUResponses : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:AUResponses) */ {
- public:
-  AUResponses();
-  virtual ~AUResponses();
-
-  AUResponses(const AUResponses& from);
-
-  inline AUResponses& operator=(const AUResponses& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  #if LANG_CXX11
-  AUResponses(AUResponses&& from) noexcept
-    : AUResponses() {
-    *this = ::std::move(from);
-  }
-
-  inline AUResponses& operator=(AUResponses&& from) noexcept {
-    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
-      if (this != &from) InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-  #endif
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields();
-  }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields();
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const AUResponses& default_instance();
-
-  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const AUResponses* internal_default_instance() {
-    return reinterpret_cast<const AUResponses*>(
-               &_AUResponses_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    11;
-
-  void Swap(AUResponses* other);
-  friend void swap(AUResponses& a, AUResponses& b) {
-    a.Swap(&b);
-  }
-
-  // implements Message ----------------------------------------------
-
-  inline AUResponses* New() const final {
-    return CreateMaybeMessage<AUResponses>(NULL);
-  }
-
-  AUResponses* New(::google::protobuf::Arena* arena) const final {
-    return CreateMaybeMessage<AUResponses>(arena);
-  }
-  void CopyFrom(const ::google::protobuf::Message& from) final;
-  void MergeFrom(const ::google::protobuf::Message& from) final;
-  void CopyFrom(const AUResponses& from);
-  void MergeFrom(const AUResponses& from);
-  void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input) final;
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const final;
-  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
-      bool deterministic, ::google::protobuf::uint8* target) const final;
-  int GetCachedSize() const final { return _cached_size_.Get(); }
-
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const final;
-  void InternalSwap(AUResponses* other);
-  private:
-  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
-    return NULL;
-  }
-  inline void* MaybeArenaPtr() const {
-    return NULL;
-  }
-  public:
-
-  ::google::protobuf::Metadata GetMetadata() const final;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // repeated .Err errors = 2;
-  int errors_size() const;
-  void clear_errors();
-  static const int kErrorsFieldNumber = 2;
-  ::Err* mutable_errors(int index);
-  ::google::protobuf::RepeatedPtrField< ::Err >*
-      mutable_errors();
-  const ::Err& errors(int index) const;
-  ::Err* add_errors();
-  const ::google::protobuf::RepeatedPtrField< ::Err >&
-      errors() const;
-
-  // repeated int64 acks = 3;
-  int acks_size() const;
-  void clear_acks();
-  static const int kAcksFieldNumber = 3;
-  ::google::protobuf::int64 acks(int index) const;
-  void set_acks(int index, ::google::protobuf::int64 value);
-  void add_acks(::google::protobuf::int64 value);
-  const ::google::protobuf::RepeatedField< ::google::protobuf::int64 >&
-      acks() const;
-  ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
-      mutable_acks();
-
-  // optional int64 seqnum = 1;
-  bool has_seqnum() const;
-  void clear_seqnum();
-  static const int kSeqnumFieldNumber = 1;
-  ::google::protobuf::int64 seqnum() const;
-  void set_seqnum(::google::protobuf::int64 value);
-
-  // @@protoc_insertion_point(class_scope:AUResponses)
- private:
-  void set_has_seqnum();
-  void clear_has_seqnum();
-
-  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::google::protobuf::internal::HasBits<1> _has_bits_;
-  mutable ::google::protobuf::internal::CachedSize _cached_size_;
-  ::google::protobuf::RepeatedPtrField< ::Err > errors_;
-  ::google::protobuf::RepeatedField< ::google::protobuf::int64 > acks_;
-  ::google::protobuf::int64 seqnum_;
   friend struct ::protobuf_ups_5famazon_2eproto::TableStruct;
 };
 // -------------------------------------------------------------------
@@ -1835,7 +1460,7 @@ class Err : public ::google::protobuf::Message /* @@protoc_insertion_point(class
                &_Err_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    12;
+    9;
 
   void Swap(Err* other);
   friend void swap(Err& a, Err& b) {
@@ -1909,10 +1534,10 @@ class Err : public ::google::protobuf::Message /* @@protoc_insertion_point(class
   ::google::protobuf::int64 originseqnum() const;
   void set_originseqnum(::google::protobuf::int64 value);
 
-  // required int64 seqnum = 3;
+  // required int64 seqnum = 255;
   bool has_seqnum() const;
   void clear_seqnum();
-  static const int kSeqnumFieldNumber = 3;
+  static const int kSeqnumFieldNumber = 255;
   ::google::protobuf::int64 seqnum() const;
   void set_seqnum(::google::protobuf::int64 value);
 
@@ -2492,112 +2117,6 @@ inline void AULoadOver::set_seqnum(::google::protobuf::int64 value) {
 
 // -------------------------------------------------------------------
 
-// AUChangeAddress
-
-// required int64 trackingnum = 1;
-inline bool AUChangeAddress::has_trackingnum() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void AUChangeAddress::set_has_trackingnum() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void AUChangeAddress::clear_has_trackingnum() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void AUChangeAddress::clear_trackingnum() {
-  trackingnum_ = GOOGLE_LONGLONG(0);
-  clear_has_trackingnum();
-}
-inline ::google::protobuf::int64 AUChangeAddress::trackingnum() const {
-  // @@protoc_insertion_point(field_get:AUChangeAddress.trackingnum)
-  return trackingnum_;
-}
-inline void AUChangeAddress::set_trackingnum(::google::protobuf::int64 value) {
-  set_has_trackingnum();
-  trackingnum_ = value;
-  // @@protoc_insertion_point(field_set:AUChangeAddress.trackingnum)
-}
-
-// required .UDeliveryLocation loc = 2;
-inline bool AUChangeAddress::has_loc() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void AUChangeAddress::set_has_loc() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void AUChangeAddress::clear_has_loc() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline const ::UDeliveryLocation& AUChangeAddress::_internal_loc() const {
-  return *loc_;
-}
-inline const ::UDeliveryLocation& AUChangeAddress::loc() const {
-  const ::UDeliveryLocation* p = loc_;
-  // @@protoc_insertion_point(field_get:AUChangeAddress.loc)
-  return p != NULL ? *p : *reinterpret_cast<const ::UDeliveryLocation*>(
-      &::_UDeliveryLocation_default_instance_);
-}
-inline ::UDeliveryLocation* AUChangeAddress::release_loc() {
-  // @@protoc_insertion_point(field_release:AUChangeAddress.loc)
-  clear_has_loc();
-  ::UDeliveryLocation* temp = loc_;
-  loc_ = NULL;
-  return temp;
-}
-inline ::UDeliveryLocation* AUChangeAddress::mutable_loc() {
-  set_has_loc();
-  if (loc_ == NULL) {
-    auto* p = CreateMaybeMessage<::UDeliveryLocation>(GetArenaNoVirtual());
-    loc_ = p;
-  }
-  // @@protoc_insertion_point(field_mutable:AUChangeAddress.loc)
-  return loc_;
-}
-inline void AUChangeAddress::set_allocated_loc(::UDeliveryLocation* loc) {
-  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
-  if (message_arena == NULL) {
-    delete reinterpret_cast< ::google::protobuf::MessageLite*>(loc_);
-  }
-  if (loc) {
-    ::google::protobuf::Arena* submessage_arena = NULL;
-    if (message_arena != submessage_arena) {
-      loc = ::google::protobuf::internal::GetOwnedMessage(
-          message_arena, loc, submessage_arena);
-    }
-    set_has_loc();
-  } else {
-    clear_has_loc();
-  }
-  loc_ = loc;
-  // @@protoc_insertion_point(field_set_allocated:AUChangeAddress.loc)
-}
-
-// required int64 seqnum = 255;
-inline bool AUChangeAddress::has_seqnum() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
-}
-inline void AUChangeAddress::set_has_seqnum() {
-  _has_bits_[0] |= 0x00000004u;
-}
-inline void AUChangeAddress::clear_has_seqnum() {
-  _has_bits_[0] &= ~0x00000004u;
-}
-inline void AUChangeAddress::clear_seqnum() {
-  seqnum_ = GOOGLE_LONGLONG(0);
-  clear_has_seqnum();
-}
-inline ::google::protobuf::int64 AUChangeAddress::seqnum() const {
-  // @@protoc_insertion_point(field_get:AUChangeAddress.seqnum)
-  return seqnum_;
-}
-inline void AUChangeAddress::set_seqnum(::google::protobuf::int64 value) {
-  set_has_seqnum();
-  seqnum_ = value;
-  // @@protoc_insertion_point(field_set:AUChangeAddress.seqnum)
-}
-
-// -------------------------------------------------------------------
-
 // UADeliverOver
 
 // required int64 trackingnum = 1;
@@ -2712,37 +2231,7 @@ AUCommand::packloaded() const {
   return packloaded_;
 }
 
-// repeated .AUChangeAddress changeaddr = 3;
-inline int AUCommand::changeaddr_size() const {
-  return changeaddr_.size();
-}
-inline void AUCommand::clear_changeaddr() {
-  changeaddr_.Clear();
-}
-inline ::AUChangeAddress* AUCommand::mutable_changeaddr(int index) {
-  // @@protoc_insertion_point(field_mutable:AUCommand.changeaddr)
-  return changeaddr_.Mutable(index);
-}
-inline ::google::protobuf::RepeatedPtrField< ::AUChangeAddress >*
-AUCommand::mutable_changeaddr() {
-  // @@protoc_insertion_point(field_mutable_list:AUCommand.changeaddr)
-  return &changeaddr_;
-}
-inline const ::AUChangeAddress& AUCommand::changeaddr(int index) const {
-  // @@protoc_insertion_point(field_get:AUCommand.changeaddr)
-  return changeaddr_.Get(index);
-}
-inline ::AUChangeAddress* AUCommand::add_changeaddr() {
-  // @@protoc_insertion_point(field_add:AUCommand.changeaddr)
-  return changeaddr_.Add();
-}
-inline const ::google::protobuf::RepeatedPtrField< ::AUChangeAddress >&
-AUCommand::changeaddr() const {
-  // @@protoc_insertion_point(field_list:AUCommand.changeaddr)
-  return changeaddr_;
-}
-
-// optional .AUQueryUpsid queryupsid = 4;
+// optional .AUQueryUpsid queryupsid = 3;
 inline bool AUCommand::has_queryupsid() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
@@ -2798,6 +2287,90 @@ inline void AUCommand::set_allocated_queryupsid(::AUQueryUpsid* queryupsid) {
   }
   queryupsid_ = queryupsid;
   // @@protoc_insertion_point(field_set_allocated:AUCommand.queryupsid)
+}
+
+// repeated .Err errors = 4;
+inline int AUCommand::errors_size() const {
+  return errors_.size();
+}
+inline void AUCommand::clear_errors() {
+  errors_.Clear();
+}
+inline ::Err* AUCommand::mutable_errors(int index) {
+  // @@protoc_insertion_point(field_mutable:AUCommand.errors)
+  return errors_.Mutable(index);
+}
+inline ::google::protobuf::RepeatedPtrField< ::Err >*
+AUCommand::mutable_errors() {
+  // @@protoc_insertion_point(field_mutable_list:AUCommand.errors)
+  return &errors_;
+}
+inline const ::Err& AUCommand::errors(int index) const {
+  // @@protoc_insertion_point(field_get:AUCommand.errors)
+  return errors_.Get(index);
+}
+inline ::Err* AUCommand::add_errors() {
+  // @@protoc_insertion_point(field_add:AUCommand.errors)
+  return errors_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::Err >&
+AUCommand::errors() const {
+  // @@protoc_insertion_point(field_list:AUCommand.errors)
+  return errors_;
+}
+
+// repeated int64 acks = 5;
+inline int AUCommand::acks_size() const {
+  return acks_.size();
+}
+inline void AUCommand::clear_acks() {
+  acks_.Clear();
+}
+inline ::google::protobuf::int64 AUCommand::acks(int index) const {
+  // @@protoc_insertion_point(field_get:AUCommand.acks)
+  return acks_.Get(index);
+}
+inline void AUCommand::set_acks(int index, ::google::protobuf::int64 value) {
+  acks_.Set(index, value);
+  // @@protoc_insertion_point(field_set:AUCommand.acks)
+}
+inline void AUCommand::add_acks(::google::protobuf::int64 value) {
+  acks_.Add(value);
+  // @@protoc_insertion_point(field_add:AUCommand.acks)
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::int64 >&
+AUCommand::acks() const {
+  // @@protoc_insertion_point(field_list:AUCommand.acks)
+  return acks_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
+AUCommand::mutable_acks() {
+  // @@protoc_insertion_point(field_mutable_list:AUCommand.acks)
+  return &acks_;
+}
+
+// optional int64 seqnum = 255;
+inline bool AUCommand::has_seqnum() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void AUCommand::set_has_seqnum() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void AUCommand::clear_has_seqnum() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void AUCommand::clear_seqnum() {
+  seqnum_ = GOOGLE_LONGLONG(0);
+  clear_has_seqnum();
+}
+inline ::google::protobuf::int64 AUCommand::seqnum() const {
+  // @@protoc_insertion_point(field_get:AUCommand.seqnum)
+  return seqnum_;
+}
+inline void AUCommand::set_seqnum(::google::protobuf::int64 value) {
+  set_has_seqnum();
+  seqnum_ = value;
+  // @@protoc_insertion_point(field_set:AUCommand.seqnum)
 }
 
 // -------------------------------------------------------------------
@@ -2922,155 +2495,63 @@ UACommand::deliverover() const {
   return deliverover_;
 }
 
-// -------------------------------------------------------------------
-
-// UAResponses
-
-// repeated .Err errors = 1;
-inline int UAResponses::errors_size() const {
+// repeated .Err errors = 4;
+inline int UACommand::errors_size() const {
   return errors_.size();
 }
-inline void UAResponses::clear_errors() {
+inline void UACommand::clear_errors() {
   errors_.Clear();
 }
-inline ::Err* UAResponses::mutable_errors(int index) {
-  // @@protoc_insertion_point(field_mutable:UAResponses.errors)
+inline ::Err* UACommand::mutable_errors(int index) {
+  // @@protoc_insertion_point(field_mutable:UACommand.errors)
   return errors_.Mutable(index);
 }
 inline ::google::protobuf::RepeatedPtrField< ::Err >*
-UAResponses::mutable_errors() {
-  // @@protoc_insertion_point(field_mutable_list:UAResponses.errors)
+UACommand::mutable_errors() {
+  // @@protoc_insertion_point(field_mutable_list:UACommand.errors)
   return &errors_;
 }
-inline const ::Err& UAResponses::errors(int index) const {
-  // @@protoc_insertion_point(field_get:UAResponses.errors)
+inline const ::Err& UACommand::errors(int index) const {
+  // @@protoc_insertion_point(field_get:UACommand.errors)
   return errors_.Get(index);
 }
-inline ::Err* UAResponses::add_errors() {
-  // @@protoc_insertion_point(field_add:UAResponses.errors)
+inline ::Err* UACommand::add_errors() {
+  // @@protoc_insertion_point(field_add:UACommand.errors)
   return errors_.Add();
 }
 inline const ::google::protobuf::RepeatedPtrField< ::Err >&
-UAResponses::errors() const {
-  // @@protoc_insertion_point(field_list:UAResponses.errors)
+UACommand::errors() const {
+  // @@protoc_insertion_point(field_list:UACommand.errors)
   return errors_;
 }
 
-// repeated int64 acks = 2;
-inline int UAResponses::acks_size() const {
+// repeated int64 acks = 5;
+inline int UACommand::acks_size() const {
   return acks_.size();
 }
-inline void UAResponses::clear_acks() {
+inline void UACommand::clear_acks() {
   acks_.Clear();
 }
-inline ::google::protobuf::int64 UAResponses::acks(int index) const {
-  // @@protoc_insertion_point(field_get:UAResponses.acks)
+inline ::google::protobuf::int64 UACommand::acks(int index) const {
+  // @@protoc_insertion_point(field_get:UACommand.acks)
   return acks_.Get(index);
 }
-inline void UAResponses::set_acks(int index, ::google::protobuf::int64 value) {
+inline void UACommand::set_acks(int index, ::google::protobuf::int64 value) {
   acks_.Set(index, value);
-  // @@protoc_insertion_point(field_set:UAResponses.acks)
+  // @@protoc_insertion_point(field_set:UACommand.acks)
 }
-inline void UAResponses::add_acks(::google::protobuf::int64 value) {
+inline void UACommand::add_acks(::google::protobuf::int64 value) {
   acks_.Add(value);
-  // @@protoc_insertion_point(field_add:UAResponses.acks)
+  // @@protoc_insertion_point(field_add:UACommand.acks)
 }
 inline const ::google::protobuf::RepeatedField< ::google::protobuf::int64 >&
-UAResponses::acks() const {
-  // @@protoc_insertion_point(field_list:UAResponses.acks)
+UACommand::acks() const {
+  // @@protoc_insertion_point(field_list:UACommand.acks)
   return acks_;
 }
 inline ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
-UAResponses::mutable_acks() {
-  // @@protoc_insertion_point(field_mutable_list:UAResponses.acks)
-  return &acks_;
-}
-
-// -------------------------------------------------------------------
-
-// AUResponses
-
-// optional int64 seqnum = 1;
-inline bool AUResponses::has_seqnum() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void AUResponses::set_has_seqnum() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void AUResponses::clear_has_seqnum() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void AUResponses::clear_seqnum() {
-  seqnum_ = GOOGLE_LONGLONG(0);
-  clear_has_seqnum();
-}
-inline ::google::protobuf::int64 AUResponses::seqnum() const {
-  // @@protoc_insertion_point(field_get:AUResponses.seqnum)
-  return seqnum_;
-}
-inline void AUResponses::set_seqnum(::google::protobuf::int64 value) {
-  set_has_seqnum();
-  seqnum_ = value;
-  // @@protoc_insertion_point(field_set:AUResponses.seqnum)
-}
-
-// repeated .Err errors = 2;
-inline int AUResponses::errors_size() const {
-  return errors_.size();
-}
-inline void AUResponses::clear_errors() {
-  errors_.Clear();
-}
-inline ::Err* AUResponses::mutable_errors(int index) {
-  // @@protoc_insertion_point(field_mutable:AUResponses.errors)
-  return errors_.Mutable(index);
-}
-inline ::google::protobuf::RepeatedPtrField< ::Err >*
-AUResponses::mutable_errors() {
-  // @@protoc_insertion_point(field_mutable_list:AUResponses.errors)
-  return &errors_;
-}
-inline const ::Err& AUResponses::errors(int index) const {
-  // @@protoc_insertion_point(field_get:AUResponses.errors)
-  return errors_.Get(index);
-}
-inline ::Err* AUResponses::add_errors() {
-  // @@protoc_insertion_point(field_add:AUResponses.errors)
-  return errors_.Add();
-}
-inline const ::google::protobuf::RepeatedPtrField< ::Err >&
-AUResponses::errors() const {
-  // @@protoc_insertion_point(field_list:AUResponses.errors)
-  return errors_;
-}
-
-// repeated int64 acks = 3;
-inline int AUResponses::acks_size() const {
-  return acks_.size();
-}
-inline void AUResponses::clear_acks() {
-  acks_.Clear();
-}
-inline ::google::protobuf::int64 AUResponses::acks(int index) const {
-  // @@protoc_insertion_point(field_get:AUResponses.acks)
-  return acks_.Get(index);
-}
-inline void AUResponses::set_acks(int index, ::google::protobuf::int64 value) {
-  acks_.Set(index, value);
-  // @@protoc_insertion_point(field_set:AUResponses.acks)
-}
-inline void AUResponses::add_acks(::google::protobuf::int64 value) {
-  acks_.Add(value);
-  // @@protoc_insertion_point(field_add:AUResponses.acks)
-}
-inline const ::google::protobuf::RepeatedField< ::google::protobuf::int64 >&
-AUResponses::acks() const {
-  // @@protoc_insertion_point(field_list:AUResponses.acks)
-  return acks_;
-}
-inline ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
-AUResponses::mutable_acks() {
-  // @@protoc_insertion_point(field_mutable_list:AUResponses.acks)
+UACommand::mutable_acks() {
+  // @@protoc_insertion_point(field_mutable_list:UACommand.acks)
   return &acks_;
 }
 
@@ -3168,7 +2649,7 @@ inline void Err::set_originseqnum(::google::protobuf::int64 value) {
   // @@protoc_insertion_point(field_set:Err.originseqnum)
 }
 
-// required int64 seqnum = 3;
+// required int64 seqnum = 255;
 inline bool Err::has_seqnum() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
@@ -3195,12 +2676,6 @@ inline void Err::set_seqnum(::google::protobuf::int64 value) {
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
-// -------------------------------------------------------------------
-
-// -------------------------------------------------------------------
-
-// -------------------------------------------------------------------
-
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

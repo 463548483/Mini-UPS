@@ -78,3 +78,11 @@ class Warehouse(models.Model):
     class Meta:
         managed = False
         db_table = 'warehouses'
+
+class Searchhistory(models.Model):
+    accountid = models.IntegerField(primary_key=True)
+    trackingnum = models.OneToOneField(Package)
+
+    class Meta:
+        managed = False
+        db_table = 'searchhistory'

@@ -24,6 +24,7 @@
 
   <p>{{message}}</p>
 
+  {% if packages %}
   <table id="customers">
     <tr>
       <th>Tracking Number</th>
@@ -50,6 +51,22 @@
     </tr>
     {% endfor %}
   </table>
+  {%endif%}
+
+  {%if searchhistory %}
+  <table id="customers">
+    <tr>
+      <th>Tracking Number</th>
+      <th>Details</th>
+    </tr>
+    {% for trackingnum in searchhistory %}
+    <tr>
+      <td>{{trackingnum.trackingnum}}</td>
+      <td><a href="/my_packages/{{trackingnum.trackingnum}}/detail/">Detail</a></td>
+    </tr>
+    {% endfor %}
+  </table>
+  {%endif%}
   
 </form>
 

@@ -182,6 +182,7 @@ void Database::createTables(connection * C) {
   string createSearchHistory = "CREATE TABLE SEARCHHISTORY (\
     accountId      bigint   PRIMARY KEY,\
     trackingnum    bigint   NOT NULL\
+    CONSTRAINT HISTORY_PACKAGEFK FOREIGN KEY (trackingNum) REFERENCES PACKAGES(trackingNum) ON DELETE CASCADE ON UPDATE CASCADE\
     );";
 
   /* Execute SQL query */
