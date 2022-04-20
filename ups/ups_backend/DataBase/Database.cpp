@@ -18,14 +18,14 @@ Database::Database() {
 }
 
 void Database::setup() {
-  // connection * C = connectToDatabase();
+  connection * C = connectToDatabase();
 
   // cout << "testing\n";
   // clean all existing tables or types
-  // cleanTables(C);
+  cleanTables(C);
 
   // create tables
-  // createTables(C);
+  createTables(C);
 
   // test insert
   // SQLObject *warehouse1 = new WarehouseInfo(1, 23, 23);

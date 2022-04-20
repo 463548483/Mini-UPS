@@ -109,6 +109,7 @@ void BaseServer::setupServer(const char * hostname, const char * port) {
 
   // connect to sim world
   connectToSimWorld();
+  cout << "Successfully connected to simulation world\n";
 
   // get world id
   setWorldId(getWorldIdFromSim());

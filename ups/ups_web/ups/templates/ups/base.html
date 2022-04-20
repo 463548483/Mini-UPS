@@ -460,7 +460,7 @@
           <span class="tooltip">Home Page</span>
         </li>
 
-        {% if user.is_staff %}
+        {% if user.is_authenticated %}
         <li>
           <a href="/track_shipment">
             <i class='bx bx-user-voice'></i>
@@ -468,9 +468,6 @@
           </a>
           <span class="tooltip">Tracking Shipment</span>
         </li>
-        {% endif %}
-
-        {% if user.is_authenticated %}
         <li>
           <a href="/my_packages">
             <i class='bx bx-user-voice'></i>

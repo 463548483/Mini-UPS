@@ -13,10 +13,11 @@
 #include "WarehouseInfo.hpp"
 
 // #define HOST "localhost"
-#define HOST "vcm-26069.vm.duke.edu"
-// #define HOST "db"
+// #define HOST "vcm-25032.vm.duke.edu"
+#define HOST "db"
 #define DATABASE "postgres"
 #define USER "postgres"
+// #define PASSWORD "postgres"
 #define PASSWORD "@zxcvbnm123"
 
 class DatabaseConnectionError : public std::exception {

@@ -14,6 +14,7 @@ class Account(models.Model):
     username = models.CharField(max_length=40)
 
     class Meta:
+        managed = False
         db_table = 'account'
 
 class Item(models.Model):
@@ -23,6 +24,7 @@ class Item(models.Model):
     trackingnum = models.ForeignKey('Package', models.DO_NOTHING, db_column='trackingnum')
 
     class Meta:
+        managed = False
         db_table = 'items'
 
 class Package(models.Model):
@@ -44,6 +46,7 @@ class Package(models.Model):
     )
 
     class Meta:
+        managed = False
         db_table = 'packages'
 
 
@@ -64,6 +67,7 @@ class Truck(models.Model):
     y = models.IntegerField()
 
     class Meta:
+        managed = False
         db_table = 'trucks'
 
 class Warehouse(models.Model):
@@ -72,4 +76,5 @@ class Warehouse(models.Model):
     y = models.IntegerField()
 
     class Meta:
+        managed = False
         db_table = 'warehouses'

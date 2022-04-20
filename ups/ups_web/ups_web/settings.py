@@ -86,11 +86,11 @@ DATABASES = {
         'NAME': 'postgres',
         'USER': 'postgres',
         'PASSWORD': '@zxcvbnm123',
-        'HOST': 'vcm-26069.vm.duke.edu',
+        'HOST': 'db',
         'PORT': '5432'
     }
 }
-
+# @zxcvbnm123
 
 
 # Password validation
