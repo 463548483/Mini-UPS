@@ -34,7 +34,7 @@ using namespace google::protobuf::io;
 #define SIMWORLD_UPS_HOST "vcm-25032.vm.duke.edu"
 #define SIMWORLD_UPS_PORT "12345"
 #define AMAZON_HOST "vcm-26436.vm.duke.edu"
-#define AMAZON_PORT "8888"
+#define AMAZON_PORT "9999"
 
 struct requestInfo {
   int64_t seqnum;
@@ -994,9 +994,10 @@ int BaseServer::findTrucks() {
         warehousePkgMap.erase(it->first);
         findTruckMutex.unlock();
         int warehouseId = it->first;
-        list<int64_t> trackingNums = warehousePkgMap.begin()->second;
+        list<int64_t> trackingNums = it->second;
         //find the closest truck if without other package to pick up
         while (true) {
+          cout<<"Query Truck"<<endl;
           int closestTruckId = db.queryAvailableTrucksPerDistance(C, warehouseId);
           if (closestTruckId == 0) {
             cout << "cannot find available trucks currently" << endl;
@@ -1005,13 +1006,14 @@ int BaseServer::findTrucks() {
           int queryNum = seqnum.fetch_add(1);
           //db.updateTruck(C, traveling, closestTruckIds);
           //requestPickUpToWorld(closestTruckId, warehouseId, queryNum);
+          cout<<"wait for world"<<endl;
           if (waitWorldProcess(queryNum) == false) {
             cout << "Request truck pick up fail" << endl;
             continue;
           }
           for (auto const & trackingNum : trackingNums) {
             db.updatePackage(C, wait_for_loading, trackingNum);
-            //notifyArrivalToAmazon(closestTruckId, trackingNum, seqnum.fetch_add(1));
+            notifyArrivalToAmazon(closestTruckId, trackingNum, seqnum.fetch_add(1));
           }
         }
       }
@@ -1091,6 +1093,7 @@ void BaseServer::processAmazonUpsQuery(connection * C, AUCommand & aResq) {
 // process pickup request from Amazon
 void BaseServer::processAmazonPickup(connection * C, AUCommand & aResq) {
   cout << "pickup size=" << aResq.pickup_size() << endl;
+  cout << aResq.ShortDebugString()<<endl;
   for (int i = 0; i < aResq.pickup_size(); i++) {
     const AURequestPickup & pickup = aResq.pickup(i);
     ackToAmazon(pickup.seqnum());

@@ -10,7 +10,7 @@ using namespace std;
 int main(int argc, char const *argv[]) {
     try {
         cout << "Starting the server...\n";
-        BaseServer server(nullptr, "5555", 500, 32);
+        BaseServer server(nullptr, "5555", 10000, 32);
         server.launch();
     } catch (const exception &e) {
         cerr << e.what() << endl;

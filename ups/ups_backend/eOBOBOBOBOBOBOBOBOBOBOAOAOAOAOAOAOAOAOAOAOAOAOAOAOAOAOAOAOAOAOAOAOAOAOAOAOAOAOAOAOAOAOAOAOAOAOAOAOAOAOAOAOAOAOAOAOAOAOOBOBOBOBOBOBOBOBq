@@ -1,0 +1,13 @@
+                  List of relations
+ Schema |         Name          |   Type   |  Owner   
+--------+-----------------------+----------+----------
+ public | account               | table    | postgres
+ public | account_accountid_seq | sequence | postgres
+ public | items                 | table    | postgres
+ public | items_itemid_seq      | sequence | postgres
+ public | packages              | table    | postgres
+ public | trucks                | table    | postgres
+ public | trucks_truckid_seq    | sequence | postgres
+ public | warehouses            | table    | postgres
+(8 rows)
+
