@@ -18,14 +18,14 @@ Database::Database() {
 }
 
 void Database::setup() {
-  // connection * C = connectToDatabase();
+  connection * C = connectToDatabase();
 
   // cout << "testing\n";
   // clean all existing tables or types
-  // cleanTables(C);
+  cleanTables(C);
 
   // create tables
-  // createTables(C);
+  createTables(C);
 
   // test insert
   // SQLObject *warehouse1 = new WarehouseInfo(1, 23, 23);
@@ -56,8 +56,8 @@ void Database::setup() {
   // int truckIds = queryAvailableTrucksPerDistance(C, 1);
   // cout << "find truck " << truckIds << endl;
 
-  // C->disconnect();
-  // delete C;
+  C->disconnect();
+  delete C;
 }
 
 Database::~Database() {
@@ -104,11 +104,12 @@ void Database::dropATable(connection * C, string tableName) {
 // drop all the existing tables
 void Database::cleanTables(connection * C) {
   dropATable(C, "ITEMS");
+  dropATable(C, "SEARCHHISTORY");
   dropATable(C, "PACKAGES");
   dropATable(C, "WAREHOUSES");
   dropATable(C, "ACCOUNT");
   dropATable(C, "TRUCKS");
-  dropATable(C, "SEARCHHISTORY");
+  
 
   // clean the enum type
   /* Create a transactional object. */
@@ -181,7 +182,7 @@ void Database::createTables(connection * C) {
 
   string createSearchHistory = "CREATE TABLE SEARCHHISTORY (\
     accountId      bigint   PRIMARY KEY,\
-    trackingnum    bigint   NOT NULL\
+    trackingnum    bigint   NOT NULL,\
     CONSTRAINT HISTORY_PACKAGEFK FOREIGN KEY (trackingNum) REFERENCES PACKAGES(trackingNum) ON DELETE CASCADE ON UPDATE CASCADE\
     );";
 
@@ -345,13 +346,20 @@ int Database::queryAvailableTrucksPerDistance(connection * C, int warehouseId) {
       result r = T.exec(ss.str());
       for (size_t i = 0; i < r.size(); i++) {
         int truckId = r[i][0].as<int>();
+        cout<<"try truck"<<truckId<<endl;
         ss = stringstream();
         ss << "select * from packages where truckid=" << truckId
            << " and status in ('wait for loading', 'wait for pickup');";
+        
         result check = T.exec(ss.str());
+        cout<<"after query package under this truck"<<endl;
         if (check.size() == 0) {
-          updateTruck(C, traveling, truckId);
+          cout<<"updated the available truck"<<truckId<<endl;
+          stringstream ss;
+          ss << "update trucks set status='traveling' where truckid=" << truckId << ";";
+          T.exec(ss.str());
           T.commit();
+          cout<<"commited"<<endl;
           return truckId;
         }
       }
