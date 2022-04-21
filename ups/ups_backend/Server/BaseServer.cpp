@@ -72,6 +72,8 @@ mutex alreadyAckMutex;
 // map for packages need to find trucks, key=warehouseId, value=list of trackingNum
 unordered_map<int, list<int64_t> > warehousePkgMap;
 mutex findTruckMutex;
+unordered_set<int64_t> amazonReq;
+mutex amazonReqMutex;
 
 BaseServer::BaseServer(const char * _hostname,
                        const char * _port,
@@ -524,14 +526,13 @@ void BaseServer::processAcks(UResponses & resp) {
   // remove the corresponding sequence number in unackeds
   for (int i = 0; i < resp.acks_size(); ++i) {
     // add sequence number to error free commands
-    if (errorCmds.find(resp.acks(i)) == errorCmds.end()){
+    if (errorCmds.find(resp.acks(i)) == errorCmds.end()) {
       errorFreeCmds.insert(resp.acks(i));
     }
     // if has indeed not been acked
-    if (unackeds.find(resp.acks(i)) != unackeds.end()){
+    if (unackeds.find(resp.acks(i)) != unackeds.end()) {
       unackeds.erase(resp.acks(i));
     }
-      
   }
 
   waitAckMutex.unlock();
@@ -1006,9 +1007,10 @@ int BaseServer::findTrucks() {
         int warehouseId = it->first;
         list<int64_t> trackingNums = it->second;
         warehousePkgMap.erase(it->first);
-        cout << "After erasing from warehousePkgMap, it size is: " << warehousePkgMap.size() << endl;
+        cout << "After erasing from warehousePkgMap, it size is: "
+             << warehousePkgMap.size() << endl;
         findTruckMutex.unlock();
-        
+
         //find the closest truck if without other package to pick up
         while (true) {
           cout << "Query Truck" << endl;
@@ -1028,7 +1030,7 @@ int BaseServer::findTrucks() {
             continue;
           }
           for (auto const & trackingNum : trackingNums) {
-            db.updatePackage(C, wait_for_loading, trackingNum);
+            db.updatePackage(C, wait_for_loading, closestTruckId, trackingNum);
             notifyArrivalToAmazon(closestTruckId, trackingNum, seqnum.fetch_add(1));
           }
           break;
@@ -1096,6 +1098,7 @@ void BaseServer::processAmazonUpsQuery(connection * C, AUCommand & aResq) {
   if (!aResq.has_queryupsid()) {
     return;
   }
+
   cout << "qeury for upsid" << endl;
   const AUQueryUpsid & queryUpsid = aResq.queryupsid();
   int64_t upsId = queryUpsid.upsid();
@@ -1114,6 +1117,11 @@ void BaseServer::processAmazonPickup(connection * C, AUCommand & aResq) {
   for (int i = 0; i < aResq.pickup_size(); i++) {
     const AURequestPickup & pickup = aResq.pickup(i);
     ackToAmazon(pickup.seqnum());
+    if (amazonReq.find(pickup.seqnum()) != amazonReq.end()) {
+      continue;
+    }
+    amazonReq.insert(pickup.seqnum());
+    amazonReqMutex.unlock();
     const int warehouseId = pickup.wareinfo().id();
     WarehouseInfo * newWarehouseInfo =
         new WarehouseInfo(warehouseId, pickup.wareinfo().x(), pickup.wareinfo().y());
@@ -1151,6 +1159,12 @@ void BaseServer::processAmazonLoaded(connection * C, AUCommand & aResq) {
   for (int i = 0; i < aResq.packloaded_size(); i++) {
     const AULoadOver & loadOver = aResq.packloaded(i);
     ackToAmazon(loadOver.seqnum());
+    amazonReqMutex.lock();
+    if (amazonReq.find(loadOver.seqnum()) != amazonReq.end()) {
+      continue;
+    }
+    amazonReq.insert(loadOver.seqnum());
+    amazonReqMutex.unlock();
     db.updatePackage(C,
                      out_for_deliver,
                      loadOver.loc().x(),
