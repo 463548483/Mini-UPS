@@ -31,10 +31,11 @@ using namespace google::protobuf::io;
 
 #define MAX_LIMIT 65536
 #define TIME_OUT_LIMIT 1
-#define SIMWORLD_UPS_HOST "vcm-25032.vm.duke.edu"
-#define SIMWORLD_UPS_PORT "12345"
+#define SIMWORLD_UPS_HOST "vcm-26436.vm.duke.edu"
+#define SIMWORLD_UPS_PORT "23456"
+// #define SIMWORLD_UPS_PORT "12345"
 #define AMAZON_HOST "vcm-26436.vm.duke.edu"
-#define AMAZON_PORT "9999"
+#define AMAZON_PORT "22222"
 
 struct requestInfo {
   int64_t seqnum;
@@ -242,7 +243,7 @@ int64_t BaseServer::getWorldIdFromSim() {
     if (isReady) {
       break;
     }
-    cout<<ucon.ShortDebugString()<<endl;
+    cout << ucon.ShortDebugString() << endl;
     sendMesgTo<UConnect>(ucon, worldOut);
     sleep(2);
   }
@@ -379,6 +380,11 @@ void BaseServer::timeoutAndRetransmission() {
 
 // logic of communication with sim world
 void BaseServer::amazonCommunicate() {
+  //mutiple thread for truck finding
+  group.run([=] { findTrucks(); });
+  //group.run([=] { findTrucks(); });
+  //group.run([=] { findTrucks(); });
+
   // big while loop
   connection * C = db.connectToDatabase();
   while (1) {
@@ -389,14 +395,11 @@ void BaseServer::amazonCommunicate() {
       bool status = recvMesgFrom<AUCommand>(acommd, amazonIn);
       if (!status) {
         cerr << "Receive AUCommand from amazon failed.\n";
-        throw ConnectToAmazonFailure();
+        //throw ConnectToAmazonFailure();
+        break;
       }
       processAmazonUpsQuery(C, acommd);
       processAmazonPickup(C, acommd);
-      //mutiple thread for truck finding
-      group.run([=] { findTrucks(); });
-      group.run([=] { findTrucks(); });
-      group.run([=] { findTrucks(); });
       processAmazonLoaded(C, acommd);
     }
     catch (const std::exception & e) {
@@ -404,6 +407,7 @@ void BaseServer::amazonCommunicate() {
       break;
     }
   }
+  cout << "End connection with Amazon" << endl;
   C->disconnect();
   delete C;
 }
@@ -458,6 +462,7 @@ void BaseServer::simWorldCommunicate() {
       else {
         cerr << "The message received is of wrong format. Can't parse it. So this would "
                 "be skipped.\n";
+        exitWithError("asjkxdx");
       }
 
       // cout << "Results of errCommands and errFreeCommands:\n";
@@ -518,13 +523,15 @@ void BaseServer::processAcks(UResponses & resp) {
 
   // remove the corresponding sequence number in unackeds
   for (int i = 0; i < resp.acks_size(); ++i) {
-    // if has indeed not been acked
-    if (unackeds.find(resp.acks(i)) != unackeds.end())
-      unackeds.erase(resp.acks(i));
-
     // add sequence number to error free commands
-    if (errorCmds.find(resp.acks(i)) == errorCmds.end())
+    if (errorCmds.find(resp.acks(i)) == errorCmds.end()){
       errorFreeCmds.insert(resp.acks(i));
+    }
+    // if has indeed not been acked
+    if (unackeds.find(resp.acks(i)) != unackeds.end()){
+      unackeds.erase(resp.acks(i));
+    }
+      
   }
 
   waitAckMutex.unlock();
@@ -949,12 +956,15 @@ bool BaseServer::waitWorldProcess(int64_t seqNum) {
       continue;
     }
     else {
+      cout << "Checking if the sequence number is in errorCmds or errorFreeCmds\n";
       if (errorCmds.find(seqNum) != errorCmds.end()) {
+        cout << "The sequence number is in errorCmds\n";
         errorCmds.erase(seqNum);
         return false;
       }
       else {
         if (errorFreeCmds.find(seqNum) != errorFreeCmds.end()) {
+          cout << "The sequence number is in errorFreeCmds\n";
           errorFreeCmds.erase(seqNum);
           return true;
         }
@@ -991,23 +1001,28 @@ int BaseServer::findTrucks() {
         continue;
       }
       else {
+        cout << "Ready to find a truck\n";
         unordered_map<int, list<int64_t> >::iterator it = warehousePkgMap.begin();
-        warehousePkgMap.erase(it->first);
-        findTruckMutex.unlock();
         int warehouseId = it->first;
         list<int64_t> trackingNums = it->second;
+        warehousePkgMap.erase(it->first);
+        cout << "After erasing from warehousePkgMap, it size is: " << warehousePkgMap.size() << endl;
+        findTruckMutex.unlock();
+        
         //find the closest truck if without other package to pick up
         while (true) {
-          cout<<"Query Truck"<<endl;
+          cout << "Query Truck" << endl;
           int closestTruckId = db.queryAvailableTrucksPerDistance(C, warehouseId);
           if (closestTruckId == 0) {
             cout << "cannot find available trucks currently" << endl;
             continue;
           }
           int queryNum = seqnum.fetch_add(1);
-          //db.updateTruck(C, traveling, closestTruckIds);
-          //requestPickUpToWorld(closestTruckId, warehouseId, queryNum);
-          cout<<"wait for world"<<endl;
+          //db.updateTruck(C, traveling, closestTruckId);
+          cout << "Found the closest truck id: " << closestTruckId << endl;
+          cout << "Resquest warehouse id: " << warehouseId << endl;
+          requestPickUpToWorld(closestTruckId, warehouseId, queryNum);
+          cout << "wait for world" << endl;
           if (waitWorldProcess(queryNum) == false) {
             cout << "Request truck pick up fail" << endl;
             continue;
@@ -1016,6 +1031,7 @@ int BaseServer::findTrucks() {
             db.updatePackage(C, wait_for_loading, trackingNum);
             notifyArrivalToAmazon(closestTruckId, trackingNum, seqnum.fetch_add(1));
           }
+          break;
         }
       }
     }
@@ -1094,7 +1110,7 @@ void BaseServer::processAmazonUpsQuery(connection * C, AUCommand & aResq) {
 // process pickup request from Amazon
 void BaseServer::processAmazonPickup(connection * C, AUCommand & aResq) {
   cout << "pickup size=" << aResq.pickup_size() << endl;
-  cout << aResq.ShortDebugString()<<endl;
+  cout << aResq.ShortDebugString() << endl;
   for (int i = 0; i < aResq.pickup_size(); i++) {
     const AURequestPickup & pickup = aResq.pickup(i);
     ackToAmazon(pickup.seqnum());
@@ -1104,7 +1120,7 @@ void BaseServer::processAmazonPickup(connection * C, AUCommand & aResq) {
     db.insertTables(C, newWarehouseInfo);
     delete newWarehouseInfo;
     Package * newPackage =
-        new Package(pickup.trackingnum(), warehouseId, wait_for_loading, pickup.upsid());
+        new Package(pickup.trackingnum(), warehouseId, wait_for_pickup, pickup.upsid());
     db.insertTables(C, newPackage);
     delete newPackage;
     for (int j = 0; j < pickup.things_size(); j++) {
