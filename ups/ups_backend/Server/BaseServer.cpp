@@ -156,13 +156,13 @@ void BaseServer::connectToAmazon() {
       cout << "Received " << resp.ShortDebugString() << endl;
       if (!status) {
         cerr << "Receive AUCommand from amazon failed. Probably of wrong format.\n";
-        throw new ConnectToAmazonFailure();
+        throw ConnectToAmazonFailure();
       }
 
       // check if ack is correctly returned
       if (resp.acks_size() <= 0) {
         cerr << "Receive AUCommand doesn't contain ACK\n";
-        throw new ConnectToAmazonFailure();
+        throw ConnectToAmazonFailure();
       }
       assert(seqnumCopy == resp.acks(0));
 
@@ -181,7 +181,7 @@ void BaseServer::connectToAmazon() {
         // send back ack
         if (!resp.has_seqnum()) {
           cerr << "Receive AUCommand doesn't contain seqnum, unable to ack\n";
-          throw new ConnectToAmazonFailure();
+          throw ConnectToAmazonFailure();
         }
         ackToAmazon(resp.seqnum());
         break;
@@ -226,7 +226,7 @@ int64_t BaseServer::getWorldIdFromSim() {
     truck->set_y(ys[i]);
 
     // store the truck in the database
-    SQLObject * truckObj = new Truck(loading, xs[i], ys[i]);
+    SQLObject * truckObj = new Truck(idle, xs[i], ys[i]);
     db.insertTables(C, truckObj);
     delete truckObj;
   }
