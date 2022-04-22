@@ -31,9 +31,9 @@ using namespace google::protobuf::io;
 
 #define MAX_LIMIT 65536
 #define TIME_OUT_LIMIT 1
-#define SIMWORLD_UPS_HOST "vcm-26436.vm.duke.edu"
-#define SIMWORLD_UPS_PORT "23456"
-// #define SIMWORLD_UPS_PORT "12345"
+#define SIMWORLD_UPS_HOST "vcm-25032.vm.duke.edu"
+// #define SIMWORLD_UPS_PORT "23456"
+#define SIMWORLD_UPS_PORT "12345"
 #define AMAZON_HOST "vcm-26436.vm.duke.edu"
 #define AMAZON_PORT "22222"
 
@@ -114,7 +114,7 @@ void BaseServer::setupServer(const char * hostname, const char * port) {
   setWorldId(getWorldIdFromSim());
 
   // connect to amazon
-  connectToAmazon();
+  // connectToAmazon();
 }
 
 void BaseServer::connectToSimWorld() {
@@ -277,7 +277,7 @@ void BaseServer::launch() {
   // one thread for receiving responses from sim world
   group.run([=] { simWorldCommunicate(); });
   // one or more threads for communicating with amazon
-  group.run([=] { amazonCommunicate(); });
+  // group.run([=] { amazonCommunicate(); });
   // one thread for implementing timeout and retransmission mechanism
   group.run([=] { timeoutAndRetransmission(); });
 
@@ -288,7 +288,7 @@ void BaseServer::frontendCommunicate() {
   while (1) {
     // accept connection
     MySocket * backendSock = sock->acceptConnection();
-    cout << "Accepting connection from back-end\n";
+    cout << "Accepting connection from front-end\n";
     string req = backendSock->receiveData();
     // if really received data
     if (req.size() != 0) {
@@ -341,6 +341,10 @@ void BaseServer::frontendCommunicate() {
       else {
         cerr << "Unknown request. Ignoring it.\n";
       }
+    } else {
+      cerr << "Front-end closed the connection. Closing this connection.\n";
+      delete backendSock;
+      break;
     }
 
     delete backendSock;
@@ -1142,7 +1146,6 @@ void BaseServer::processAmazonPickup(connection * C, AUCommand & aResq) {
     }
     findTruckMutex.unlock();
   }
-  //findTruck() will handle the truck finding and notify to amazon
 }
 
 void BaseServer::processAmazonLoaded(connection * C, AUCommand & aResq) {

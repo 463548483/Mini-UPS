@@ -85,8 +85,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'postgres',
         'USER': 'postgres',
-        'PASSWORD': '@zxcvbnm123',
-        'HOST': 'db',
+        'PASSWORD': 'postgres',
+        'HOST': 'localhost',
         'PORT': '5432'
     }
 }
@@ -127,6 +127,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = 'static/'
+# STATICFILES_DIR = [
+#     os.path.join(BASE_DIR, 'static')
+# ]
+
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 LOGIN_REDIRECT_URL = '/'
