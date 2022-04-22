@@ -81,7 +81,7 @@ class Warehouse(models.Model):
 
 class Searchhistory(models.Model):
     accountid = models.IntegerField(primary_key=True)
-    trackingnum = models.OneToOneField(Package)
+    trackingnum = models.OneToOneField(Package, on_delete=models.CASCADE, db_column='trackingnum')
 
     class Meta:
         managed = False

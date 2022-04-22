@@ -207,8 +207,9 @@ void Database::createTables(connection * C) {
 }
 
 void Database::insertTables(connection * C, SQLObject * object) {
-  transaction<serializable, read_write> T(*C);
+  
   while (true) {
+    transaction<serializable, read_write> T(*C);
     try {
       T.exec(object->sql_insert());
       T.commit();
@@ -226,8 +227,9 @@ void Database::updateTruck(connection * C,
                            int x,
                            int y,
                            int truckId) {
-  transaction<serializable, read_write> T(*C);
+  
   while (true) {
+    transaction<serializable, read_write> T(*C);
     try {
       stringstream ss;
       ss << "update trucks set status='" << truck_enum_str[status] << "', x=" << x
@@ -244,8 +246,9 @@ void Database::updateTruck(connection * C,
 }
 
 void Database::updateTruck(connection * C, truck_status_t status, int truckId) {
-  transaction<serializable, read_write> T(*C);
+  
   while (true) {
+    transaction<serializable, read_write> T(*C);
     try {
       stringstream ss;
       ss << "update trucks set status='" << truck_enum_str[status]
@@ -266,8 +269,9 @@ void Database::updatePackage(connection * C,
                              int destX,
                              int destY,
                              int64_t trackingNum) {
-  transaction<serializable, read_write> T(*C);
+  
   while (true) {
+    transaction<serializable, read_write> T(*C);
     try {
       stringstream ss;
       ss << "update packages set status='" << package_enum_str[status]
@@ -288,8 +292,9 @@ void Database::updatePackage(connection * C,
                              package_status_t status,
                              int truckid,
                              int64_t trackingNum) {
-  transaction<serializable, read_write> T(*C);
+  
   while (true) {
+    transaction<serializable, read_write> T(*C);
     try {
       stringstream ss;
       ss << "update packages set status='" << package_enum_str[status]
@@ -308,8 +313,9 @@ void Database::updatePackage(connection * C,
 void Database::updatePackage(connection * C,
                              package_status_t status,
                              int64_t trackingNum) {
-  transaction<serializable, read_write> T(*C);
+  
   while (true) {
+    transaction<serializable, read_write> T(*C);
     try {
       stringstream ss;
       ss << "update packages set status='" << package_enum_str[status]
@@ -334,8 +340,8 @@ string Database::queryPackageStatus(connection * C, int64_t trackingNum) {
 }
 
 int Database::queryAvailableTrucksPerDistance(connection * C, int warehouseId) {
-  transaction<serializable, read_write> T(*C);
   while (true) {
+    transaction<serializable, read_write> T(*C);
     try {
       stringstream ss;
       ss << "select truckid, (trucks.x-warehouses.x)^2+(trucks.y-warehouses.y)^2 as "
@@ -371,17 +377,17 @@ int Database::queryAvailableTrucksPerDistance(connection * C, int warehouseId) {
   }
 }
 
-list<int> Database::queryTrucks(connection * C) {
+bool Database::queryTruckAvailable(connection * C,int truckId) {
   work W(*C);
   stringstream ss;
-  ss << "select truckid from trucks;";
+  ss << "select * from trucks,packages where trucks.truckid="<<truckId<<" and packages.truckid="<<truckId<<" and packages.status in ('wait for pickup','wait for loading');";
   result r = W.exec(ss.str());
-  list<int> truckIds;
-  //for (size_t i=0;i<r.size();i++){
-  for (pqxx::result::const_iterator it = r.begin(); it != r.end(); ++it) {
-    truckIds.push_back(it[0].as<int>());
+  if (r.size() > 0) {
+    return false;
   }
-  return truckIds;
+  else {
+    return true;
+  }
 }
 
 bool Database::queryUpsid(connection * C, int64_t upsId) {

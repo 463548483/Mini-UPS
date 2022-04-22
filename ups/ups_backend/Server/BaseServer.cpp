@@ -32,10 +32,10 @@ using namespace google::protobuf::io;
 #define MAX_LIMIT 65536
 #define TIME_OUT_LIMIT 1
 #define SIMWORLD_UPS_HOST "vcm-26436.vm.duke.edu"
-#define SIMWORLD_UPS_PORT "23456"
-// #define SIMWORLD_UPS_PORT "12345"
+// #define SIMWORLD_UPS_PORT "23456"
+#define SIMWORLD_UPS_PORT "12345"
 #define AMAZON_HOST "vcm-26436.vm.duke.edu"
-#define AMAZON_PORT "22222"
+#define AMAZON_PORT "9999"
 
 struct requestInfo {
   int64_t seqnum;
@@ -74,6 +74,8 @@ unordered_map<int, list<int64_t> > warehousePkgMap;
 mutex findTruckMutex;
 unordered_set<int64_t> amazonReq;
 mutex amazonReqMutex;
+unordered_map<int, vector<UDeliveryLocation> > truckPackageMap;
+
 
 BaseServer::BaseServer(const char * _hostname,
                        const char * _port,
@@ -384,7 +386,7 @@ void BaseServer::timeoutAndRetransmission() {
 void BaseServer::amazonCommunicate() {
   //mutiple thread for truck finding
   group.run([=] { findTrucks(); });
-  //group.run([=] { findTrucks(); });
+  group.run([=] { findTrucks(); });
   //group.run([=] { findTrucks(); });
 
   // big while loop
@@ -1118,6 +1120,7 @@ void BaseServer::processAmazonPickup(connection * C, AUCommand & aResq) {
     const AURequestPickup & pickup = aResq.pickup(i);
     ackToAmazon(pickup.seqnum());
     if (amazonReq.find(pickup.seqnum()) != amazonReq.end()) {
+      amazonReqMutex.unlock();
       continue;
     }
     amazonReq.insert(pickup.seqnum());
@@ -1146,7 +1149,8 @@ void BaseServer::processAmazonPickup(connection * C, AUCommand & aResq) {
     else {
       list<int64_t> packagesToPickUp;
       packagesToPickUp.push_back(pickup.trackingnum());
-      warehousePkgMap.emplace(warehouseId, packagesToPickUp);
+      auto it=warehousePkgMap.end();
+      warehousePkgMap.emplace_hint(it,warehouseId, packagesToPickUp);
     }
     findTruckMutex.unlock();
   }
@@ -1155,12 +1159,13 @@ void BaseServer::processAmazonPickup(connection * C, AUCommand & aResq) {
 
 void BaseServer::processAmazonLoaded(connection * C, AUCommand & aResq) {
   cout << "process loaded size=" << aResq.packloaded_size() << endl;
-  unordered_map<int, vector<UDeliveryLocation> > truckPackageMap;
+  
   for (int i = 0; i < aResq.packloaded_size(); i++) {
     const AULoadOver & loadOver = aResq.packloaded(i);
     ackToAmazon(loadOver.seqnum());
     amazonReqMutex.lock();
     if (amazonReq.find(loadOver.seqnum()) != amazonReq.end()) {
+      amazonReqMutex.unlock();
       continue;
     }
     amazonReq.insert(loadOver.seqnum());
@@ -1180,14 +1185,18 @@ void BaseServer::processAmazonLoaded(connection * C, AUCommand & aResq) {
     else {
       vector<UDeliveryLocation> loadedPackages;
       loadedPackages.push_back(loadOver.loc());
-      truckPackageMap.emplace(loadOver.truckid(), loadedPackages);
+      auto it=truckPackageMap.end();
+      truckPackageMap.emplace_hint(it,loadOver.truckid(), loadedPackages);
     }
   }
   vector<int64_t> seqNums;
   for (auto const it : truckPackageMap) {
-    int64_t seqNum = seqnum.fetch_add(1);
-    requestDeliverToWorld(it.first, it.second, seqNum);
-    seqNums.push_back(seqNum);
+    if (db.queryTruckAvailable(C,it.first)){
+      int64_t seqNum = seqnum.fetch_add(1);
+      requestDeliverToWorld(it.first, it.second, seqNum);
+      truckPackageMap.erase(it.first);
+      seqNums.push_back(seqNum);
+    }
   }
   for (auto const seqNum : seqNums) {
     waitWorldProcess(seqNum);

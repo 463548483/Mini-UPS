@@ -6,20 +6,18 @@
 
 {% load crispy_forms_tags %}
 
-<div style="text-align:left;">
-  <a href="javascript:history.go(-1);" class="button">Back</a> 
-</div>
+<h3 class="w3-center">Track all the shipments here</h3>
 
-<h1 class="child">Track all the shipments here</h1>
 
 <form method="POST" class="form-group">
   {% csrf_token %}
-  Please enter the tracking number:
+  <p><i class="fa fa-fw w3-xxlarge margin-left:100px"> </i> Please enter the tracking number:</p>
+  
   <br/>
-  <input name="tracking_number" type="number" placeholder="tracking number" size="60" required/>
+  <input name="tracking_number" class="w3-input w3-border" type="number" placeholder="tracking number" size="60" required/>
   <br/><br/>
 
-  <button type="submit" class="button">Search</button>
+  <button type="submit" class="w3-button w3-black w3-padding-large">Search</button>
   <br/><br/>
 
   <p>{{message}}</p>

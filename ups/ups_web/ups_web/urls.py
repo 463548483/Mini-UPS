@@ -18,13 +18,19 @@ from django.urls import path, include
 from ups.views import home_view, register_view, track_shipment_view, my_packages_view, \
 package_detail_view, address_change_view
 
+from django.views.generic import TemplateView
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('django.contrib.auth.urls')),
-    path('', home_view, name='home'),
+    path('', TemplateView.as_view(template_name="ups/index.html")),
+    path('home', home_view, name='home'),
     path('register/', register_view, name='registration'),
     path('track_shipment/', track_shipment_view, name='tracking shipment'),
     path('my_packages/', my_packages_view, name='all my packages'),
     path('my_packages/<int:package_id>/detail/', package_detail_view, name='view package detail'),
     path('my_packages/<int:package_id>/change_address/', address_change_view, name='change package address'),
+    # path('index', name='home'),
+    
 ]

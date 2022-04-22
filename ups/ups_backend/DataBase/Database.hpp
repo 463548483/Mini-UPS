@@ -61,7 +61,7 @@ class Database {
   void updatePackage(pqxx::connection * C, package_status_t status, int64_t trackingNum);
   std::string queryPackageStatus(pqxx::connection * C, int64_t trackingNum);
   int queryAvailableTrucksPerDistance(pqxx::connection * C, int warehouseId);
-  list<int> queryTrucks(pqxx::connection * C);
+  bool queryTruckAvailable(pqxx::connection * C,int truckId);
   // pqxx::connection *getConnection();
   vector<int64_t> queryTrackingNumToPickUp(pqxx::connection * C, int truckid, int warehouseid);
   int queryWarehouseId(pqxx::connection * C, int x, int y);
