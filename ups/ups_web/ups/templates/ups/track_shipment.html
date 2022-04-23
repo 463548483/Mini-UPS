@@ -14,11 +14,12 @@
 
 <h1 class="child">Track all the shipments here</h1>
 
-<canvas id="my-canvas" width="600" height="500"></canvas>
+<canvas id="my-canvas" width="1000" height="500"></canvas>
 <img id="truck" width="300" height="200" src="{% static 'ups/images/delivery-truck.png' %}?ver=2" alt="My truck" style="display: none;">
-<var id="trucks">{{trucks_serialize}}</var>
+<var id="trucks" style="display: none;">{{trucks_serialize}}</var>
+<!-- <img id="truck" width="300" height="300" src="https://i.pinimg.com/originals/b0/28/d0/b028d09d6b0ef5e4248c45463abba16a.jpg" alt="My truck"  style="display: none;"> -->
 
-<script src="{% static 'ups/javascripts/track_shipment_scripts.js' %}"></script>
+<script src="{% static 'ups/javascripts/track_shipment_scripts.js' %}?ver=2"></script>
 
 <form method="POST" class="form-group">
   {% csrf_token %}

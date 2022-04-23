@@ -44,7 +44,7 @@ def register_view(request, *args, **kwargs):
     return render(request, 'ups/register.html', context=context)
 
 def track_shipment_view(request, *args, **kwargs):
-    trucks_serialize = serialize('json', Truck.objects.all(), cls=LazyEncoder)
+    trucks_serialize = serialize('json', Truck.objects.all().order_by('x', 'y'), cls=LazyEncoder)
     print(trucks_serialize)
     
     if request.method == 'POST':
