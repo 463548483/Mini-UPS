@@ -66,35 +66,71 @@ def find_trucks_view(request, *args, **kwargs):
     return render(request, 'ups/find_trucks.html', context=context)
 
 
-def track_shipment_view(request, *args, **kwargs):
+# def track_shipment_view(request, *args, **kwargs):
 
+#     if request.method == 'POST':
+#         track_num = int(request.POST.get('tracking_number'))
+
+#         packages = Package.objects.filter(
+#             trackingnum=track_num,
+#         )
+#         # if found the package
+#         if len(packages) > 0:
+#             package = packages.first()
+#             context = {'packages': package}
+#             accounts = Account.objects.filter(accountid=request.user.pk)
+#             # if account exists
+#             if len(accounts) > 0:
+#                 account = accounts.first()
+#                 Searchhistory.objects.get_or_create(
+#                     accountid=account, trackingnum=package)
+#                 trucks_serialize = serialize('json', Truck.objects.filter(
+#                     truckid=package.truckid.truckid), cls=LazyEncoder)
+#                 print(trucks_serialize)
+#                 destination_serialize = serialize('json', Package.objects.filter(
+#                     trackingnum=track_num,
+#                 ), cls=LazyEncoder)
+#             else:
+#                 trucks_serialize = ""
+
+#             context['trucks_serialize'] = trucks_serialize
+#             return render(request, 'ups/search_package.html', context=context)
+#         message = "Cannot found package"
+#         context = {'message': message}
+
+#         return render(request, 'ups/track_shipment.html', context=context)
+
+#         # message = "Found %s results." % (len(packages))
+#         # context = {'packages': packages, 'message': message}
+#     else:
+#         # get all packages
+#         if (request.user.pk):
+#             searchhistory = Searchhistory.objects.filter(
+#                 accountid=request.user.pk,
+#             ).order_by('trackingnum')
+#         else:
+#             searchhistory = []
+
+#         message = "You have %s records search history." % (len(searchhistory))
+#         context = {'searchhistory': searchhistory, 'message': message}
+#         return render(request, 'ups/track_shipment.html', context=context)
+
+def track_shipment_view(request, *args, **kwargs):
+    
     if request.method == 'POST':
         track_num = int(request.POST.get('tracking_number'))
 
         packages = Package.objects.filter(
             trackingnum=track_num,
-        )
-        # if found the package
-        if len(packages) > 0:
-            package = packages.first()
-            context = {'packages': package}
-            accounts = Account.objects.filter(accountid=request.user.pk)
-            # if account exists
-            if len(accounts) > 0:
-                account = accounts.first()
-                Searchhistory.objects.get_or_create(
-                    accountid=account, trackingnum=package)
-                trucks_serialize = serialize('json', Truck.objects.filter(
-                    truckid=package.truckid.truckid), cls=LazyEncoder)
-                print(trucks_serialize)
-                destination_serialize = serialize('json', Package.objects.filter(
-                    trackingnum=track_num,
-                ), cls=LazyEncoder)
-            else:
-                trucks_serialize = ""
-
-            context['trucks_serialize'] = trucks_serialize
-            return render(request, 'ups/search_package.html', context=context)
+        ).order_by('trackingnum')
+        if packages:
+            account = Account.objects.filter(accountid=request.user.pk)
+            if account:
+                for package in packages:
+                    account = Account.objects.get(accountid=request.user.pk)
+                    Searchhistory.objects.get_or_create(
+                        accountid=account, trackingnum=package)
+            return redirect('shipment_detail_view', trackingnum=track_num)
         message = "Cannot found package"
         context = {'message': message}
 
