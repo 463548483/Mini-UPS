@@ -78,8 +78,8 @@ def track_shipment_view(request, *args, **kwargs):
             # if account exists
             if len(accounts) > 0:
                 account = accounts.first()
-                # Searchhistory.objects.get_or_create(
-                #     accountid=account, trackingnum=package)
+                Searchhistory.objects.get_or_create(
+                    accountid=account, trackingnum=package)
                 trucks_serialize = serialize('json', Truck.objects.filter(
                     truckid=package.truckid.truckid), cls=LazyEncoder)
                 print(trucks_serialize)
