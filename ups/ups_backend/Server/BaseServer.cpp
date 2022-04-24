@@ -31,11 +31,11 @@ using namespace google::protobuf::io;
 
 #define MAX_LIMIT 65536
 #define TIME_OUT_LIMIT 1
-#define SIMWORLD_UPS_HOST "vcm-26436.vm.duke.edu"
+#define SIMWORLD_UPS_HOST "vcm-26825.vm.duke.edu"
 // #define SIMWORLD_UPS_PORT "23456"
 #define SIMWORLD_UPS_PORT "12345"
-#define AMAZON_HOST "vcm-26436.vm.duke.edu"
-#define AMAZON_PORT "9999"
+#define AMAZON_HOST "vcm-26766.vm.duke.edu"
+#define AMAZON_PORT "8999"
 
 struct requestInfo {
   int64_t seqnum;
@@ -216,7 +216,7 @@ void BaseServer::receiveUConnected() {
 // note that we need timeout and retransmission here
 int64_t BaseServer::getWorldIdFromSim() {
   vector<int> xs = {0, 23, 323, 4, 32, 4, 5, 4, 4};
-  vector<int> ys = {5, 1, 379, 324, 3, 45, 6, 34, 3};
+  vector<int> ys = {20, 1, 379, 324, 3, 45, 6, 34, 3};
   // vector<int> xs = {0,23,323};
   // vector<int> ys = {5,1,379};
 
@@ -466,7 +466,6 @@ void BaseServer::simWorldCommunicate() {
       else {
         cerr << "The message received is of wrong format. Can't parse it. So this would "
                 "be skipped.\n";
-        exitWithError("asjkxdx");
       }
 
       // cout << "Results of errCommands and errFreeCommands:\n";
@@ -912,6 +911,7 @@ void BaseServer::notifyArrivalToAmazon(int truckid, int64_t packageid, int64_t s
   arrived->set_seqnum(seqnum);
 
   int status = sendMesgTo<UACommand>(uacom, amazonOut);
+  cout << uacom.ShortDebugString()<<endl;
   if (!status) {
     cerr << "Can't notify amazon the truck arrival info\n";
   }
@@ -1114,6 +1114,7 @@ void BaseServer::processAmazonUpsQuery(connection * C, AUCommand & aResq) {
 
 // process pickup request from Amazon
 void BaseServer::processAmazonPickup(connection * C, AUCommand & aResq) {
+  cout << "During processing amazon pickup:\n";
   cout << "pickup size=" << aResq.pickup_size() << endl;
   cout << aResq.ShortDebugString() << endl;
   for (int i = 0; i < aResq.pickup_size(); i++) {
@@ -1126,22 +1127,30 @@ void BaseServer::processAmazonPickup(connection * C, AUCommand & aResq) {
     amazonReq.insert(pickup.seqnum());
     amazonReqMutex.unlock();
     const int warehouseId = pickup.wareinfo().id();
+
+    cout << "New warehouse info...\n";
     WarehouseInfo * newWarehouseInfo =
         new WarehouseInfo(warehouseId, pickup.wareinfo().x(), pickup.wareinfo().y());
     db.insertTables(C, newWarehouseInfo);
     delete newWarehouseInfo;
+
+    cout << "New package info...\n";
     Package * newPackage =
         new Package(pickup.trackingnum(), warehouseId, wait_for_pickup, pickup.upsid());
     db.insertTables(C, newPackage);
     delete newPackage;
+
     for (int j = 0; j < pickup.things_size(); j++) {
       const AProduct & newProduct = pickup.things(j);
+      cout << "New item info...\n";
       Item * newItem =
           new Item(newProduct.description(), newProduct.count(), pickup.trackingnum());
       db.insertTables(C, newItem);
       delete newItem;
     }
     findTruckMutex.lock();
+
+    cout << "After updating table in database:\n";
     auto search = warehousePkgMap.find(warehouseId);
     if (search != warehousePkgMap.end()) {
       search->second.push_back(pickup.trackingnum());
@@ -1170,6 +1179,8 @@ void BaseServer::processAmazonLoaded(connection * C, AUCommand & aResq) {
     }
     amazonReq.insert(loadOver.seqnum());
     amazonReqMutex.unlock();
+    
+    cout << "Updating package and truck table...\n";
     db.updatePackage(C,
                      out_for_deliver,
                      loadOver.loc().x(),
@@ -1177,6 +1188,8 @@ void BaseServer::processAmazonLoaded(connection * C, AUCommand & aResq) {
                      loadOver.loc().packageid());
     db.updateTruck(
         C, arrive_warehouse, loadOver.loc().x(), loadOver.loc().y(), loadOver.truckid());
+    
+    cout << "Adding elements to truck package map...\n";
     unordered_map<int, vector<UDeliveryLocation> >::iterator it =
         truckPackageMap.find(loadOver.truckid());
     if (it != truckPackageMap.end()) {
@@ -1189,18 +1202,31 @@ void BaseServer::processAmazonLoaded(connection * C, AUCommand & aResq) {
       truckPackageMap.emplace_hint(it,loadOver.truckid(), loadedPackages);
     }
   }
+
+  cout << "Fetching sequence numbers...\n";
   vector<int64_t> seqNums;
-  for (auto const it : truckPackageMap) {
-    if (db.queryTruckAvailable(C,it.first)){
+  vector<int> needToErase;
+  for (auto const p : truckPackageMap) {
+    if (db.queryTruckAvailable(C, p.first)){
       int64_t seqNum = seqnum.fetch_add(1);
-      requestDeliverToWorld(it.first, it.second, seqNum);
-      truckPackageMap.erase(it.first);
+      cout << "Requesting delivery to world...\n";
+      requestDeliverToWorld(p.first, p.second, seqNum);
+      cout << "Remove element from truckPackageMap...\n";
+      needToErase.push_back(p.first);
       seqNums.push_back(seqNum);
     }
   }
+
+  // erase from truckPackageMap
+  for (auto seq : needToErase) {
+    truckPackageMap.erase(seq);
+  }
+
+  cout << "Waiting for world processing...\n";
   for (auto const seqNum : seqNums) {
     waitWorldProcess(seqNum);
   }
+  cout << "World processing done...\n";
 }
 
 // getter functions
