@@ -1,0 +1,19 @@
+ECE568 final project: Mini-UPS
+
+1. Database under multi-threading
+There would be conficts when multiple threads are modifying the same table/ table entries
+in the database. We solved the conflicts by using serialized database connection each thread.
+
+2. UPS id doesn't exist
+At amazon side, the user can enter an ups id when he/she places an order. So one can possibly
+enter a non-existing ups id. We designed a UPSIdQuery command in the communication protocol between
+UPS and Amazon so that we make sure this situation would never happen.
+
+3. Retransmission strategy
+When communicating with the simulation world, if flakiness is not 0, the world would drop
+requests on purpose. So, we implement a time-out and retransmission logic to handle this kind
+of responses missing.
+
+4. Strong exception guarantee
+If there's any exception happens during processing a request, we would catch it, output an error
+message, and skip current request without killing the whole server.

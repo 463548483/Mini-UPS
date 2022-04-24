@@ -1,0 +1,20 @@
+Feature Description:
+
+1. Guests can do shipment tracking:
+Without login, a user can use tracking number for package tracking, including 
+associated truck id, package status, etc
+
+2. Logged-in users can see shipment tracking history:
+In addition to tracking shipments, our server keeps all the records of tracking history,
+so that the next time users enter the page, they will see what tracking number they
+searched before and thus provide a short path for them to check
+
+3. Truck location map:
+We implement a user-interative map to help locate and visualize the trucks status.
+Users can use w,a,s,d to move the map; -,+ to scale the map. 
+Users can also enter a truck id to center this specific truck.
+User can even use their mouse to drag the map and move it.
+We provide keyboard pressing feedback to help users interact with this map.
+
+4. Nice looking web-page:
+We use a lot of CSS and Javascript to display a nice and clean website.
