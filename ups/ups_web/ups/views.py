@@ -55,14 +55,11 @@ def register_view(request, *args, **kwargs):
 def find_trucks_view(request, *args, **kwargs):
     trucks_serialize = serialize(
         'json', Truck.objects.all().order_by('x', 'y'), cls=LazyEncoder)
-    print(trucks_serialize)
-    # destination_serialize = serialize(
-    #     'json', Package.objects.all(), cls=LazyEncoder)
+    # print(trucks_serialize)
 
     context = {}
 
     context['trucks_serialize'] = trucks_serialize
-    # context['destination_serialize'] = destination_serialize
     return render(request, 'ups/find_trucks.html', context=context)
 
 
@@ -153,17 +150,18 @@ def track_shipment_view(request, *args, **kwargs):
 
 
 def shipment_detail_view(request, trackingnum):
-    packages = Package.objects.get(
+    package = Package.objects.get(
         trackingnum=trackingnum,
     )
+    context = {'package': package}
 
-    context = {'packages': packages}
     trucks_serialize = serialize('json', Truck.objects.filter(
-        truckid=packages.truckid.truckid), cls=LazyEncoder)
+        truckid=package.truckid.truckid), cls=LazyEncoder)
     print(trucks_serialize)
     destination_serialize = serialize('json', Package.objects.filter(
         trackingnum=trackingnum,
     ), cls=LazyEncoder)
+    print(destination_serialize)
 
     context['trucks_serialize'] = trucks_serialize
     context['destination_serialize'] = destination_serialize

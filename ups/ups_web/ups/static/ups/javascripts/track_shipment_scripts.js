@@ -3,17 +3,21 @@ function initCanvas() {
     var ctx = canvas.getContext("2d");
 
     // trucks status from database
-    let trucks_string = document.getElementById("trucks")
+    let trucks_string = document.getElementById("trucks");
     const trucks = JSON.parse(trucks_string.innerText);
-    // let destination_string = document.getElementById("packages")
-    // const destination = JSON.parse(destination_string.innerText);
+    let destination_string = document.getElementById("packages")
+    var destination = []
+    if (destination_string) {
+        destination = JSON.parse(destination_string.innerText);
+        // console.log(destination)
+    }
 
     // click button for trucks
     let button = document.getElementById("truck_button");
 
     // truck image
     var truckImg = new Image();
-    // var houseImg =new Image();
+    var houseImg =new Image();
 
     truckImg.onload = function () {
         console.log("Start drawing");
@@ -26,26 +30,49 @@ function initCanvas() {
             ctx.fillStyle = "black";
             map.render();
         }
-        var animateInterval = setInterval(animate, 300);
+        setInterval(animate, 300);
+
+        // if want to display shipment detail
+        if (destination.length != 0) {
+            house_x = destination[0]['fields']['destx'];
+            house_y = destination[0]['fields']['desty'];
+            truck_x = trucks[0]['fields']['x'];
+            truck_y = trucks[0]['fields']['y'];
+            while (Math.abs(house_x - truck_x) * map.grid_size >= canvas.width ||
+            Math.abs(house_y - truck_y) * map.grid_size  >= canvas.height) {
+                map.grid_size /= 2;
+                if (map.grid_size == 4) {
+                    break;
+                }
+            }
+            console.log('Grid size: ', map.grid_size);
+            let center_x = Math.floor((house_x + truck_x) / 2);
+            let center_y = Math.floor((house_y + truck_y) / 2);
+
+            map.y_axis_distance_grid_lines = Math.floor(canvas.width / (2 * map.grid_size)) - center_x;
+            map.x_axis_distance_grid_lines = Math.floor(canvas.height / (2 * map.grid_size)) + center_y;
+        }
 
         // user interactive
         // center a truck
-        button.onclick = function () {
-            // check if user input the truck number
-            let go_to_truck_id = document.getElementById("truck_id_input").value;
-            if (go_to_truck_id) {
-                // find 
-                for (let i = 0; i < trucks.length; ++i) {
-                    const truck = trucks[i];
-                    var truck_id = truck["pk"];
-                    // if truck exists
-                    if (truck_id == go_to_truck_id) {
-                        var truck_x = truck["fields"]["x"];
-                        var truck_y = truck["fields"]["y"];
-
-                        map.y_axis_distance_grid_lines = Math.floor(canvas.width / (2 * map.grid_size)) - truck_x;
-                        map.x_axis_distance_grid_lines = Math.floor(canvas.height / (2 * map.grid_size)) + truck_y;
-                        break;
+        if (button) {
+            button.onclick = function () {
+                // check if user input the truck number
+                let go_to_truck_id = document.getElementById("truck_id_input").value;
+                if (go_to_truck_id) {
+                    // find 
+                    for (let i = 0; i < trucks.length; ++i) {
+                        const truck = trucks[i];
+                        var truck_id = truck["pk"];
+                        // if truck exists
+                        if (truck_id == go_to_truck_id) {
+                            var truck_x = truck["fields"]["x"];
+                            var truck_y = truck["fields"]["y"];
+    
+                            map.y_axis_distance_grid_lines = Math.floor(canvas.width / (2 * map.grid_size)) - truck_x;
+                            map.x_axis_distance_grid_lines = Math.floor(canvas.height / (2 * map.grid_size)) + truck_y;
+                            break;
+                        }
                     }
                 }
             }
@@ -114,7 +141,7 @@ function initCanvas() {
     //     // var animateInterval = setInterval(animate, 300);
     //     var animateInterval = setInterval(animate, 300);
     // }
-    houseImg.src = "https://www.kindpng.com/imgv/oxoibR_home-icon-logo-house-shape-vector-hd-png/";
+    houseImg.src = "https://www.pngkit.com/png/detail/608-6082929_house-clipart-black-and-white.png";
 
     function Map() {
         // default value
@@ -375,12 +402,12 @@ function initCanvas() {
                 drawTruckInfo(this, curr_x, curr_y, truck_id, truck_status);
             }
 
-            // for (let i = 0; i < destination.length; ++i) {
-            //     const dest = destination[i];
-            //     var curr_x = dest["fields"]["destx"];
-            //     var curr_y = dest["fields"]["desty"];
-            //     drawAHouse(this, curr_x, curr_y);
-            // }
+            for (let i = 0; i < destination.length; ++i) {
+                const dest = destination[i];
+                var curr_x = dest["fields"]["destx"];
+                var curr_y = dest["fields"]["desty"];
+                drawAHouse(this, curr_x, curr_y);
+            }
 
             // Translate back to original relation.
             ctx.translate(-this.y_axis_distance_grid_lines * this.grid_size, -this.x_axis_distance_grid_lines * this.grid_size);
