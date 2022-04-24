@@ -56,13 +56,13 @@ def find_trucks_view(request, *args, **kwargs):
     trucks_serialize = serialize(
         'json', Truck.objects.all().order_by('x', 'y'), cls=LazyEncoder)
     print(trucks_serialize)
-    destination_serialize = serialize(
-        'json', Package.objects.all(), cls=LazyEncoder)
+    # destination_serialize = serialize(
+    #     'json', Package.objects.all(), cls=LazyEncoder)
 
     context = {}
 
     context['trucks_serialize'] = trucks_serialize
-    context['destination_serialize'] = destination_serialize
+    # context['destination_serialize'] = destination_serialize
     return render(request, 'ups/find_trucks.html', context=context)
 
 
@@ -71,15 +71,16 @@ def track_shipment_view(request, *args, **kwargs):
     if request.method == 'POST':
         track_num = int(request.POST.get('tracking_number'))
 
-        packages = Package.objects.get(
+        packages = Package.objects.filter(
             trackingnum=track_num,
-        )
+        ).order_by('trackingnum')
         if packages:
             account = Account.objects.filter(accountid=request.user.pk)
             if account:
-                account = Account.objects.get(accountid=request.user.pk)
-                Searchhistory.objects.get_or_create(
-                    accountid=account, trackingnum=packages)
+                for package in packages:
+                    account = Account.objects.get(accountid=request.user.pk)
+                    Searchhistory.objects.get_or_create(
+                        accountid=account, trackingnum=package)
             return redirect('shipment_detail_view', trackingnum=track_num)
         message = "Cannot found package"
         context = {'message': message}
@@ -90,13 +91,15 @@ def track_shipment_view(request, *args, **kwargs):
         # context = {'packages': packages, 'message': message}
     else:
         # get all packages
-        searchhistory = Searchhistory.objects.filter(
-            accountid=request.user.pk,
-        ).order_by('trackingnum')
+        if (request.user.pk):
+            searchhistory = Searchhistory.objects.filter(
+                accountid=request.user.pk,
+            ).order_by('trackingnum')
+        else:
+            searchhistory = []
 
         message = "You have %s records search history." % (len(searchhistory))
         context = {'searchhistory': searchhistory, 'message': message}
-    # context = {'packages': packages,'searchhistory': searchhistory, 'message': message}
         return render(request, 'ups/track_shipment.html', context=context)
 
 

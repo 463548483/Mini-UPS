@@ -9,7 +9,7 @@ from django.db import models
 
 
 class Account(models.Model):
-    accountid = models.AutoField(primary_key=True)
+    accountid = models.BigAutoField(primary_key=True)
     username = models.CharField(max_length=40)
 
     class Meta:
@@ -132,7 +132,7 @@ class DjangoSession(models.Model):
 
 
 class Items(models.Model):
-    itemid = models.AutoField(primary_key=True)
+    itemid = models.BigAutoField(primary_key=True)
     description = models.CharField(max_length=2000)
     amount = models.IntegerField()
     trackingnum = models.ForeignKey('Packages', models.DO_NOTHING, db_column='trackingnum')
@@ -143,7 +143,7 @@ class Items(models.Model):
 
 
 class Packages(models.Model):
-    trackingnum = models.IntegerField(primary_key=True)
+    trackingnum = models.BigIntegerField(primary_key=True)
     destx = models.IntegerField(blank=True, null=True)
     desty = models.IntegerField(blank=True, null=True)
     truckid = models.ForeignKey('Trucks', models.DO_NOTHING, db_column='truckid', blank=True, null=True)
@@ -154,6 +154,15 @@ class Packages(models.Model):
     class Meta:
         managed = False
         db_table = 'packages'
+
+
+class Searchhistory(models.Model):
+    accountid = models.ForeignKey(Account, models.DO_NOTHING, db_column='accountid')
+    trackingnum = models.ForeignKey(Packages, models.DO_NOTHING, db_column='trackingnum')
+
+    class Meta:
+        managed = False
+        db_table = 'searchhistory'
 
 
 class Trucks(models.Model):

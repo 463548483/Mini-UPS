@@ -25,7 +25,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('django.contrib.auth.urls')),
     path('', TemplateView.as_view(template_name="ups/index.html")),
-    path('home', home_view, name='home'),
     path('register/', register_view, name='registration'),
     path('track_shipment/', track_shipment_view, name='tracking shipment'),
     path('track_shipment/<int:trackingnum>', shipment_detail_view, name='shipment_detail_view'),

@@ -13,15 +13,13 @@
 {% load crispy_forms_tags %}
 
 <div style="text-align:left;">
-  <a href="javascript:history.go(-1);" class="button">Back</a> 
+  <a href="javascript:history.go(-1);" class="w3-button w3-black w3-margin-right:20px">Back</a> 
 </div>
-
-
-<var id="trucks" style="display: none;">{{trucks_serialize}}</var>
 
 <div class="map-instruction-container">
   <canvas class="my-canvas" id="my-canvas" width="1024" height="512"></canvas>
   <img id="truck" width="300" height="200" src="{% static 'ups/images/delivery-truck.png' %}?ver=2" alt="My truck" style="display: none;">
+  <var id="trucks" style="display: none;">{{trucks_serialize}}</var>
 
   <!-- move the map -->
   <!-- Keyboard Container -->
@@ -74,7 +72,7 @@
 
       <p class="instruction">Go to truck</p>
       <input id="truck_id_input" class="truck_id_input" type="number" min="1">
-      <button id="truck_button" class="button">Go</button>
+      <button id="truck_button" class="w3-button w3-black w3-margin-right:20px">Go</button>
   </div>
 </div>
 

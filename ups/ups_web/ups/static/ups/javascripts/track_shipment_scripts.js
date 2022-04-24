@@ -5,15 +5,15 @@ function initCanvas() {
     // trucks status from database
     let trucks_string = document.getElementById("trucks")
     const trucks = JSON.parse(trucks_string.innerText);
-    let destination_string = document.getElementById("packages")
-    const destination = JSON.parse(destination_string.innerText);
+    // let destination_string = document.getElementById("packages")
+    // const destination = JSON.parse(destination_string.innerText);
 
     // click button for trucks
     let button = document.getElementById("truck_button");
 
     // truck image
     var truckImg = new Image();
-    var houseImg =new Image();
+    // var houseImg =new Image();
 
     truckImg.onload = function () {
         console.log("Start drawing");
@@ -375,12 +375,12 @@ function initCanvas() {
                 drawTruckInfo(this, curr_x, curr_y, truck_id, truck_status);
             }
 
-            for (let i = 0; i < destination.length; ++i) {
-                const dest = destination[i];
-                var curr_x = dest["fields"]["destx"];
-                var curr_y = dest["fields"]["desty"];
-                drawAHouse(this, curr_x, curr_y);
-            }
+            // for (let i = 0; i < destination.length; ++i) {
+            //     const dest = destination[i];
+            //     var curr_x = dest["fields"]["destx"];
+            //     var curr_y = dest["fields"]["desty"];
+            //     drawAHouse(this, curr_x, curr_y);
+            // }
 
             // Translate back to original relation.
             ctx.translate(-this.y_axis_distance_grid_lines * this.grid_size, -this.x_axis_distance_grid_lines * this.grid_size);
