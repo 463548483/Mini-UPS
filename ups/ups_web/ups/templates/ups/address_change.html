@@ -5,14 +5,15 @@
 {% if user.is_authenticated %}
 
 <div style="text-align:left;">
-  <a href="javascript:history.go(-1);" class="button">Back</a> 
+  <a href="javascript:history.go(-1);" class="w3-button w3-black w3-margin-top">Back</a> 
 </div>
-
+<br/><br/>
 {% load crispy_forms_tags %}
 
-<h1>You can change your address here</h1>
+<h2>Change your address here:</h2>
+<br/><br/>
 
-<h3>Your original destination is ({{dest_x}}, {{dest_y}})</h3>
+<h4>Your original destination is ({{dest_x}}, {{dest_y}})</h4>
 
 <form method="POST" class="form-group">
   {% csrf_token %}
@@ -22,7 +23,7 @@
   <input name="new_y" type="number" placeholder="y location" size="60" required/>
   <br/><br/>
 
-  <button type="submit" class="button">Change</button>
+  <button type="submit" class="w3-button w3-red w3-margin-top">Change</button>
   <br/><br/>
   
 </form>

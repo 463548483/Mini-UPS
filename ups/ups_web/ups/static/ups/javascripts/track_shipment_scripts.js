@@ -102,16 +102,19 @@ function initCanvas() {
 
     // houseImg.onload = function () {
     //     console.log("Start drawing");
+    //     var map = new Map();
+    //     map.grid_size = 16;
 
     //     function animate() {
     //         ctx.fillStyle = "white";
     //         ctx.fillRect(0, 0, canvas.width, canvas.height);
     //         ctx.fillStyle = "black";
-    //         // map.render();
+    //         map.render();
     //     }
+    //     // var animateInterval = setInterval(animate, 300);
     //     var animateInterval = setInterval(animate, 300);
     // }
-    // houseImg.src = "https://www.kindpng.com/imgv/oxoibR_home-icon-logo-house-shape-vector-hd-png/";
+    houseImg.src = "https://www.kindpng.com/imgv/oxoibR_home-icon-logo-house-shape-vector-hd-png/";
 
     function Map() {
         // default value

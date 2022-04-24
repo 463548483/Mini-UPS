@@ -80,9 +80,10 @@ class Warehouse(models.Model):
         db_table = 'warehouses'
 
 class Searchhistory(models.Model):
-    accountid = models.ForeignKey(Account, models.DO_NOTHING, db_column='accountid')
-    trackingnum = models.ForeignKey(Package, models.DO_NOTHING, db_column='trackingnum')
+    accountid = models.ForeignKey(Account, models.DO_NOTHING, db_column='accountid',unique=True)
+    trackingnum = models.ForeignKey(Package, models.DO_NOTHING, db_column='trackingnum',unique=True)
 
     class Meta:
         managed = False
         db_table = 'searchhistory'
+        unique_together = (('accountid', 'trackingnum'),)

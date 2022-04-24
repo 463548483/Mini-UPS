@@ -7,23 +7,24 @@
 
 {% block content %}
 <div style="text-align:left;">
-  <a href="/track_shipment" class="w3-button w3-red w3-margin-right:20px">Back</a> 
+  <a href="/track_shipment" class="w3-button w3-red w3-margin-right:20px">Back</a>
 </div>
+<br /><br />
 <div class="w3-container">
 
-      
-    <h2>Details of the shipment</h2>
 
-    <br/><br/>
+  <h2>Details of the shipment</h2>
 
-    <i class="fa fa-address-book" style="width:30px"></i>Tracking Number: {{packages.trackingnum}}<br>
-    <br/><br/>
+  <br /><br />
 
-    <i class="fa fa-clock-o" style="width:30px"></i> Package Status: {{packages.status}}<br>
-    <br/><br/>
+  <i class="fa fa-address-book" style="width:30px"></i>Tracking Number: {{packages.trackingnum}}<br>
+  <br /><br />
 
-    <i class="fa fa-truck" style="width:30px"> </i> Delivered by: truck {{packages.truckid.truckid}}<br>
-    <br/><br/>
+  <i class="fa fa-clock-o" style="width:30px"></i> Package Status: {{packages.status}}<br>
+  <br /><br />
+
+  <i class="fa fa-truck" style="width:30px"> </i> Delivered by: truck {{packages.truckid.truckid}}<br>
+  <br /><br />
 
 </div>
 
@@ -31,18 +32,20 @@
 <var id="packages" style="display: none;">{{destination_serialize}}</var>
 
 <div class="map-instruction-container">
-    <canvas class="my-canvas" id="my-canvas" width="1024" height="512"></canvas>
-    <img id="truck" width="300" height="200" src="{% static 'ups/images/delivery-truck.png' %}?ver=2" alt="My truck" style="display: none;">
-  
-    
-  </div>
-  
-  <br>
-  <br>
-  
-  
-  <script src="{% static 'ups/javascripts/track_shipment_scripts.js' %}?ver=2"></script>
-  <script src="{% static 'ups/javascripts/keyboard.js' %}?ver=2"></script>
-  
+  <canvas class="my-canvas" id="my-canvas" width="1024" height="512"></canvas>
+  <img id="truck" width="300" height="200" src="{% static 'ups/images/delivery-truck.png' %}?ver=2" alt="My truck"
+    style="display: none;">
+
+
+</div>
+
+<br>
+<br>
+
+
+<script src="{% static 'ups/javascripts/track_shipment_scripts.js' %}?ver=2"></script>
+<script src="{% static 'ups/javascripts/keyboard.js' %}?ver=2"></script>
+
+
 
 {% endblock %}

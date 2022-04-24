@@ -1,12 +1,16 @@
+
 import json
 import socket
 import threading
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import RegisterForm
 from .models import Account, Package, Truck, Item, Searchhistory
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.serializers import serialize
+from audioop import reverse
+from django.urls import reverse
 
 # BACKEND_HOST = "vcm-25032.vm.duke.edu"
 BACKEND_HOST = "127.0.0.1"
@@ -52,17 +56,17 @@ def find_trucks_view(request, *args, **kwargs):
     trucks_serialize = serialize(
         'json', Truck.objects.all().order_by('x', 'y'), cls=LazyEncoder)
     print(trucks_serialize)
+    # destination_serialize = serialize(
+    #     'json', Package.objects.all(), cls=LazyEncoder)
 
     context = {}
 
     context['trucks_serialize'] = trucks_serialize
+    # context['destination_serialize'] = destination_serialize
     return render(request, 'ups/find_trucks.html', context=context)
 
 
 def track_shipment_view(request, *args, **kwargs):
-    trucks_serialize = serialize(
-        'json', Truck.objects.all().order_by('x', 'y'), cls=LazyEncoder)
-    # print(trucks_serialize)
 
     if request.method == 'POST':
         track_num = int(request.POST.get('tracking_number'))
@@ -110,6 +114,24 @@ def track_shipment_view(request, *args, **kwargs):
         message = "You have %s records search history." % (len(searchhistory))
         context = {'searchhistory': searchhistory, 'message': message}
         return render(request, 'ups/track_shipment.html', context=context)
+
+
+def shipment_detail_view(request, trackingnum):
+    packages = Package.objects.get(
+        trackingnum=trackingnum,
+    )
+
+    context = {'packages': packages}
+    trucks_serialize = serialize('json', Truck.objects.filter(
+        truckid=packages.truckid.truckid), cls=LazyEncoder)
+    print(trucks_serialize)
+    destination_serialize = serialize('json', Package.objects.filter(
+        trackingnum=trackingnum,
+    ), cls=LazyEncoder)
+
+    context['trucks_serialize'] = trucks_serialize
+    context['destination_serialize'] = destination_serialize
+    return render(request, 'ups/search_package.html', context=context)
 
 
 def my_packages_view(request, *args, **kwargs):
