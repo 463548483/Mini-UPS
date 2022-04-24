@@ -54,6 +54,7 @@ class BaseServer {
  public:
   BaseServer(const char * _hostname, const char * _port, int _backlog, int _threadNum);
   ~BaseServer();
+  void periodicalUpdateTruckStatus();
   void connectToSimWorld();
   void connectToAmazon();
   void receiveUConnected();

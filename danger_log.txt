@@ -17,3 +17,9 @@ of responses missing.
 4. Strong exception guarantee
 If there's any exception happens during processing a request, we would catch it, output an error
 message, and skip current request without killing the whole server.
+
+5. Handle packages overload
+We optimize the logic to find trucks for packages:
+ a) have one truck handle all the packages in one warehouse or two closed warehouse to improve the efficiency of transportation.
+ b) have mutiple threads to find trucks for different packages.
+If there are lots of packages received from Amazon which is much more than the delivery capability of trucks. We will manage a line for all the packages and let them wait until there is available trucks;

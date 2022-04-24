@@ -37,13 +37,13 @@ void Database::setup() {
   // SQLObject *account1 = new Account("")
   // SQLObject * truck1 = new Truck(idle, 0, 0);
   // insertTables(C, truck1);
-  SQLObject * account1 = new Account("eaeeer");
-  insertTables(C, account1);
+  // SQLObject * account1 = new Account("eaeeer");
+  // insertTables(C, account1);
 
-  SQLObject * warehouse1 = new WarehouseInfo(1, 3, 3);
-  insertTables(C, warehouse1);
-  SQLObject * pkg1 = new Package(1231, 1, delivered,123345);
-  insertTables(C, pkg1);
+  // SQLObject * warehouse1 = new WarehouseInfo(1, 3, 3);
+  // insertTables(C, warehouse1);
+  // SQLObject * pkg1 = new Package(1231, 1, delivered,123345);
+  // insertTables(C, pkg1);
   // SQLObject * item1 = new Item("cloth", 3, 1231);
   // insertTables(C, item1);
 
@@ -240,6 +240,7 @@ void Database::insertTables(connection * C, SQLObject * object) {
         }
 
       }
+      return;
     }
   }
 }
@@ -285,6 +286,29 @@ void Database::updateTruck(connection * C, truck_status_t status, int truckId) {
     }
   }
 }
+
+void Database::updatePackage(connection * C,
+                             int destX,
+                             int destY,
+                             int64_t trackingNum) {
+  
+  while (true) {
+    transaction<serializable, read_write> T(*C);
+    try {
+      stringstream ss;
+      ss << "update packages set destX=" << destX << ", destY=" << destY
+         << " where trackingNum=" << trackingNum << ";";
+      T.exec(ss.str());
+      T.commit();
+      cout << "packages one row update successfully" << endl;
+      break;
+    }
+    catch (const pqxx::serialization_failure & e) {
+      cout << e.what() << endl;
+    }
+  }
+}
+
 
 void Database::updatePackage(connection * C,
                              package_status_t status,

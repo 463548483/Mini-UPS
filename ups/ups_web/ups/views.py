@@ -234,7 +234,7 @@ def RequestBackendToChangeAddress(request, tracking_num, new_x, new_y, truck_id)
                 messages.error(request, result['error'])
             elif result['result'] == 'success':
                 # notify user of success
-                messages.success(request, "Address changed successfully")
+                messages.success(request, result['info'])
 
             # for msg in messages.get_messages(request):
             #     print(msg)
