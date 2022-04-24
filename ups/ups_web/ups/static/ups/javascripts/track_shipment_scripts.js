@@ -38,17 +38,26 @@ function initCanvas() {
             house_y = destination[0]['fields']['desty'];
             truck_x = trucks[0]['fields']['x'];
             truck_y = trucks[0]['fields']['y'];
-            while (Math.abs(house_x - truck_x) * map.grid_size >= canvas.width ||
-            Math.abs(house_y - truck_y) * map.grid_size  >= canvas.height) {
-                map.grid_size /= 2;
-                if (map.grid_size == 4) {
-                    break;
-                }
-            }
-            console.log('Grid size: ', map.grid_size);
-            let center_x = Math.floor((house_x + truck_x) / 2);
-            let center_y = Math.floor((house_y + truck_y) / 2);
 
+            var center_x;
+            var center_y;
+            if (house_x && house_y) {
+                while (Math.abs(house_x - truck_x) * map.grid_size >= canvas.width ||
+                Math.abs(house_y - truck_y) * map.grid_size  >= canvas.height) {
+                    map.grid_size /= 2;
+                    if (map.grid_size == 4) {
+                        break;
+                    }
+                }
+                console.log('Grid size: ', map.grid_size);
+                center_x = Math.floor((house_x + truck_x) / 2);
+                center_y = Math.floor((house_y + truck_y) / 2);
+            } else {
+                center_x = truck_x;
+                center_y = truck_y;
+                destination = [];
+            }
+            
             map.y_axis_distance_grid_lines = Math.floor(canvas.width / (2 * map.grid_size)) - center_x;
             map.x_axis_distance_grid_lines = Math.floor(canvas.height / (2 * map.grid_size)) + center_y;
         }
