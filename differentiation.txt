@@ -16,5 +16,8 @@ Users can also enter a truck id to center this specific truck.
 User can even use their mouse to drag the map and move it.
 We provide keyboard pressing feedback to help users interact with this map.
 
-4. Nice looking web-page:
-We use a lot of CSS and Javascript to display a nice and clean website.
+4. Shipment tracking map:
+We implement a map to show the position of the truck which carries the package and the position of the destination to let user directly view the detailed shipment inforamtion.
+
+5. Impressive User Interface:
+We implement CSS and Javascript to display a well-designed, clean and user-friendly website.
