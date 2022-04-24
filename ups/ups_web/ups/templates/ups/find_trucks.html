@@ -16,12 +16,10 @@
   <a href="javascript:history.go(-1);" class="button">Back</a> 
 </div>
 
-
-<var id="trucks" style="display: none;">{{trucks_serialize}}</var>
-
 <div class="map-instruction-container">
   <canvas class="my-canvas" id="my-canvas" width="1024" height="512"></canvas>
   <img id="truck" width="300" height="200" src="{% static 'ups/images/delivery-truck.png' %}?ver=2" alt="My truck" style="display: none;">
+  <var id="trucks" style="display: none;">{{trucks_serialize}}</var>
 
   <!-- move the map -->
   <!-- Keyboard Container -->

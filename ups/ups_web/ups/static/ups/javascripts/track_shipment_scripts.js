@@ -5,8 +5,8 @@ function initCanvas() {
     // trucks status from database
     let trucks_string = document.getElementById("trucks")
     const trucks = JSON.parse(trucks_string.innerText);
-    let destination_string = document.getElementById("packages")
-    const destination = JSON.parse(destination_string.innerText);
+    // let destination_string = document.getElementById("packages")
+    // const destination = JSON.parse(destination_string.innerText);
 
     // click button for trucks
     let button = document.getElementById("truck_button");

@@ -27,29 +27,6 @@ class Item(models.Model):
         managed = False
         db_table = 'items'
 
-class Package(models.Model):
-    trackingnum = models.AutoField(primary_key=True)
-    destx = models.IntegerField(blank=True, null=True)
-    desty = models.IntegerField(blank=True, null=True)
-    truckid = models.ForeignKey('Truck', models.DO_NOTHING, db_column='truckid', blank=True, null=True)
-    accountid = models.ForeignKey(Account, models.DO_NOTHING, db_column='accountid', blank=True, null=True)
-    warehouseid = models.IntegerField()
-    class PackageStatus(models.TextChoices):
-        DELIVERED = 'delivered', _('The packaged has been delivered')
-        DELIVERING = 'delivering', _('The package is under delivering')
-        WAIT_FOR_LOADING = 'wait_for_loading', _('The package is waiting for loading')
-        WAIT_FOR_PICKUP = 'wait_for_pickup', _('The package is waiting for pickup')
-    status = models.CharField(
-        max_length=20,
-        choices=PackageStatus.choices,
-        default=PackageStatus.WAIT_FOR_PICKUP,
-    )
-
-    class Meta:
-        managed = False
-        db_table = 'packages'
-
-
 class Truck(models.Model):
     truckid = models.AutoField(primary_key=True)
     class TruckStatus(models.TextChoices):
@@ -70,6 +47,29 @@ class Truck(models.Model):
         managed = False
         db_table = 'trucks'
 
+class Package(models.Model):
+    trackingnum = models.AutoField(primary_key=True)
+    destx = models.IntegerField(blank=True, null=True)
+    desty = models.IntegerField(blank=True, null=True)
+    truckid = models.ForeignKey(Truck, models.DO_NOTHING, db_column='truckid', blank=True, null=True)
+    accountid = models.ForeignKey(Account, models.DO_NOTHING, db_column='accountid', blank=True, null=True)
+    warehouseid = models.IntegerField()
+    class PackageStatus(models.TextChoices):
+        DELIVERED = 'delivered', _('The packaged has been delivered')
+        DELIVERING = 'delivering', _('The package is under delivering')
+        WAIT_FOR_LOADING = 'wait_for_loading', _('The package is waiting for loading')
+        WAIT_FOR_PICKUP = 'wait_for_pickup', _('The package is waiting for pickup')
+    status = models.CharField(
+        max_length=20,
+        choices=PackageStatus.choices,
+        default=PackageStatus.WAIT_FOR_PICKUP,
+    )
+
+    class Meta:
+        managed = False
+        db_table = 'packages'
+
+
 class Warehouse(models.Model):
     warehouseid = models.IntegerField(primary_key=True)
     x = models.IntegerField()
@@ -80,11 +80,9 @@ class Warehouse(models.Model):
         db_table = 'warehouses'
 
 class Searchhistory(models.Model):
-    accountid = models.ForeignKey('Account', models.DO_NOTHING, db_column='accountid',unique=True)
-    trackingnum = models.ForeignKey('Package', models.DO_NOTHING, db_column='trackingnum',unique=True)
+    accountid = models.ForeignKey(Account, models.DO_NOTHING, db_column='accountid')
+    trackingnum = models.ForeignKey(Package, models.DO_NOTHING, db_column='trackingnum')
 
     class Meta:
         managed = False
         db_table = 'searchhistory'
-        unique_together = (('accountid', 'trackingnum'),)
-        
