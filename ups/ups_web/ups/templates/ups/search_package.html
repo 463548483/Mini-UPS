@@ -1,0 +1,90 @@
+{% extends 'ups/base.html' %}
+
+{% block content %}
+<div style="text-align:left;">
+    <a href="javascript:history.go(-1);" class="w3-button w3-red w3-margin-right:20px">Back</a> 
+  </div>
+<div class="w3-container">
+
+      
+    <h2>Details of the shipment</h2>
+
+    <br/><br/>
+
+    <i class="fa fa-address-book" style="width:30px"></i>Tracking Number: {{packages.trackingnum}}<br>
+    <br/><br/>
+
+    <i class="fa fa-clock-o" style="width:30px"></i> Package Status: {{packages.status}}<br>
+    <br/><br/>
+
+    <i class="fa fa-truck" style="width:30px"> </i> Delivered by: truck {{packages.truckid.truckid}}<br>
+    <br/><br/>
+
+</div>
+
+<div class="map-instruction-container">
+    <canvas class="my-canvas" id="my-canvas" width="1024" height="512"></canvas>
+    <img id="truck" width="300" height="200" src="{% static 'ups/images/delivery-truck.png' %}?ver=2" alt="My truck" style="display: none;">
+  
+    <!-- move the map -->
+    <!-- Keyboard Container -->
+    <div class="keyboard">
+        <!-- Top Row -->
+        <p class="instruction">Move the map</p>
+        <div class="top-row">
+        <!-- Key -->
+        <div data-key="87" class="key">
+            <!-- Character -->
+            <p>W</p>
+        </div>
+        </div>
+        <!-- Bottom Row -->
+        <div class="bottom-row">
+        <!-- Key -->
+        <div data-key="65" class="key">
+            <!-- Character -->
+            <p>A</p>
+        </div>
+        <!-- Key -->
+        <div data-key="83" class="key">
+            <!-- Character -->
+            <p>S</p>
+        </div>
+        <!-- Key -->
+        <div data-key="68" class="key">
+            <!-- Character -->
+            <p>D</p>
+        </div>
+        </div>
+        <br>
+        <br>
+  
+        <p class="instruction">Scale the map</p>
+        <div class="bottom-row">
+            <!-- Key -->
+            <div data-key="189" class="key">
+                <!-- Character -->
+                <p>-</p>
+            </div>
+            <!-- Key -->
+            <div data-key="187" class="key">
+                <!-- Character -->
+                <p>+</p>
+            </div>
+        </div>
+        <br>
+        <br>
+  
+        <p class="instruction">Go to truck</p>
+        <input id="truck_id_input" class="truck_id_input" type="number" min="1">
+        <button id="truck_button" class="button">Go</button>
+    </div>
+  </div>
+  
+  <br>
+  <br>
+  
+  
+
+
+{% endblock %}

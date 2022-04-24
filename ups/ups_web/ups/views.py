@@ -41,13 +41,20 @@ def track_shipment_view(request, *args, **kwargs):
     if request.method == 'POST':
         track_num = int(request.POST.get('tracking_number'))
 
-        packages = Package.objects.filter(
+        packages = Package.objects.get(
             trackingnum = track_num,
-        ).order_by('trackingnum') 
-        Searchhistory.objects.create(accountid=request.user.pk, trackingnum=track_num)
+        ) 
+        if packages:
+            Searchhistory.objects.get_or_create(accountid=request.user.pk, trackingnum=packages)
+            context = {'packages': packages}
+            return render(request, 'ups/search_package.html', context=context)
+        message = "Cannot found package" 
+        context = { 'message': message}
 
-        message = "Found %s results." % (len(packages))  
-        context = {'packages': packages, 'message': message}  
+        return render(request, 'ups/track_shipment.html', context=context)
+
+        # message = "Found %s results." % (len(packages))  
+        # context = {'packages': packages, 'message': message}  
     else:
         # get all packages
         searchhistory = Searchhistory.objects.filter(
@@ -57,7 +64,7 @@ def track_shipment_view(request, *args, **kwargs):
         message = "You have %s records search history." % (len(searchhistory))
         context = {'searchhistory': searchhistory, 'message': message}
     # context = {'packages': packages,'searchhistory': searchhistory, 'message': message}
-    return render(request, 'ups/track_shipment.html', context=context)
+        return render(request, 'ups/track_shipment.html', context=context)
 
 def my_packages_view(request, *args, **kwargs):
     packages = Package.objects.filter(
@@ -65,7 +72,7 @@ def my_packages_view(request, *args, **kwargs):
     ).order_by('trackingnum') 
     
     context = {'packages': packages}
-    return render(request, 'ups/my_packages.html', context=context)
+    return render(request, 'ups/search_package.html', context=context)
 
 def package_detail_view(request, *args, **kwargs):
     items = Item.objects.filter(

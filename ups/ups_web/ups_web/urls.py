@@ -28,6 +28,7 @@ urlpatterns = [
     path('home', home_view, name='home'),
     path('register/', register_view, name='registration'),
     path('track_shipment/', track_shipment_view, name='tracking shipment'),
+    path('track_shipment/<int:package_id>', track_shipment_view, name='search package'),
     path('my_packages/', my_packages_view, name='all my packages'),
     path('my_packages/<int:package_id>/detail/', package_detail_view, name='view package detail'),
     path('my_packages/<int:package_id>/change_address/', address_change_view, name='change package address'),

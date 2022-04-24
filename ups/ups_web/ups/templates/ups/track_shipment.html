@@ -2,215 +2,50 @@
 
 {% block content %}
 
-{% if user.is_authenticated %}
+
 
 {% load crispy_forms_tags %}
 
-<h3 class="w3-center">Track all the shipments here</h3>
-
-
-<form method="POST" class="form-group">
+<form  method="POST" class="form-group">
   {% csrf_token %}
-  <p><i class="fa fa-fw w3-xxlarge margin-left:100px"> </i> Please enter the tracking number:</p>
-  
-  <br/>
-  <input name="tracking_number" class="w3-input w3-border" type="number" placeholder="tracking number" size="60" required/>
-  <br/><br/>
+  <div class="w3-container">
+    <div class="w3-panel w3-padding-16 w3-black w3-opacity w3-card w3-hover-opacity-off">
+      <h2>Track all the shipments here</h2>
+      <p></p>
+      <label>Enter the tracking number:</label>
+      <input class="w3-input w3-border" name="tracking_number" type="number" placeholder="tracking number" required/>
+      <button type="button" class="w3-button w3-red w3-margin-top">Search</button>
+    </div>
+  </div>
 
-  <button type="submit" class="w3-button w3-black w3-padding-large">Search</button>
-  <br/><br/>
-
-  <p>{{message}}</p>
-
-  {% if packages %}
-  <table id="customers">
-    <tr>
-      <th>Tracking Number</th>
-      <th>Package Status</th>
-      <th>Ownership</th>
-      <th>Source Warehouse</th>
-      <th>Delivered by</th>
-      <th>Destination Address</th>
-    </tr>
-    {% for package in packages %}
-    <tr>
-      <td>{{package.trackingnum}}</td>
-      <td>{{package.status}}</td>
-
-      {% if package.accountid %}
-      <td>User {{package.accountid.accountId}} - {{package.accountid.username}}</td>
-      {% else %}
-      <td>Anonymous User</td>
-      {% endif %}
-
-      <td>#{{package.warehouseid}}</td>
-      <td>Truck {{package.truckid.truckid}}: {{package.truckid.status}}</td>
-      <td>({{package.destx}}, {{package.desty}})</td>
-    </tr>
-    {% endfor %}
-  </table>
-  {%endif%}
-
-  {%if searchhistory %}
-  <table id="customers">
-    <tr>
-      <th>Tracking Number</th>
-      <th>Details</th>
-    </tr>
-    {% for trackingnum in searchhistory %}
-    <tr>
-      <td>{{trackingnum.trackingnum}}</td>
-      <td><a href="/my_packages/{{trackingnum.trackingnum}}/detail/">Detail</a></td>
-    </tr>
-    {% endfor %}
-  </table>
-  {%endif%}
-  
 </form>
 
-{% else %}
+<p>{{message}}</p>
 
-<p>Already have an account? Login <a href="/login">here</a></p>
-<p>Don't have an account? Register <a href="/register">here</a></p>
+{% if user.is_authenticated %}
+{%if searchhistory %}
+<table id="customers">
+  <tr>
+    <th>Tracking Number</th>
+    <th>Details</th>
+  </tr>
+  {% for trackingnum in searchhistory %}
+  <tr>
+    <td>{{trackingnum.trackingnum.trackingnum}}</td>
+    <td><a href="/my_packages/{{trackingnum.trackingnum}}/detail/">Detail</a></td>
+  </tr>
+  {% endfor %}
+</table>
+{%endif%}
+
+{% else %}
+<p> <a href="/login">Login</a> to view your hisotry track </p>
 
 {% endif %}
 
-<canvas id="my-canvas" width="600" height="500"></canvas>
 
-<script type="text/javascript" charset="utf-8">
 
-  var grid_size = 25;
-  var x_axis_distance_grid_lines = 5;
-  var y_axis_distance_grid_lines = 5;
-  var x_axis_starting_point = { number: 1, suffix: '\u03a0' };
-  var y_axis_starting_point = { number: 1, suffix: '' };
 
-  var canvas = document.getElementById("my-canvas");
-  var ctx = canvas.getContext("2d");
 
-  var canvas_width = canvas.width;
-  var canvas_height = canvas.height;
-
-  var num_lines_x = Math.floor(canvas_height/grid_size);
-  var num_lines_y = Math.floor(canvas_width/grid_size);
-
-  // Draw grid lines along X-axis
-  for(var i=0; i<=num_lines_x; i++) {
-      ctx.beginPath();
-      ctx.lineWidth = 1;
-      
-      // If line represents X-axis draw in different color
-      if(i == x_axis_distance_grid_lines) 
-          ctx.strokeStyle = "#000000";
-      else
-          ctx.strokeStyle = "#e9e9e9";
-      
-      if(i == num_lines_x) {
-          ctx.moveTo(0, grid_size*i);
-          ctx.lineTo(canvas_width, grid_size*i);
-      }
-      else {
-          ctx.moveTo(0, grid_size*i+0.5);
-          ctx.lineTo(canvas_width, grid_size*i+0.5);
-      }
-      ctx.stroke();
-  }
-
-  // Draw grid lines along Y-axis
-  for(i=0; i<=num_lines_y; i++) {
-      ctx.beginPath();
-      ctx.lineWidth = 1;
-      
-      // If line represents X-axis draw in different color
-      if(i == y_axis_distance_grid_lines) 
-          ctx.strokeStyle = "#000000";
-      else
-          ctx.strokeStyle = "#e9e9e9";
-      
-      if(i == num_lines_y) {
-          ctx.moveTo(grid_size*i, 0);
-          ctx.lineTo(grid_size*i, canvas_height);
-      }
-      else {
-          ctx.moveTo(grid_size*i+0.5, 0);
-          ctx.lineTo(grid_size*i+0.5, canvas_height);
-      }
-      ctx.stroke();
-  }
-
-  // Translate to the new origin. Now Y-axis of the canvas is opposite to the Y-axis of the graph. So the y-coordinate of each element will be negative of the actual
-  ctx.translate(y_axis_distance_grid_lines*grid_size, x_axis_distance_grid_lines*grid_size);
-
-  // Ticks marks along the positive X-axis
-  for(i=1; i<(num_lines_y - y_axis_distance_grid_lines); i++) {
-      ctx.beginPath();
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = "#000000";
-
-      // Draw a tick mark 6px long (-3 to 3)
-      ctx.moveTo(grid_size*i+0.5, -3);
-      ctx.lineTo(grid_size*i+0.5, 3);
-      ctx.stroke();
-
-      // Text value at that point
-      ctx.font = '9px Arial';
-      ctx.textAlign = 'start';
-      ctx.fillText(x_axis_starting_point.number*i + x_axis_starting_point.suffix, grid_size*i-2, 15);
-  }
-
-  // Ticks marks along the negative X-axis
-  for(i=1; i<y_axis_distance_grid_lines; i++) {
-      ctx.beginPath();
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = "#000000";
-
-      // Draw a tick mark 6px long (-3 to 3)
-      ctx.moveTo(-grid_size*i+0.5, -3);
-      ctx.lineTo(-grid_size*i+0.5, 3);
-      ctx.stroke();
-
-      // Text value at that point
-      ctx.font = '9px Arial';
-      ctx.textAlign = 'end';
-      ctx.fillText(-x_axis_starting_point.number*i + x_axis_starting_point.suffix, -grid_size*i+3, 15);
-  }
-
-  // Ticks marks along the positive Y-axis
-  // Positive Y-axis of graph is negative Y-axis of the canvas
-  for(i=1; i<(num_lines_x - x_axis_distance_grid_lines); i++) {
-      ctx.beginPath();
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = "#000000";
-
-      // Draw a tick mark 6px long (-3 to 3)
-      ctx.moveTo(-3, grid_size*i+0.5);
-      ctx.lineTo(3, grid_size*i+0.5);
-      ctx.stroke();
-
-      // Text value at that point
-      ctx.font = '9px Arial';
-      ctx.textAlign = 'start';
-      ctx.fillText(-y_axis_starting_point.number*i + y_axis_starting_point.suffix, 8, grid_size*i+3);
-  }
-
-  // Ticks marks along the negative Y-axis
-  // Negative Y-axis of graph is positive Y-axis of the canvas
-  for(i=1; i<x_axis_distance_grid_lines; i++) {
-      ctx.beginPath();
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = "#000000";
-
-      // Draw a tick mark 6px long (-3 to 3)
-      ctx.moveTo(-3, -grid_size*i+0.5);
-      ctx.lineTo(3, -grid_size*i+0.5);
-      ctx.stroke();
-
-      // Text value at that point
-      ctx.font = '9px Arial';
-      ctx.textAlign = 'start';
-      ctx.fillText(y_axis_starting_point.number*i + y_axis_starting_point.suffix, 8, -grid_size*i+3);
-  }
-
-</script>
 
 {% endblock %}
