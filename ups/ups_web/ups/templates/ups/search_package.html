@@ -1,4 +1,9 @@
 {% extends 'ups/base.html' %}
+{% load static %}
+
+{% block css_static %}
+<link rel="stylesheet" type="text/css" href="{% static 'ups/css/truck_map.css' %}">
+{% endblock %}
 
 {% block content %}
 <div style="text-align:left;">

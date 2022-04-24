@@ -5,10 +5,16 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import RegisterForm
 from .models import Account, Package, Truck, Item, Searchhistory
+from django.core.serializers.json import DjangoJSONEncoder
+from django.core.serializers import serialize
 
 # BACKEND_HOST = "vcm-25032.vm.duke.edu"
 BACKEND_HOST = "127.0.0.1"
 BACKEND_PORT = 5555
+
+class LazyEncoder(DjangoJSONEncoder):
+    def default(self, obj):
+        return super().default(obj)
 
 # Create your views here.
 def home_view(request, *args, **kwargs):
@@ -38,6 +44,9 @@ def register_view(request, *args, **kwargs):
     return render(request, 'ups/register.html', context=context)
 
 def track_shipment_view(request, *args, **kwargs):
+    trucks_serialize = serialize('json', Truck.objects.all().order_by('x', 'y'), cls=LazyEncoder)
+    print(trucks_serialize)
+    
     if request.method == 'POST':
         track_num = int(request.POST.get('tracking_number'))
 
@@ -60,7 +69,7 @@ def track_shipment_view(request, *args, **kwargs):
         searchhistory = Searchhistory.objects.filter(
             accountid=request.user.pk,
         ).order_by('trackingnum')
-        packages=''
+
         message = "You have %s records search history." % (len(searchhistory))
         context = {'searchhistory': searchhistory, 'message': message}
     # context = {'packages': packages,'searchhistory': searchhistory, 'message': message}
