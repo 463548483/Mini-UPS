@@ -13,7 +13,7 @@ function initCanvas() {
 
     // truck image
     var truckImg = new Image();
-    // var houseImg =new Image();
+    var houseImg =new Image();
 
     truckImg.onload = function () {
         console.log("Start drawing");
@@ -102,16 +102,19 @@ function initCanvas() {
 
     // houseImg.onload = function () {
     //     console.log("Start drawing");
+    //     var map = new Map();
+    //     map.grid_size = 16;
 
     //     function animate() {
     //         ctx.fillStyle = "white";
     //         ctx.fillRect(0, 0, canvas.width, canvas.height);
     //         ctx.fillStyle = "black";
-    //         // map.render();
+    //         map.render();
     //     }
+    //     // var animateInterval = setInterval(animate, 300);
     //     var animateInterval = setInterval(animate, 300);
     // }
-    // houseImg.src = "https://www.kindpng.com/imgv/oxoibR_home-icon-logo-house-shape-vector-hd-png/";
+    houseImg.src = "https://www.kindpng.com/imgv/oxoibR_home-icon-logo-house-shape-vector-hd-png/";
 
     function Map() {
         // default value
@@ -372,12 +375,12 @@ function initCanvas() {
                 drawTruckInfo(this, curr_x, curr_y, truck_id, truck_status);
             }
 
-            // for (let i = 0; i < destination.length; ++i) {
-            //     const dest = destination[i];
-            //     var curr_x = dest["fields"]["destx"];
-            //     var curr_y = dest["fields"]["desty"];
-            //     drawAHouse(this, curr_x, curr_y);
-            // }
+            for (let i = 0; i < destination.length; ++i) {
+                const dest = destination[i];
+                var curr_x = dest["fields"]["destx"];
+                var curr_y = dest["fields"]["desty"];
+                drawAHouse(this, curr_x, curr_y);
+            }
 
             // Translate back to original relation.
             ctx.translate(-this.y_axis_distance_grid_lines * this.grid_size, -this.x_axis_distance_grid_lines * this.grid_size);

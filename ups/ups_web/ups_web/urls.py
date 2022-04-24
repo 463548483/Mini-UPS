@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from ups.views import find_trucks_view, home_view, register_view, track_shipment_view, my_packages_view, \
+from ups.views import find_trucks_view, home_view, register_view, shipment_detail_view, track_shipment_view, my_packages_view, \
 package_detail_view, address_change_view
 
 from django.views.generic import TemplateView
@@ -28,7 +28,7 @@ urlpatterns = [
     path('home', home_view, name='home'),
     path('register/', register_view, name='registration'),
     path('track_shipment/', track_shipment_view, name='tracking shipment'),
-    path('track_shipment/<int:package_id>', track_shipment_view, name='search package'),
+    path('track_shipment/<int:trackingnum>', shipment_detail_view, name='shipment_detail_view'),
     path('find_trucks', find_trucks_view, name='find_trucks'),
     path('my_packages/', my_packages_view, name='all my packages'),
     path('my_packages/<int:package_id>/detail/', package_detail_view, name='view package detail'),
