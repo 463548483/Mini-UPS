@@ -76,6 +76,9 @@ unordered_set<int64_t> amazonReq;
 mutex amazonReqMutex;
 unordered_map<int, vector<UDeliveryLocation> > truckPackageMap;
 
+// initial trucks location
+vector<int> truckInitX = {0, -23, 323, 4, 32, 4, 50, 4, 4};
+vector<int> truckInitY = {20, 1, 379, 324, 32, 45, 26, 34, 3};
 
 BaseServer::BaseServer(const char * _hostname,
                        const char * _port,
@@ -215,23 +218,20 @@ void BaseServer::receiveUConnected() {
 
 // note that we need timeout and retransmission here
 int64_t BaseServer::getWorldIdFromSim() {
-  vector<int> xs = {0, 23, 323, 4, 32, 4, 5, 4, 4};
-  vector<int> ys = {20, 1, 379, 324, 3, 45, 6, 34, 3};
-  // vector<int> xs = {0,23,323};
-  // vector<int> ys = {5,1,379};
-
+  
+  
   UConnect ucon;
   ucon.set_isamazon(false);
   connection * C = db.connectToDatabase();
 
-  for (size_t i = 0; i < xs.size(); ++i) {
+  for (size_t i = 0; i < truckInitX.size(); ++i) {
     UInitTruck * truck = ucon.add_trucks();
     truck->set_id(i + 1);
-    truck->set_x(xs[i]);
-    truck->set_y(ys[i]);
+    truck->set_x(truckInitX[i]);
+    truck->set_y(truckInitY[i]);
 
     // store the truck in the database
-    SQLObject * truckObj = new Truck(idle, xs[i], ys[i]);
+    SQLObject * truckObj = new Truck(idle, truckInitX[i], truckInitY[i]);
     db.insertTables(C, truckObj);
     delete truckObj;
   }
@@ -284,11 +284,25 @@ void BaseServer::launch() {
   group.run([=] { amazonCommunicate(); });
   // one thread for implementing timeout and retransmission mechanism
   group.run([=] { timeoutAndRetransmission(); });
+  // periodically update truck status
+  group.run([=] { periodicalUpdateTruckStatus(); });
 
   group.wait();
 }
 
+void BaseServer::periodicalUpdateTruckStatus() {
+  while (1) {
+    sleep(2);
+
+    for (int i = 0; i < (int)truckInitX.size(); ++i) {
+      requestQueryToWorld(i + 1, seqnum.fetch_add(1));
+    }
+  }
+}
+
 void BaseServer::frontendCommunicate() {
+  connection * C = db.connectToDatabase();
+
   while (1) {
     // accept connection
     MySocket * backendSock = sock->acceptConnection();
@@ -317,12 +331,17 @@ void BaseServer::frontendCommunicate() {
         requestDeliverToWorld(truckId, locs, seq);
 
         // send fake response
+        // update the package table in database
+        // for (auto loc : locs) {
+        //   db.updatePackage(C, loc.x(), loc.y(), loc.packageid());
+        // }
+
         // stringstream ss;
-        // ss << "{\"result\": \"failure\", \"error\": \"error message\"}";
+        // ss << "{\"result\": \"success\", \"info\": \"Address change successfully. You can refresh the page to see the change.\"}";
         // backendSock->sendData(ss.str());
         // wait for response from world
         while (1) {
-          sleep(2);
+          sleep(1);
 
           waitAckMutex.lock();
           if (errorCmds.find(seq) != errorCmds.end()) {
@@ -334,8 +353,14 @@ void BaseServer::frontendCommunicate() {
           }
           else if (errorFreeCmds.find(seq) != errorFreeCmds.end()) {
             stringstream ss;
-            ss << "{\"result\": \"success\"}";
+            ss << "{\"result\": \"success\", \"info\": \"Address change successfully..\"}";
             backendSock->sendData(ss.str());
+
+            // update the package table in database
+            for (auto loc : locs) {
+              db.updatePackage(C, loc.x(), loc.y(), loc.packageid());
+            }
+
             waitAckMutex.unlock();
             break;
           }
@@ -349,12 +374,15 @@ void BaseServer::frontendCommunicate() {
 
     delete backendSock;
   }
+
+  C->disconnect();
+  delete C;
 }
 
 void BaseServer::timeoutAndRetransmission() {
   while (1) {
     // wait for several seconds
-    sleep(1);
+    sleep(4);
 
     // check if there're requests timeout
     waitAckMutex.lock();
@@ -370,8 +398,8 @@ void BaseServer::timeoutAndRetransmission() {
       waitAcks.pop();
 
       // retransmit the request
-      cout << "Request with sequence #: " << req.seqnum
-           << " timed out. Retransmitting...\n";
+      // cout << "Request with sequence #: " << req.seqnum
+      //      << " timed out. Retransmitting...\n";
       sendMesgTo<UCommands>(req.ucom, worldOut);
 
       // put the request back with new timestamp
@@ -397,6 +425,7 @@ void BaseServer::amazonCommunicate() {
       AUCommand acommd;
       //getTestAUCommand(acommd);
       bool status = recvMesgFrom<AUCommand>(acommd, amazonIn);
+      cout<<acommd.ShortDebugString()<<endl;
       if (!status) {
         cerr << "Receive AUCommand from amazon failed.\n";
         //throw ConnectToAmazonFailure();
@@ -406,10 +435,14 @@ void BaseServer::amazonCommunicate() {
       processAmazonPickup(C, acommd);
       processAmazonLoaded(C, acommd);
     }
+    catch (const google::protobuf::FatalException & e){
+      std::cerr << e.what() << '\n';
+    }
     catch (const std::exception & e) {
       std::cerr << e.what() << '\n';
       break;
     }
+
   }
   cout << "End connection with Amazon" << endl;
   C->disconnect();
@@ -1100,9 +1133,12 @@ void BaseServer::processAmazonUpsQuery(connection * C, AUCommand & aResq) {
   if (!aResq.has_queryupsid()) {
     return;
   }
-
   cout << "qeury for upsid" << endl;
   const AUQueryUpsid & queryUpsid = aResq.queryupsid();
+  if (amazonReq.find(queryUpsid.seqnum()) != amazonReq.end()) {
+    return;
+  }
+  amazonReq.insert(queryUpsid.seqnum());
   int64_t upsId = queryUpsid.upsid();
   if (!db.queryUpsid(C, upsId)) {
     sendErrToAmazon("cannot find this upsId", queryUpsid.seqnum(), seqnum.fetch_add(1));
@@ -1121,11 +1157,9 @@ void BaseServer::processAmazonPickup(connection * C, AUCommand & aResq) {
     const AURequestPickup & pickup = aResq.pickup(i);
     ackToAmazon(pickup.seqnum());
     if (amazonReq.find(pickup.seqnum()) != amazonReq.end()) {
-      amazonReqMutex.unlock();
       continue;
     }
     amazonReq.insert(pickup.seqnum());
-    amazonReqMutex.unlock();
     const int warehouseId = pickup.wareinfo().id();
 
     cout << "New warehouse info...\n";
@@ -1172,13 +1206,10 @@ void BaseServer::processAmazonLoaded(connection * C, AUCommand & aResq) {
   for (int i = 0; i < aResq.packloaded_size(); i++) {
     const AULoadOver & loadOver = aResq.packloaded(i);
     ackToAmazon(loadOver.seqnum());
-    amazonReqMutex.lock();
     if (amazonReq.find(loadOver.seqnum()) != amazonReq.end()) {
-      amazonReqMutex.unlock();
       continue;
     }
     amazonReq.insert(loadOver.seqnum());
-    amazonReqMutex.unlock();
     
     cout << "Updating package and truck table...\n";
     db.updatePackage(C,
