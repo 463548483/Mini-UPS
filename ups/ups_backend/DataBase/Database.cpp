@@ -181,9 +181,12 @@ void Database::createTables(connection * C) {
     );";
 
   string createSearchHistory = "CREATE TABLE SEARCHHISTORY (\
-    accountId      bigint   PRIMARY KEY,\
-    trackingnum    bigint   NOT NULL,\
-    CONSTRAINT HISTORY_PACKAGEFK FOREIGN KEY (trackingNum) REFERENCES PACKAGES(trackingNum) ON DELETE CASCADE ON UPDATE CASCADE\
+    id      SERIAL   ,\
+    accountId      bigint   NOT NULL,\
+    trackingNum    bigint   NOT NULL,\
+    CONSTRAINT HISTORY_PACKAGEFK FOREIGN KEY (trackingNum) REFERENCES PACKAGES(trackingNum) ON DELETE SET NULL ON UPDATE CASCADE,\
+    CONSTRAINT HISTORY_ACCOUNT FOREIGN KEY (accountid) REFERENCES ACCOUNT(accountid) ON DELETE SET NULL ON UPDATE CASCADE,\
+    PRIMARY KEY(id, accountId,trackingNum)\
     );";
 
   /* Execute SQL query */

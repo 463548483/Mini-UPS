@@ -1,0 +1,69 @@
+/* Import Font from Google Fonts */
+
+/* keyboard instruction container */
+.map-instruction-container {
+    padding: 1em 0.5em;
+    display: inline-flex;
+    width: 1024px;
+    height: 512px;
+}
+
+.map {
+    border-style: double;
+    border: green;
+}
+
+/* Keyboard style */
+.keyboard {
+  padding: 1em 1em;
+  width: 400px;
+  margin: 0 auto;
+  text-align: center;
+}
+.instruction {
+    font-size: 1em;
+    font-family: "Share Tech Mono", monospace;
+}
+/* Top row for keyboard */
+.top-row {
+  width: 70px;
+  /* Off Centered */
+  /* width: 190px; */
+  margin: 0 auto;
+}
+/* Bottom row for keyboard */
+.bottom-row {
+  display: inline-flex;
+}
+
+/* Style for each Key */
+.key {
+  background-color: #353943;
+  border: 1px solid #834426;
+  box-shadow: 5px 5px #c2b7ab;
+  color: #ffffff;
+  width: 50px;
+  margin: 7.5px;
+  text-align: center;
+  top: 0;
+  left: 0;
+  transition: all 0.07s ease;
+}
+/* Active Class for Key */
+.activeKey {
+  transform: scale(1.1);
+  position: relative;
+  top: 0.2em;
+  left: 0.2em;
+  box-shadow: 0 0 0 0;
+}
+/* Sets font size for each Key */
+.key > p {
+  font-size: 1em;
+}
+
+.truck_id_input {
+  width: 3em;
+  border-color: #353943;
+  border-radius: 20%;
+}

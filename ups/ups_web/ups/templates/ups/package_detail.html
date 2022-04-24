@@ -6,11 +6,11 @@
 
 {% if user.is_authenticated %}
 
-<div style="text-align:left;">
-    <a href="javascript:history.go(-1);" class="button">Back</a> 
-</div>
 
-<h1>All items in this package</h1>
+
+<h2>All items in this package</h2>
+<br>
+<br>
 
 <table id="customers">
 <tr>
@@ -26,6 +26,11 @@
 </tr>
 {% endfor %}
 </table>
+<br>
+<br>
+<div style="text-align:left;">
+    <a href="javascript:history.go(-1);" class="button">Back</a> 
+  </div>
 
 
 {% else %}

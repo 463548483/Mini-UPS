@@ -27,69 +27,22 @@
 
 </div>
 
+<var id="trucks" style="display: none;">{{trucks_serialize}}</var>
+<var id="packages" style="display: none;">{{destination_serialize}}</var>
+
 <div class="map-instruction-container">
     <canvas class="my-canvas" id="my-canvas" width="1024" height="512"></canvas>
     <img id="truck" width="300" height="200" src="{% static 'ups/images/delivery-truck.png' %}?ver=2" alt="My truck" style="display: none;">
   
-    <!-- move the map -->
-    <!-- Keyboard Container -->
-    <div class="keyboard">
-        <!-- Top Row -->
-        <p class="instruction">Move the map</p>
-        <div class="top-row">
-        <!-- Key -->
-        <div data-key="87" class="key">
-            <!-- Character -->
-            <p>W</p>
-        </div>
-        </div>
-        <!-- Bottom Row -->
-        <div class="bottom-row">
-        <!-- Key -->
-        <div data-key="65" class="key">
-            <!-- Character -->
-            <p>A</p>
-        </div>
-        <!-- Key -->
-        <div data-key="83" class="key">
-            <!-- Character -->
-            <p>S</p>
-        </div>
-        <!-- Key -->
-        <div data-key="68" class="key">
-            <!-- Character -->
-            <p>D</p>
-        </div>
-        </div>
-        <br>
-        <br>
-  
-        <p class="instruction">Scale the map</p>
-        <div class="bottom-row">
-            <!-- Key -->
-            <div data-key="189" class="key">
-                <!-- Character -->
-                <p>-</p>
-            </div>
-            <!-- Key -->
-            <div data-key="187" class="key">
-                <!-- Character -->
-                <p>+</p>
-            </div>
-        </div>
-        <br>
-        <br>
-  
-        <p class="instruction">Go to truck</p>
-        <input id="truck_id_input" class="truck_id_input" type="number" min="1">
-        <button id="truck_button" class="button">Go</button>
-    </div>
+    
   </div>
   
   <br>
   <br>
   
   
-
+  <script src="{% static 'ups/javascripts/track_shipment_scripts.js' %}?ver=2"></script>
+  <script src="{% static 'ups/javascripts/keyboard.js' %}?ver=2"></script>
+  
 
 {% endblock %}

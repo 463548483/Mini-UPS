@@ -40,8 +40,11 @@ body, html {
                 {% if user.is_authenticated %}
                 <a href="/track_shipment" class="w3-bar-item w3-button">Track Shipment</a>
                 <a href="/my_packages" class="w3-bar-item w3-button"><i class="fa fa-th"></i> My Package</a>
+                <a href="/find_trucks" class="w3-bar-item w3-button"><i class="fa fa-spinner fa-spin fa-x fa-fw"></i>
+                  <span class="sr-only">Loading...</span> Find Trucks</a>
                 <a href="/logout" class="w3-bar-item w3-button"><i class="fa fa-user"></i> Log Out</a>
                 {% else %}
+                <a href="/track_shipment" class="w3-bar-item w3-button">Track Shipment</a>
                 <a href="/login" class="w3-bar-item w3-button"><i class="fa fa-user"></i> Log In</a>
                 {% endif %}
             </div>
