@@ -37,13 +37,13 @@ void Database::setup() {
   // SQLObject *account1 = new Account("")
   // SQLObject * truck1 = new Truck(idle, 0, 0);
   // insertTables(C, truck1);
-  // SQLObject * account1 = new Account("eaeeer");
-  // insertTables(C, account1);
+  SQLObject * account1 = new Account("eaeeer");
+  insertTables(C, account1);
 
-  // SQLObject * warehouse1 = new WarehouseInfo(1, 3, 3);
-  // insertTables(C, warehouse1);
-  // SQLObject * pkg1 = new Package(1231, 1, delivered);
-  // insertTables(C, pkg1);
+  SQLObject * warehouse1 = new WarehouseInfo(1, 3, 3);
+  insertTables(C, warehouse1);
+  SQLObject * pkg1 = new Package(1231, 1, delivered,123345);
+  insertTables(C, pkg1);
   // SQLObject * item1 = new Item("cloth", 3, 1231);
   // insertTables(C, item1);
 
@@ -221,6 +221,26 @@ void Database::insertTables(connection * C, SQLObject * object) {
     }
     catch (const pqxx::serialization_failure & e) {
       cout << e.what() << endl;
+    }
+    catch (const pqxx::foreign_key_violation & e){
+      if (object->getTableName()=="PACKAGES"){
+        Package * package=dynamic_cast<Package*>(object);
+        (*package).accountId=0;
+        cout<<package->sql_insert()<<endl;
+        while (true){
+          transaction<serializable, read_write> T(*C);
+          try {
+            T.exec(package->sql_insert());
+            T.commit();
+            cout << object->getTableName() << " one row inserted successfully" << endl;
+            break;
+          }
+          catch (const pqxx::serialization_failure & e) {
+            cout << e.what() << endl;
+          }          
+        }
+
+      }
     }
   }
 }
