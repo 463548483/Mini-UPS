@@ -1,0 +1,42 @@
+version: '2'
+
+services:
+  db:
+      image: postgres
+      environment:
+        - POSTGRES_DB=postgres
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=@zxcvbnm123
+      volumes:
+            - data-volume:/var/lib/postgresql/data
+
+  ups-backend:
+      build: ./ups_backend
+      command: bash -c "make && ./server"
+      ports:
+        - '5555:5555'
+      volumes:
+        - ./ups_backend:/ups_server
+      depends_on:
+        - db
+
+  ups-frontend-init:
+      build: ./ups_web
+      command: /ups_web/initserver.sh
+      volumes:
+        - ./ups_web:/ups_web
+      depends_on:
+        - ups-backend
+
+  ups-frontend:
+      build: ./ups_web
+      command: /ups_web/runserver.sh
+      volumes:
+        - ./ups_web:/ups_web
+      ports:
+        - '8000:8000'
+      depends_on:
+        - ups-frontend-init
+
+volumes:
+   data-volume: 

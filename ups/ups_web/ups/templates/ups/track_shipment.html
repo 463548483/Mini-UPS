@@ -1,0 +1,48 @@
+{% extends 'ups/base.html' %}
+
+
+{% block content %}
+
+
+
+{% load crispy_forms_tags %}
+
+<form  method="POST" class="form-group">
+  {% csrf_token %}
+  <div class="w3-container">
+    <div class="w3-panel w3-padding-16 w3-black w3-opacity w3-card w3-hover-opacity-off">
+      <h2>Track all the shipments here</h2>
+      <br/><br/>
+      <label>Enter the tracking number:</label>
+      <input class="w3-input w3-border" name="tracking_number" type="number" placeholder="tracking number" required/>
+      <button type="submit" class="w3-button w3-red w3-margin-top">Search</button>
+    </div>
+  </div>
+
+</form>
+
+
+
+{% if user.is_authenticated %}
+<p>{{message}}</p>
+{%if searchhistory %}
+<table id="customers">
+
+  {% for trackingnum in searchhistory %}
+    <p><a href="/track_shipment/{{trackingnum.trackingnum.trackingnum}}">{{trackingnum.trackingnum.trackingnum}}</a></p>
+  </tr>
+  {% endfor %}
+</table>
+{%endif%}
+
+{% else %}
+<p> <a href="/login">Login</a> to view your history track </p>
+
+{% endif %}
+
+
+
+
+
+
+{% endblock %}

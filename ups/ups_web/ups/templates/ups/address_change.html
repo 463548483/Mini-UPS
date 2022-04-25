@@ -1,0 +1,38 @@
+{% extends 'ups/base.html' %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+
+<div style="text-align:left;">
+  <a href="javascript:history.go(-1);" class="w3-button w3-black w3-margin-top">Back</a> 
+</div>
+<br/><br/>
+{% load crispy_forms_tags %}
+
+<h2>Change your address here:</h2>
+<br/><br/>
+
+<h4>Your original destination is ({{dest_x}}, {{dest_y}})</h4>
+
+<form method="POST" class="form-group">
+  {% csrf_token %}
+  Please indicate the new destination address:
+  <br/>
+  <input name="new_x" type="number" placeholder="x location" size="60" required/>  
+  <input name="new_y" type="number" placeholder="y location" size="60" required/>
+  <br/><br/>
+
+  <button type="submit" class="w3-button w3-red w3-margin-top">Change</button>
+  <br/><br/>
+  
+</form>
+
+{% else %}
+
+<p>Already have an account? Login <a href="/login">here</a></p>
+<p>Don't have an account? Register <a href="/register">here</a></p>
+
+{% endif %}
+
+{% endblock %}
