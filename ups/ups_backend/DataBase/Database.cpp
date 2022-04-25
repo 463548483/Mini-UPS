@@ -259,7 +259,7 @@ void Database::updateTruck(connection * C,
          << ", y=" << y << " where truckid=" << truckId << ";";
       T.exec(ss.str());
       T.commit();
-      cout << "trucks one row update successfully" << endl;
+      // cout << "trucks one row update successfully" << endl;
       break;
     }
     catch (const pqxx::serialization_failure & e) {
