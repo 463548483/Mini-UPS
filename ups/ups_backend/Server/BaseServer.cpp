@@ -1093,8 +1093,8 @@ void BaseServer::getTestAUCommand(AUCommand & aResq) {
   aProduct2->set_count(4);
   Warehouse * warehouse = new Warehouse();
   warehouse->set_id(99);
-  warehouse->set_x(99);
-  warehouse->set_y(99);
+  warehouse->set_x(99);  
+  warehouse->set_y(99);  
   pickup->set_allocated_wareinfo(warehouse);
   AURequestPickup * pickup2 = aResq.add_pickup();
   pickup2->set_seqnum(1002);
