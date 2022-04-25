@@ -123,7 +123,7 @@ void BaseServer::setupServer(const char * hostname, const char * port) {
 
   // connect to amazon
   try {
-    // connectToAmazon();
+    connectToAmazon();
   }
   catch(const std::exception& e) {
     cerr << "Not connected to amazon. Check connection later\n";
@@ -287,7 +287,7 @@ void BaseServer::launch() {
   // one thread for receiving responses from sim world
   group.run([=] { simWorldCommunicate(); });
   // one or more threads for communicating with amazon
-  // group.run([=] { amazonCommunicate(); });
+  group.run([=] { amazonCommunicate(); });
   // one thread for implementing timeout and retransmission mechanism
   group.run([=] { timeoutAndRetransmission(); });
   // periodically update truck status

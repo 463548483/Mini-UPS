@@ -12,12 +12,12 @@
 #include "Truck.hpp"
 #include "WarehouseInfo.hpp"
 
-#define HOST "localhost"
-// #define HOST "db"
+// #define HOST "localhost"
+#define HOST "db"
 #define DATABASE "postgres"
 #define USER "postgres"
-#define PASSWORD "postgres"
-// #define PASSWORD "@zxcvbnm123"
+// #define PASSWORD "postgres"
+#define PASSWORD "@zxcvbnm123"
 
 class DatabaseConnectionError : public std::exception {
  public:
