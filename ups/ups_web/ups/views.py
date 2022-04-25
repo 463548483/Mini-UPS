@@ -55,14 +55,11 @@ def register_view(request, *args, **kwargs):
 def find_trucks_view(request, *args, **kwargs):
     trucks_serialize = serialize(
         'json', Truck.objects.all().order_by('x', 'y'), cls=LazyEncoder)
-    print(trucks_serialize)
-    # destination_serialize = serialize(
-    #     'json', Package.objects.all(), cls=LazyEncoder)
+    # print(trucks_serialize)
 
     context = {}
 
     context['trucks_serialize'] = trucks_serialize
-    # context['destination_serialize'] = destination_serialize
     return render(request, 'ups/find_trucks.html', context=context)
 
 
@@ -123,7 +120,15 @@ def track_shipment_view(request, *args, **kwargs):
         packages = Package.objects.filter(
             trackingnum=track_num,
         ).order_by('trackingnum')
-        if packages:
+        if packages.count == 0:
+            message = "Cannot found package"
+            context = {'message': message}
+            return render(request, 'ups/track_shipment.html', context=context)
+        elif packages[0].truckid == None:
+            message = "No truck has been assigned to deliver this package yet."
+            context = {'message': message}
+            return render(request, 'ups/track_shipment.html', context=context)
+        else:
             account = Account.objects.filter(accountid=request.user.pk)
             if account:
                 for package in packages:
@@ -131,13 +136,6 @@ def track_shipment_view(request, *args, **kwargs):
                     Searchhistory.objects.get_or_create(
                         accountid=account, trackingnum=package)
             return redirect('shipment_detail_view', trackingnum=track_num)
-        message = "Cannot found package"
-        context = {'message': message}
-
-        return render(request, 'ups/track_shipment.html', context=context)
-
-        # message = "Found %s results." % (len(packages))
-        # context = {'packages': packages, 'message': message}
     else:
         # get all packages
         if (request.user.pk):
@@ -153,17 +151,18 @@ def track_shipment_view(request, *args, **kwargs):
 
 
 def shipment_detail_view(request, trackingnum):
-    packages = Package.objects.get(
+    package = Package.objects.get(
         trackingnum=trackingnum,
     )
+    context = {'package': package}
 
-    context = {'packages': packages}
     trucks_serialize = serialize('json', Truck.objects.filter(
-        truckid=packages.truckid.truckid), cls=LazyEncoder)
+        truckid=package.truckid.truckid), cls=LazyEncoder)
     print(trucks_serialize)
     destination_serialize = serialize('json', Package.objects.filter(
         trackingnum=trackingnum,
     ), cls=LazyEncoder)
+    print(destination_serialize)
 
     context['trucks_serialize'] = trucks_serialize
     context['destination_serialize'] = destination_serialize

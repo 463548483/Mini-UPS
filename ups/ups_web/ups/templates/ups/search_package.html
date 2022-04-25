@@ -17,13 +17,13 @@
 
   <br /><br />
 
-  <i class="fa fa-address-book" style="width:30px"></i>Tracking Number: {{packages.trackingnum}}<br>
+  <i class="fa fa-address-book" style="width:30px"></i>Tracking Number: {{package.trackingnum}}<br>
   <br /><br />
 
-  <i class="fa fa-clock-o" style="width:30px"></i> Package Status: {{packages.status}}<br>
+  <i class="fa fa-clock-o" style="width:30px"></i> Package Status: {{package.status}}<br>
   <br /><br />
 
-  <i class="fa fa-truck" style="width:30px"> </i> Delivered by: truck {{packages.truckid.truckid}}<br>
+  <i class="fa fa-truck" style="width:30px"> </i> Delivered by: truck {{package.truckid.truckid}}<br>
   <br /><br />
 
 </div>
@@ -31,13 +31,11 @@
 <var id="trucks" style="display: none;">{{trucks_serialize}}</var>
 <var id="packages" style="display: none;">{{destination_serialize}}</var>
 
-<div class="map-instruction-container">
-  <canvas class="my-canvas" id="my-canvas" width="1024" height="512"></canvas>
-  <img id="truck" width="300" height="200" src="{% static 'ups/images/delivery-truck.png' %}?ver=2" alt="My truck"
-    style="display: none;">
-
-
-</div>
+<canvas class="my-canvas" id="my-canvas" width="1024" height="512"></canvas>
+<img id="truck" width="300" height="200" src="{% static 'ups/images/delivery-truck.png' %}?ver=2" alt="My truck"
+  style="display: none;">
+<img id="house" width="500" height="500" src="https://www.pngkit.com/png/detail/608-6082929_house-clipart-black-and-white.png" alt="My House"
+style="display: none;">
 
 <br>
 <br>

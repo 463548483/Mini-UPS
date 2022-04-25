@@ -121,7 +121,12 @@ void BaseServer::setupServer(const char * hostname, const char * port) {
   setWorldId(getWorldIdFromSim());
 
   // connect to amazon
-  connectToAmazon();
+  try {
+    // connectToAmazon();
+  }
+  catch(const std::exception& e) {
+    cerr << "Not connected to amazon. Check connection later\n";
+  }
 }
 
 void BaseServer::connectToSimWorld() {
@@ -427,19 +432,18 @@ void BaseServer::amazonCommunicate() {
       cout << acommd.ShortDebugString() << endl;
       if (!status) {
         cerr << "Receive AUCommand from amazon failed.\n";
-        //throw ConnectToAmazonFailure();
         break;
+      } else {
+        processAmazonUpsQuery(C, acommd);
+        processAmazonPickup(C, acommd);
+        processAmazonLoaded(C, acommd);
       }
-      processAmazonUpsQuery(C, acommd);
-      processAmazonPickup(C, acommd);
-      processAmazonLoaded(C, acommd);
     }
     catch (const google::protobuf::FatalException & e) {
       std::cerr << e.what() << '\n';
     }
     catch (const std::exception & e) {
       std::cerr << e.what() << '\n';
-      break;
     }
   }
   cout << "End connection with Amazon" << endl;
@@ -587,8 +591,6 @@ void BaseServer::processTruckStatus(connection * C, UResponses & resp) {
 
     db.updateTruck(C, status, truck.x(), truck.y(), truck.truckid());
   }
-
-  // update truck table
 }
 
 void BaseServer::processDelivered(connection * C, UResponses & resp) {

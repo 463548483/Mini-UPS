@@ -13,7 +13,6 @@
 #include "WarehouseInfo.hpp"
 
 #define HOST "localhost"
-// #define HOST "vcm-25032.vm.duke.edu"
 // #define HOST "db"
 #define DATABASE "postgres"
 #define USER "postgres"
