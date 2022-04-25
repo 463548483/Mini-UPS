@@ -31,10 +31,10 @@ using namespace google::protobuf::io;
 
 #define MAX_LIMIT 65536
 #define TIME_OUT_LIMIT 1
-#define SIMWORLD_UPS_HOST "vcm-26825.vm.duke.edu"
+#define SIMWORLD_UPS_HOST "vcm-24617.vm.duke.edu"
 // #define SIMWORLD_UPS_PORT "23456"
 #define SIMWORLD_UPS_PORT "12345"
-#define AMAZON_HOST "vcm-26766.vm.duke.edu"
+#define AMAZON_HOST "vcm-24617.vm.duke.edu"
 #define AMAZON_PORT "8999"
 
 struct requestInfo {
@@ -218,8 +218,6 @@ void BaseServer::receiveUConnected() {
 
 // note that we need timeout and retransmission here
 int64_t BaseServer::getWorldIdFromSim() {
-  
-  
   UConnect ucon;
   ucon.set_isamazon(false);
   connection * C = db.connectToDatabase();
@@ -353,7 +351,8 @@ void BaseServer::frontendCommunicate() {
           }
           else if (errorFreeCmds.find(seq) != errorFreeCmds.end()) {
             stringstream ss;
-            ss << "{\"result\": \"success\", \"info\": \"Address change successfully..\"}";
+            ss << "{\"result\": \"success\", \"info\": \"Address change "
+                  "successfully..\"}";
             backendSock->sendData(ss.str());
 
             // update the package table in database
@@ -425,7 +424,7 @@ void BaseServer::amazonCommunicate() {
       AUCommand acommd;
       //getTestAUCommand(acommd);
       bool status = recvMesgFrom<AUCommand>(acommd, amazonIn);
-      cout<<acommd.ShortDebugString()<<endl;
+      cout << acommd.ShortDebugString() << endl;
       if (!status) {
         cerr << "Receive AUCommand from amazon failed.\n";
         //throw ConnectToAmazonFailure();
@@ -435,14 +434,13 @@ void BaseServer::amazonCommunicate() {
       processAmazonPickup(C, acommd);
       processAmazonLoaded(C, acommd);
     }
-    catch (const google::protobuf::FatalException & e){
+    catch (const google::protobuf::FatalException & e) {
       std::cerr << e.what() << '\n';
     }
     catch (const std::exception & e) {
       std::cerr << e.what() << '\n';
       break;
     }
-
   }
   cout << "End connection with Amazon" << endl;
   C->disconnect();
@@ -944,7 +942,7 @@ void BaseServer::notifyArrivalToAmazon(int truckid, int64_t packageid, int64_t s
   arrived->set_seqnum(seqnum);
 
   int status = sendMesgTo<UACommand>(uacom, amazonOut);
-  cout << uacom.ShortDebugString()<<endl;
+  cout << uacom.ShortDebugString() << endl;
   if (!status) {
     cerr << "Can't notify amazon the truck arrival info\n";
   }
@@ -1065,8 +1063,8 @@ int BaseServer::findTrucks() {
             continue;
           }
           for (auto const & trackingNum : trackingNums) {
-            db.updatePackage(C, wait_for_loading, closestTruckId, trackingNum);
-            notifyArrivalToAmazon(closestTruckId, trackingNum, seqnum.fetch_add(1));
+            db.updatePackage(C, wait_for_pickup, closestTruckId, trackingNum);
+            // notifyArrivalToAmazon(closestTruckId, trackingNum, seqnum.fetch_add(1));
           }
           break;
         }
@@ -1141,7 +1139,17 @@ void BaseServer::processAmazonUpsQuery(connection * C, AUCommand & aResq) {
   amazonReq.insert(queryUpsid.seqnum());
   int64_t upsId = queryUpsid.upsid();
   if (!db.queryUpsid(C, upsId)) {
-    sendErrToAmazon("cannot find this upsId", queryUpsid.seqnum(), seqnum.fetch_add(1));
+    UACommand uaresp;
+    Err * error = uaresp.add_errors();
+    error->set_err("Cannot find upsId");
+    error->set_originseqnum(queryUpsid.seqnum());
+    error->set_seqnum(seqnum.fetch_add(1));
+    uaresp.add_acks(queryUpsid.seqnum());
+
+    int status = sendMesgTo<UACommand>(uaresp, amazonOut);
+    if (!status) {
+      cerr << "Can't send error message to amazon\n";
+    }
   }
   else {
     ackToAmazon(queryUpsid.seqnum());
@@ -1192,8 +1200,8 @@ void BaseServer::processAmazonPickup(connection * C, AUCommand & aResq) {
     else {
       list<int64_t> packagesToPickUp;
       packagesToPickUp.push_back(pickup.trackingnum());
-      auto it=warehousePkgMap.end();
-      warehousePkgMap.emplace_hint(it,warehouseId, packagesToPickUp);
+      auto it = warehousePkgMap.end();
+      warehousePkgMap.emplace_hint(it, warehouseId, packagesToPickUp);
     }
     findTruckMutex.unlock();
   }
@@ -1202,7 +1210,7 @@ void BaseServer::processAmazonPickup(connection * C, AUCommand & aResq) {
 
 void BaseServer::processAmazonLoaded(connection * C, AUCommand & aResq) {
   cout << "process loaded size=" << aResq.packloaded_size() << endl;
-  
+
   for (int i = 0; i < aResq.packloaded_size(); i++) {
     const AULoadOver & loadOver = aResq.packloaded(i);
     ackToAmazon(loadOver.seqnum());
@@ -1210,7 +1218,7 @@ void BaseServer::processAmazonLoaded(connection * C, AUCommand & aResq) {
       continue;
     }
     amazonReq.insert(loadOver.seqnum());
-    
+
     cout << "Updating package and truck table...\n";
     db.updatePackage(C,
                      out_for_deliver,
@@ -1219,7 +1227,7 @@ void BaseServer::processAmazonLoaded(connection * C, AUCommand & aResq) {
                      loadOver.loc().packageid());
     db.updateTruck(
         C, arrive_warehouse, loadOver.loc().x(), loadOver.loc().y(), loadOver.truckid());
-    
+
     cout << "Adding elements to truck package map...\n";
     unordered_map<int, vector<UDeliveryLocation> >::iterator it =
         truckPackageMap.find(loadOver.truckid());
@@ -1229,8 +1237,8 @@ void BaseServer::processAmazonLoaded(connection * C, AUCommand & aResq) {
     else {
       vector<UDeliveryLocation> loadedPackages;
       loadedPackages.push_back(loadOver.loc());
-      auto it=truckPackageMap.end();
-      truckPackageMap.emplace_hint(it,loadOver.truckid(), loadedPackages);
+      auto it = truckPackageMap.end();
+      truckPackageMap.emplace_hint(it, loadOver.truckid(), loadedPackages);
     }
   }
 
@@ -1238,7 +1246,7 @@ void BaseServer::processAmazonLoaded(connection * C, AUCommand & aResq) {
   vector<int64_t> seqNums;
   vector<int> needToErase;
   for (auto const p : truckPackageMap) {
-    if (db.queryTruckAvailable(C, p.first)){
+    if (db.queryTruckAvailable(C, p.first)) {
       int64_t seqNum = seqnum.fetch_add(1);
       cout << "Requesting delivery to world...\n";
       requestDeliverToWorld(p.first, p.second, seqNum);
